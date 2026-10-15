@@ -98,6 +98,41 @@ function trackScenes(): void {
   }
 }
 
+/**
+ * Reveals each beat from its own position in the viewport.
+ *
+ * A beat's legibility depends on where *it* is on screen, not on how far the
+ * reader has travelled through the scene, so this is deliberately decoupled
+ * from `trackScenes()`: one scrubbed trigger per beat writes `--beat-o` (0 → 1)
+ * on that element. `Beat.astro` turns it into opacity and a short rise. The
+ * value settles at exactly 1 past `end`, with no `transition` competing with
+ * it, so a beat the reader is looking at is always fully legible.
+ */
+function trackBeats(): void {
+  for (const beat of gsap.utils.toArray<HTMLElement>('.beat')) {
+    const state = { o: 0 };
+    const apply = () => beat.style.setProperty('--beat-o', state.o.toFixed(4));
+
+    gsap.to(state, {
+      o: 1,
+      ease: 'none',
+      onUpdate: apply,
+      scrollTrigger: {
+        trigger: beat,
+        start: 'top 88%',
+        end: 'top 66%',
+        scrub: 0.35,
+        invalidateOnRefresh: true,
+        onRefresh: apply,
+      },
+    });
+
+    // Until the trigger has measured itself, the beat stays staged. This writes
+    // the current state, so a beat already in range on load is not left hidden.
+    apply();
+  }
+}
+
 /** Headers and blocks rise in once, together, a beat apart. */
 function revealGroups(): void {
   for (const group of gsap.utils.toArray<HTMLElement>(GROUP_SELECTOR)) {
@@ -289,6 +324,11 @@ function revealAll(): void {
     for (const scene of document.querySelectorAll<HTMLElement>('[data-scene]')) {
       scene.classList.remove('is-far');
     }
+    // Beats carry their own reveal variable; drive it to 1 so none can be left
+    // hidden if an error interrupts the scroll setup.
+    for (const beat of document.querySelectorAll<HTMLElement>('.beat')) {
+      beat.style.setProperty('--beat-o', '1');
+    }
     // The title must be readable even if its script never ran: stand the guard
     // down and let every letter settle, still and present.
     const guard = (window as unknown as Record<string, number | undefined>).__caripeLettersGuard;
@@ -366,6 +406,7 @@ export function initMotion(): void {
     });
 
     trackScenes();
+    trackBeats();
     revealGroups();
     driftHero();
     drawTimelines();

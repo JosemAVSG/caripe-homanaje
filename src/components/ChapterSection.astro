@@ -81,14 +81,6 @@ const FOG: Record<string, 'none' | 'light' | 'dense'> = {
   'chapter-4-partir': 'light',
 };
 const fog = FOG[slug] ?? 'light';
-
-// Beats light up across the scene: beat i appears at p = i/n and stays legible
-// from there on. The range is generous so neighbouring beats overlap.
-const beatSpan = Math.max(1, beats.length);
-const beatRange = (index: number) => ({
-  a: (index / beatSpan).toFixed(3),
-  r: Math.min(1, 1.4 / beatSpan).toFixed(3),
-});
 ---
 
 <section
@@ -147,16 +139,9 @@ const beatRange = (index: number) => ({
       {
         hasBeats ? (
           <div class="scene__narration">
-            {beats.map((beat, index) => {
-              const range = beatRange(index);
-              return (
-                <Beat
-                  beat={beat}
-                  rangeA={range.a}
-                  rangeR={range.r}
-                />
-              );
-            })}
+            {beats.map((beat) => (
+              <Beat beat={beat} />
+            ))}
           </div>
         ) : null
       }

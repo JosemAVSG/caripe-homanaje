@@ -4,11 +4,12 @@ import type { Beat } from '../content/types';
 /**
  * One narrative beat, in the visual register its `voice` declares.
  *
- * The beat carries its own slice of the scene's scroll progress: `rangeA` is
- * the point (`--p`) at which it starts to appear and `rangeR` how long it takes
- * to settle. `motion.ts` writes `--p`; `global.css` and this file turn it into
- * opacity and a short rise. With no script, `--p` stays at 1, so every beat is
- * legible at rest and nothing is ever hidden by default.
+ * The beat reveals itself as it enters the viewport: `motion.ts` writes
+ * `--beat-o` (0 → 1) on the element itself, scoped to its own scroll position
+ * through a dedicated ScrollTrigger. This file turns that variable into an
+ * opacity and a short rise. With no script, `--beat-o` is never set, so the
+ * fallbacks below keep every beat fully legible at rest: nothing is hidden by
+ * default.
  *
  * The two voices stay unmistakable: sober serif in the full ink for the
  * documentary, a warm filled panel in the display face for the testimony. The
@@ -16,13 +17,9 @@ import type { Beat } from '../content/types';
  */
 interface Props {
   beat: Beat;
-  /** Where in the scene (0–1) this beat starts to appear. */
-  rangeA: string;
-  /** How much of the scene's progress the appearance takes. */
-  rangeR: string;
 }
 
-const { beat, rangeA, rangeR } = Astro.props;
+const { beat } = Astro.props;
 const isTestimony = beat.voice === 'testimonio';
 ---
 
@@ -30,8 +27,6 @@ const isTestimony = beat.voice === 'testimonio';
   isTestimony ? (
     <figure
       class="beat beat--testimonio"
-      data-beat={`${rangeA} ${rangeR}`}
-      style={`--beat-a:${rangeA};--beat-r:${rangeR}`}
     >
       <blockquote class="beat__quote">
         <p>{beat.text}</p>
@@ -45,8 +40,6 @@ const isTestimony = beat.voice === 'testimonio';
   ) : (
     <div
       class="beat beat--documental"
-      data-beat={`${rangeA} ${rangeR}`}
-      style={`--beat-a:${rangeA};--beat-r:${rangeR}`}
     >
       <p class="beat__text">{beat.text}</p>
       {beat.source ? (
@@ -62,17 +55,18 @@ const isTestimony = beat.voice === 'testimonio';
 <style>
   .beat {
     margin: 0;
-    /* Beat reveal is the only thing that hides a beat, and only when motion is
-       on. It is a transform and an opacity, never a layout change. */
+    /* The beat reveal never changes layout. Only opacity and a transform. */
   }
 
+  /* The beat reveal is the only thing that hides a beat, and only when motion
+     is on. It reads its own `--beat-o` (written per element by `trackBeats()`),
+     never the scene's `--p`. The fallback keeps a beat fully legible when the
+     variable is absent (no script, or before its trigger measures).
+     No `transition` here: per-frame scroll writes plus a CSS transition would
+     fight, and the scrubbed trigger already smooths the reveal. */
   :global(html[data-motion='on']) .beat {
-    --beat-o: clamp(0, calc((var(--p) - var(--beat-a, 0)) / var(--beat-r, 0.3)), 1);
-    opacity: var(--beat-o);
-    transform: translate3d(0, calc((1 - var(--beat-o)) * 18px), 0);
-    transition:
-      opacity 240ms linear,
-      transform 240ms var(--cu-ease);
+    opacity: var(--beat-o, 1);
+    transform: translate3d(0, calc((1 - var(--beat-o, 1)) * 18px), 0);
   }
 
   /* -- Voice: documental --------------------------------------------------
