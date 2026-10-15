@@ -50,8 +50,6 @@ const { sources = [], note } = Astro.props;
 <style>
   .source-note {
     margin-top: var(--cu-space-lg);
-    padding-top: var(--cu-space-sm);
-    border-top: 1px solid var(--cu-line);
     max-width: var(--cu-measure-wide);
   }
 
@@ -60,15 +58,12 @@ const { sources = [], note } = Astro.props;
     flex-wrap: wrap;
     align-items: baseline;
     gap: 0.5em;
-    font-family: var(--cu-font-sans);
     font-size: var(--cu-step--2);
     line-height: 1.6;
     color: var(--cu-text-faint);
   }
 
   .source-note__label {
-    letter-spacing: var(--cu-tracking-wider);
-    text-transform: uppercase;
     color: var(--cu-text-muted);
   }
 

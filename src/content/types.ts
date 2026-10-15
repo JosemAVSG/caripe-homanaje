@@ -102,10 +102,8 @@ export type Tone = 'monte' | 'cafe' | 'bruma';
 export interface Chapter {
   /** Stable id; doubles as the DOM id and the rail anchor. */
   slug: string;
-  /** Sort order, ascending. */
+  /** Sort order, ascending. Order is shown by position, never by a numeral. */
   order: number;
-  /** Short numeral shown in the chapter marker. */
-  number: string;
   title: string;
   kicker?: string;
   /** Opening line, set larger than the body. */

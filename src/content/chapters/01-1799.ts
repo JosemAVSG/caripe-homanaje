@@ -16,7 +16,6 @@ import type { Chapter } from '../types';
 export const chapter: Chapter = {
   slug: 'chapter-1-1799',
   order: 1,
-  number: '01',
   title: '1799',
   kicker: 'La cueva y el nombre',
   tone: 'monte',

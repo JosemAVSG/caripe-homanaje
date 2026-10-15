@@ -2,12 +2,18 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/Hero.astro';
 import ChapterSection from '../components/ChapterSection.astro';
+import PhotoBand from '../components/PhotoBand.astro';
+import DocumentaryMode from '../components/DocumentaryMode.astro';
 import ProgressRail from '../components/ProgressRail.astro';
 import Colophon from '../components/Colophon.astro';
 import { chapters } from '../content';
 import { site } from '../content/site';
 
-const pageTitle = `${site.title} · ${site.fullTitle} — homenaje documental`;
+const pageTitle = `${site.title} · ${site.fullTitle} · homenaje documental`;
+
+// The full-bleed band breaks the run of chapters roughly in the middle: after
+// the second chapter, before the third.
+const bandAfterIndex = Math.floor(chapters.length / 2) - 1;
 ---
 
 <BaseLayout title={pageTitle} description={site.description}>
@@ -16,13 +22,17 @@ const pageTitle = `${site.title} · ${site.fullTitle} — homenaje documental`;
   </div>
 
   <ProgressRail chapters={chapters} />
+  <DocumentaryMode />
 
   <main id="main">
     <Hero />
 
     {
-      chapters.map((chapter) => (
-        <ChapterSection chapter={chapter} />
+      chapters.map((chapter, index) => (
+        <Fragment>
+          <ChapterSection chapter={chapter} />
+          {index === bandAfterIndex ? <PhotoBand /> : null}
+        </Fragment>
       ))
     }
   </main>

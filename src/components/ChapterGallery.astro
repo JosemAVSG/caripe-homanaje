@@ -25,7 +25,7 @@ const featureSizes = '(min-width: 62rem) 52rem, 92vw';
   aria-label={gallery.label ?? 'Fotografías del capítulo'}
   data-reveal
 >
-  {gallery.label ? <p class="gallery__label u-kicker">{gallery.label}</p> : null}
+  {gallery.label ? <p class="gallery__label u-label">{gallery.label}</p> : null}
 
   <div class="gallery__grid">
     {
@@ -46,8 +46,6 @@ const featureSizes = '(min-width: 62rem) 52rem, 92vw';
   }
 
   .gallery__label {
-    padding-bottom: var(--cu-space-2xs);
-    border-bottom: 1px solid var(--cu-line);
     margin-bottom: var(--cu-space-md);
   }
 

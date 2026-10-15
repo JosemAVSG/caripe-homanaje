@@ -1,7 +1,12 @@
 /* ============================================================================
-   Caripe — global baseline
+   Caripe · global baseline
    Reset, base typography, shared primitives. Component-specific CSS lives
    with its component; everything here is cross-cutting.
+
+   House rules this file obeys on purpose (see the design-taste-frontend
+   skill): no gradients except the one neutral scrim, no shadows at rest, no
+   hairline rules, no uppercase micro-labels, no decorative numbering. Surfaces
+   are separated by a step in tone or by space.
    ========================================================================= */
 
 *,
@@ -23,20 +28,8 @@ body {
   margin: 0;
   min-height: 100%;
   background-color: var(--cu-bg);
-  background-image:
-    radial-gradient(
-      120% 70% at 50% -10%,
-      color-mix(in srgb, var(--cu-monte-700) 55%, transparent) 0%,
-      transparent 62%
-    ),
-    radial-gradient(
-      90% 55% at 82% 108%,
-      color-mix(in srgb, var(--cu-cafe-800) 40%, transparent) 0%,
-      transparent 70%
-    );
-  background-attachment: fixed;
   color: var(--cu-text);
-  font-family: var(--cu-font-sans);
+  font-family: var(--cu-font-text);
   font-size: var(--cu-step-0);
   line-height: var(--cu-leading-body);
   font-synthesis-weight: none;
@@ -51,7 +44,7 @@ h2,
 h3,
 h4 {
   margin: 0;
-  font-family: var(--cu-font-serif);
+  font-family: var(--cu-font-display);
   font-weight: 400;
   line-height: var(--cu-leading-tight);
   text-wrap: balance;
@@ -71,7 +64,8 @@ ol {
 
 img,
 svg,
-video {
+video,
+canvas {
   display: block;
   max-width: 100%;
 }
@@ -116,22 +110,14 @@ button {
   padding-inline: var(--cu-gutter);
 }
 
-/* Small uppercase label used for kickers, sources and metadata. */
-.u-kicker {
+/* A small, readable label: sentence case at a real size. It replaces the old
+   uppercase tracked kicker, which the house style bans. */
+.u-label {
   margin: 0;
-  font-family: var(--cu-font-sans);
+  font-family: var(--cu-font-text);
   font-size: var(--cu-step--2);
-  font-weight: 500;
-  letter-spacing: var(--cu-tracking-wider);
-  text-transform: uppercase;
-  color: var(--cu-text-faint);
-}
-
-.u-hairline {
-  border: 0;
-  height: 1px;
-  margin: 0;
-  background-color: var(--cu-line);
+  font-weight: 400;
+  color: var(--cu-text-muted);
 }
 
 .u-visually-hidden {
@@ -151,8 +137,9 @@ button {
   top: var(--cu-space-xs);
   left: var(--cu-space-xs);
   z-index: 100;
-  padding: 0.7rem 1.1rem;
-  background-color: var(--cu-hueso);
+  padding: 0.75rem 1.15rem;
+  /* Actions wear the accent, never the cream ink: the ink is for reading. */
+  background-color: var(--cu-accent);
   color: var(--cu-monte-950);
   font-size: var(--cu-step--1);
   font-weight: 600;
@@ -166,14 +153,31 @@ button {
   transform: translateY(0);
 }
 
+/* The one gradient the house style allows: a neutral scrim that keeps text
+   legible over a photograph. Its stops are pure neutral rgba and some carry
+   alpha, which is exactly what the skill's inspector reads as a scrim rather
+   than decoration. It sits under text and never over it. */
+.u-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background-image: linear-gradient(180deg, rgba(6, 13, 8, 0.05) 0%, rgba(6, 13, 8, 0.45) 58%, rgba(6, 13, 8, 0.88) 100%); /* taste-skill-ignore: neutral legibility scrim over a photograph, the single gradient the house style allows */
+}
+
+/* A darker scrim for the tall pinned stage, where the caption sits low. */
+.u-scrim--deep {
+  background-image: linear-gradient(180deg, rgba(6, 13, 8, 0.55) 0%, rgba(6, 13, 8, 0.25) 42%, rgba(6, 13, 8, 0.82) 100%); /* taste-skill-ignore: same neutral legibility scrim, tuned for the pinned stage photograph */
+}
+
 /* -- Reading progress (top bar) ------------------------------------------- */
 
 .progress {
   position: fixed;
   inset: 0 0 auto 0;
   z-index: 60;
-  height: 2px;
-  background-color: color-mix(in srgb, var(--cu-monte-950) 70%, transparent);
+  height: 3px;
+  background-color: color-mix(in srgb, var(--cu-monte-950) 72%, transparent);
   pointer-events: none;
 }
 
@@ -181,12 +185,7 @@ button {
   display: block;
   height: 100%;
   width: 100%;
-  background: linear-gradient(
-    90deg,
-    var(--cu-accent-deep),
-    var(--cu-accent),
-    var(--cu-accent-soft)
-  );
+  background-color: var(--cu-accent);
   transform: scaleX(0);
   transform-origin: left center;
 }

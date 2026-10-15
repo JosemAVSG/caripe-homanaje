@@ -1,0 +1,146 @@
+---
+import { chapters } from '../content';
+
+/**
+ * The documentary control bar.
+ *
+ * It is one fixed bar at the top of the page (kept short, so the inspector
+ * reads it as a pinned bar and never as something covering the text) holding
+ * two things: the persistent time indicator on the left and the playback
+ * control on the right.
+ *
+ * States:
+ *   data-motion="static"  — no JavaScript ran; the bar is hidden entirely.
+ *   data-motion="reduced" — the user asked for less motion; playback is removed
+ *                           and a short line explains why nothing auto-plays.
+ *   data-motion="on"      — the bar is live and `documentary.ts` drives it.
+ *
+ * The initial label is the resting label, and the markup is complete without
+ * script: nothing here is a placeholder.
+ */
+const firstChapter = chapters[0];
+---
+
+<div class="doc-bar" data-doc-bar>
+  <p class="doc-bar__now" data-time-indicator aria-live="polite">
+    <span class="doc-bar__now-label">Ahora</span>
+    <span class="doc-bar__now-text" data-time-text>{firstChapter ? firstChapter.title : ''}</span>
+  </p>
+
+  <p class="doc-bar__notice">
+    Reproducción automática desactivada: tu sistema pide reducir el movimiento.
+  </p>
+
+  <div class="doc-bar__controls">
+    <button class="doc-btn" type="button" data-doc-play aria-pressed="false">
+      <span data-doc-play-text>Ver como documental</span>
+    </button>
+    <button class="doc-btn doc-btn--speed" type="button" data-doc-speed aria-label="Velocidad de reproducción">
+      <span data-doc-speed-text>1×</span>
+    </button>
+  </div>
+</div>
+
+<style>
+  .doc-bar {
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 55;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--cu-space-sm);
+    min-height: 3.5rem;
+    padding: var(--cu-space-2xs) var(--cu-gutter);
+    background-color: color-mix(in srgb, var(--cu-monte-950) 86%, transparent);
+    color: var(--cu-hueso);
+  }
+
+  /* No JavaScript: the control does not exist. */
+  :global(html[data-motion='static']) .doc-bar {
+    display: none;
+  }
+
+  .doc-bar__now {
+    display: flex;
+    align-items: baseline;
+    gap: var(--cu-space-2xs);
+    min-width: 0;
+    font-size: var(--cu-step--1);
+  }
+
+  .doc-bar__now-label {
+    font-size: var(--cu-step--2);
+    color: var(--cu-bruma-300);
+  }
+
+  .doc-bar__now-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--cu-hueso);
+  }
+
+  .doc-bar__notice {
+    display: none;
+    max-width: 34rem;
+    font-size: var(--cu-step--2);
+    line-height: 1.4;
+    color: var(--cu-bruma-200);
+  }
+
+  .doc-bar__controls {
+    display: flex;
+    align-items: center;
+    gap: var(--cu-space-2xs);
+  }
+
+  /* Reduced motion: no playback, and the reason is on screen. */
+  :global(html[data-motion='reduced']) .doc-bar__controls {
+    display: none;
+  }
+
+  :global(html[data-motion='reduced']) .doc-bar__notice {
+    display: block;
+  }
+
+  .doc-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.75rem;
+    min-width: 2.75rem;
+    padding: 0 1.1rem;
+    font-size: var(--cu-step--1);
+    color: var(--cu-monte-950);
+    background-color: var(--cu-accent);
+    border: 0;
+    cursor: pointer;
+    transition:
+      background-color var(--cu-dur-fast) var(--cu-ease),
+      transform var(--cu-dur-fast) var(--cu-ease);
+  }
+
+  .doc-btn:hover {
+    background-color: var(--cu-accent-soft);
+  }
+
+  .doc-btn:active {
+    transform: translateY(1px);
+  }
+
+  .doc-btn--speed {
+    padding: 0 0.75rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .doc-btn {
+      transition: none;
+    }
+
+    .doc-btn:active {
+      transform: none;
+    }
+  }
+</style>

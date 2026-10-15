@@ -9,9 +9,10 @@ import PhotoCreditLine from './PhotoCreditLine.astro';
  *
  * Every photograph carries its caption *and* its attribution in the
  * `<figcaption>`: the credit is part of the reading, not a footnote hidden in
- * the colophon. The frame applies a single, mild tonal treatment to unify
- * sources shot on wildly different cameras across twenty years — the change is
- * declared in the colophon, as CC BY-SA requires.
+ * the colophon. The frame is a flat tone field with no border and no shadow;
+ * the only treatment is a single mild tonal filter applied to unify sources
+ * shot on wildly different cameras across twenty years — the change is declared
+ * in the colophon, as CC BY-SA requires.
  */
 interface Props {
   image: ChapterImage;
@@ -74,26 +75,8 @@ const isVector = photo.src.format === 'svg';
   }
 
   .photo__frame {
-    position: relative;
     overflow: hidden;
-    border: 1px solid var(--cu-line);
-    border-radius: var(--cu-radius);
     background-color: var(--cu-monte-900);
-  }
-
-  /* A faint fog veil: the photographs belong to the same weather as the site. */
-  .photo__frame::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    pointer-events: none;
-    background: linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--cu-bruma-300) 6%, transparent) 0%,
-      transparent 26%,
-      color-mix(in srgb, var(--cu-monte-950) 34%, transparent) 100%
-    );
   }
 
   .photo__image {
@@ -114,12 +97,10 @@ const isVector = photo.src.format === 'svg';
     flex-direction: column;
     gap: 0.35rem;
     margin-top: var(--cu-space-xs);
-    padding-left: 0.9rem;
-    border-left: 1px solid var(--cu-doc-rule);
+    max-width: var(--cu-measure);
   }
 
   .photo__text {
-    font-family: var(--cu-font-serif);
     font-size: var(--cu-step--1);
     font-weight: 300;
     line-height: 1.65;

@@ -9,8 +9,12 @@ import PhotoCreditLine from './PhotoCreditLine.astro';
  *
  * These are the oldest things on the site — a lithograph, an engraved plate, a
  * 19th-century print — and they are treated as documents rather than pictures:
- * a paper-toned frame, a date tag, and the plate itself left uncropped so the
- * annotation around it stays legible.
+ * a flat paper-toned field behind the sheet, a plain date line, and the plate
+ * itself left uncropped so the annotation around it stays legible.
+ *
+ * The paper is a single flat colour, not a gradient; the frame carries no
+ * border and no shadow. The documents are separated from the page by a step in
+ * tone, which is the house rule for surfaces.
  */
 interface Props {
   plates: EvidencePlate[];
@@ -22,7 +26,7 @@ const sizes = '(min-width: 62rem) 19rem, (min-width: 34rem) 44vw, 88vw';
 ---
 
 <section class="plates" aria-label="Evidencia histórica" data-reveal>
-  <p class="plates__label u-kicker">Evidencia histórica</p>
+  <p class="plates__label u-label">Evidencia histórica</p>
 
   <ul class="plates__list">
     {
@@ -78,8 +82,6 @@ const sizes = '(min-width: 62rem) 19rem, (min-width: 34rem) 44vw, 88vw';
   }
 
   .plates__label {
-    padding-bottom: var(--cu-space-2xs);
-    border-bottom: 1px solid var(--cu-line);
     margin-bottom: var(--cu-space-md);
   }
 
@@ -107,20 +109,14 @@ const sizes = '(min-width: 62rem) 19rem, (min-width: 34rem) 44vw, 88vw';
     min-width: 0;
   }
 
-  /* Paper, not screen: the documents come from another century. */
+  /* Paper, not screen: the documents come from another century. A single flat
+     bone field, one step from the page: no gradient, no border, no shadow. */
   .plate__frame {
     display: flex;
     align-items: center;
     justify-content: center;
     padding: clamp(0.6rem, 1.6vw, 1rem);
-    background-color: color-mix(in srgb, var(--cu-hueso) 90%, var(--cu-cafe-400));
-    background-image: linear-gradient(
-      160deg,
-      color-mix(in srgb, var(--cu-hueso) 96%, #fff) 0%,
-      color-mix(in srgb, var(--cu-cafe-400) 42%, var(--cu-hueso)) 100%
-    );
-    border: 1px solid color-mix(in srgb, var(--cu-cafe-700) 40%, transparent);
-    box-shadow: 0 22px 50px -34px color-mix(in srgb, #000 92%, transparent);
+    background-color: color-mix(in srgb, var(--cu-hueso) 86%, var(--cu-cafe-400));
   }
 
   .plate__image {
@@ -135,21 +131,15 @@ const sizes = '(min-width: 62rem) 19rem, (min-width: 34rem) 44vw, 88vw';
     flex-direction: column;
     gap: 0.4rem;
     margin-top: var(--cu-space-sm);
-    padding-left: 0.9rem;
-    border-left: 1px solid var(--cu-doc-rule);
   }
 
   .plate__tag {
-    font-family: var(--cu-font-sans);
     font-size: var(--cu-step--2);
     font-weight: 600;
-    letter-spacing: var(--cu-tracking-wide);
-    text-transform: uppercase;
     color: var(--cu-accent-soft);
   }
 
   .plate__text {
-    font-family: var(--cu-font-serif);
     font-size: var(--cu-step--1);
     font-weight: 300;
     line-height: 1.65;

@@ -6,8 +6,9 @@ import type { Milestone } from '../content/types';
  *
  * Horizontal on wide screens, vertical on narrow ones; in both cases the line
  * grows from 0 to 1 as the list crosses the viewport (see `motion.ts`). Without
- * JavaScript the line is simply a static hairline and every milestone is
- * readable.
+ * JavaScript the line is simply a flat accent rule and every milestone is
+ * readable. The date line is sentence case at a readable size, not a tracked
+ * uppercase micro-label.
  */
 interface Props {
   milestones: Milestone[];
@@ -18,7 +19,7 @@ const { milestones, title = 'Cronología' } = Astro.props;
 ---
 
 <div class="timeline" data-timeline>
-  <p class="timeline__title u-kicker">{title}</p>
+  <p class="timeline__title u-label">{title}</p>
 
   <div class="timeline__stage">
     <span class="timeline__line" aria-hidden="true" data-timeline-line></span>
@@ -51,15 +52,11 @@ const { milestones, title = 'Cronología' } = Astro.props;
     position: relative;
   }
 
-  /* The rule itself. Static hairline without JS; scrubbed to full length with it. */
+  /* The rule itself: a flat accent bar. Static without JS, grown by the scroll
+     with it. Two pixels reads as a drawn line, not a hairline. */
   .timeline__line {
     position: absolute;
-    background: linear-gradient(
-      90deg,
-      var(--cu-accent-deep),
-      var(--cu-accent) 40%,
-      color-mix(in srgb, var(--cu-accent-soft) 60%, transparent)
-    );
+    background-color: var(--cu-accent);
     transform-origin: left center;
   }
 
@@ -78,23 +75,17 @@ const { milestones, title = 'Cronología' } = Astro.props;
     display: block;
     background-color: var(--cu-accent);
     border-radius: 50%;
-    box-shadow:
-      0 0 0 4px color-mix(in srgb, var(--cu-accent) 18%, transparent),
-      0 0 22px -4px var(--cu-accent-soft);
   }
 
   .timeline__date {
-    font-family: var(--cu-font-sans);
     font-size: var(--cu-step--2);
     font-weight: 600;
-    letter-spacing: var(--cu-tracking-wide);
-    text-transform: uppercase;
     color: var(--cu-accent-soft);
   }
 
   .timeline__label {
     margin-top: 0.35rem;
-    font-family: var(--cu-font-serif);
+    font-family: var(--cu-font-display);
     font-size: var(--cu-step-1);
     font-weight: 400;
     line-height: var(--cu-leading-snug);
@@ -115,13 +106,7 @@ const { milestones, title = 'Cronología' } = Astro.props;
       top: 0;
       bottom: 0;
       left: 3px;
-      width: 1px;
-      background: linear-gradient(
-        180deg,
-        var(--cu-accent-deep),
-        var(--cu-accent) 45%,
-        color-mix(in srgb, var(--cu-accent-soft) 60%, transparent)
-      );
+      width: 3px;
       transform-origin: top center;
     }
 
@@ -147,7 +132,7 @@ const { milestones, title = 'Cronología' } = Astro.props;
       top: 0;
       left: 0;
       right: 0;
-      height: 2px;
+      height: 3px;
     }
 
     .timeline__list {

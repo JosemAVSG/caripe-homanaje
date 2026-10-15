@@ -14,7 +14,7 @@ export const site = {
   lang: 'es',
 
   /** Document title, used for <title> and social metadata. */
-  metaTitle: 'Caripe — homenaje documental',
+  metaTitle: 'Caripe · homenaje documental',
 
   description:
     'Un recorrido documental por Caripe del Guácharo, pueblo de montaña del estado Monagas, Venezuela: su historia, su cueva y las voces que lo recuerdan.',
@@ -64,6 +64,11 @@ export const site = {
     /** What was done to the files, stated plainly: CC BY-SA requires it. */
     creditsChanges:
       'Las imágenes se han reescalado y recomprimido para la web, y en pantalla reciben un tratamiento tonal común para unificar el conjunto. Los documentos históricos se muestran completos, sin recortes. Ninguna fotografía se presenta aquí como algo distinto de lo que su ficha original declara.',
+
+    /** Heading and note of the cartography-credit block, for the hero collage. */
+    mapsTitle: 'Cartografía',
+    mapsIntro:
+      'Los mapas que abren el sitio provienen de Wikimedia Commons y se reproducen bajo la licencia que figura en cada ficha. Son cartografía de Venezuela, del norte de Sudamérica o del estado Monagas, y cada uno declara su fecha y su autoría. En la portada se muestran en blanco y negro, para que el papel y la cuadrícula sean la textura.',
   },
 
   /** Generic, honest footnote reused by every documentary block. */

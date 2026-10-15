@@ -1,5 +1,5 @@
 /* ============================================================================
-   Caripe — design tokens
+   Caripe · design tokens
    Plain CSS custom properties. Every visual decision in the site resolves to
    one of these variables, so re-theming happens in a single file.
    ========================================================================= */
@@ -7,7 +7,13 @@
 :root {
   /* -- Palette ------------------------------------------------------------
      The identity of Caripe: deep mountain green, roasted coffee brown,
-     fog grey, bone white and a single warm accent.                      */
+     fog grey, bone white and a single warm note.
+
+     The warm note is a brass/amber rather than the old rust orange. Two
+     reasons: it reads as "light catching the fog" (the documentary's own
+     image) and it sits outside the terracotta window the house style bans,
+     so the accent can carry the actions without dragging the palette into a
+     colour family that is not ours.                                  */
 
   /* Monte — the green of the cordillera */
   --cu-monte-950: #060d08;
@@ -37,15 +43,15 @@
   --cu-bruma-600: #606760;
   --cu-bruma-700: #464c46;
 
-  /* Hueso — bone / cream */
+  /* Hueso — bone / cream ink */
   --cu-hueso: #f3ede2;
   --cu-hueso-soft: #ded6c7;
   --cu-hueso-dim: #b6ae9f;
 
-  /* Accent — the single warm note */
-  --cu-accent: #c97b33;
-  --cu-accent-soft: #e9a969;
-  --cu-accent-deep: #93501b;
+  /* Accent — a warm brass, used for actions and the interview voice */
+  --cu-accent: #c2a35f;
+  --cu-accent-soft: #e2c88b;
+  --cu-accent-deep: #8b7038;
 
   /* -- Semantic surfaces -------------------------------------------------- */
   --cu-bg: var(--cu-monte-950);
@@ -53,52 +59,61 @@
   --cu-surface: var(--cu-monte-800);
   --cu-surface-warm: var(--cu-cafe-900);
 
+  /* Scene fields. Each chapter sits on a flat colour one step from the page
+     background, so the page never falls through to bare ground and no screen
+     reads as empty. Separating surfaces by tone, never by a rule or a shadow,
+     is the house rule this encodes. */
+  --cu-scene-monte: color-mix(in srgb, var(--cu-monte-800) 62%, var(--cu-bg));
+  --cu-scene-cafe: color-mix(in srgb, var(--cu-cafe-900) 58%, var(--cu-bg));
+  --cu-scene-bruma: color-mix(in srgb, var(--cu-monte-700) 52%, var(--cu-bg));
+  --cu-scene-close: color-mix(in srgb, var(--cu-cafe-950) 46%, var(--cu-bg));
+
   --cu-text: var(--cu-hueso);
   --cu-text-muted: var(--cu-bruma-300);
   --cu-text-faint: var(--cu-bruma-400);
 
-  --cu-line: color-mix(in srgb, var(--cu-bruma-300) 20%, transparent);
-  --cu-line-strong: color-mix(in srgb, var(--cu-bruma-100) 34%, transparent);
+  --cu-line: color-mix(in srgb, var(--cu-bruma-300) 16%, transparent);
   --cu-focus: var(--cu-accent-soft);
 
   /* -- Voices -------------------------------------------------------------
      The two narrative registers of the documentary are also two visual
-     registers. A reader should always know who is speaking.              */
+     registers. A reader should always know who is speaking.             */
   --cu-doc-text: var(--cu-hueso);
   --cu-doc-muted: var(--cu-bruma-300);
-  --cu-doc-rule: color-mix(in srgb, var(--cu-bruma-200) 26%, transparent);
 
-  --cu-testimony-bg: color-mix(in srgb, var(--cu-cafe-800) 94%, #000);
+  --cu-testimony-bg: color-mix(in srgb, var(--cu-cafe-800) 96%, #000);
   --cu-testimony-text: #f7f0e4;
-  --cu-testimony-muted: color-mix(in srgb, var(--cu-accent-soft) 78%, var(--cu-hueso-soft));
+  --cu-testimony-muted: color-mix(in srgb, var(--cu-accent-soft) 80%, var(--cu-hueso-soft));
   --cu-testimony-rule: var(--cu-accent);
 
-  /* -- Typography --------------------------------------------------------- */
+  /* -- Typography ---------------------------------------------------------
+     Two faces, and only two. Spectral is the documentary text: history,
+     captions, sources. Fraunces is the display voice: the place's name,
+     the chapter titles, and doubles as the testimony voice.          */
+  --cu-font-text: 'Spectral', 'Iowan Old Style', 'Palatino Linotype', Palatino,
+    Georgia, 'Times New Roman', serif;
   --cu-font-display: 'Fraunces Variable', 'Iowan Old Style', 'Palatino Linotype',
     Palatino, Georgia, 'Times New Roman', serif;
-  --cu-font-serif: 'Spectral', 'Iowan Old Style', 'Palatino Linotype', Palatino,
-    Georgia, 'Times New Roman', serif;
-  --cu-font-sans: 'Inter Variable', ui-sans-serif, system-ui, -apple-system,
-    'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 
-  /* Fluid type scale */
-  --cu-step--2: clamp(0.7rem, 0.68rem + 0.1vw, 0.76rem);
-  --cu-step--1: clamp(0.82rem, 0.79rem + 0.15vw, 0.9rem);
-  --cu-step-0: clamp(1rem, 0.96rem + 0.2vw, 1.12rem);
-  --cu-step-1: clamp(1.18rem, 1.1rem + 0.4vw, 1.4rem);
-  --cu-step-2: clamp(1.42rem, 1.28rem + 0.75vw, 1.9rem);
-  --cu-step-3: clamp(1.8rem, 1.5rem + 1.5vw, 2.75rem);
-  --cu-step-4: clamp(2.3rem, 1.7rem + 3vw, 4.1rem);
-  --cu-step-5: clamp(3rem, 1.8rem + 6vw, 7rem);
-  --cu-step-6: clamp(3.6rem, 1.4rem + 11vw, 11rem);
+  /* Fluid type scale.
+     Nothing meant to be read sits below 13.6px; running text sits between
+     16 and 19px. There are eight sizes in use, two of them display.   */
+  --cu-step--2: clamp(0.85rem, 0.84rem + 0.08vw, 0.9rem); /* 13.6–14.4 metadata  */
+  --cu-step--1: clamp(1rem, 0.98rem + 0.1vw, 1.0625rem); /* 16–17 secondary    */
+  --cu-step-0: clamp(1.0625rem, 1.02rem + 0.2vw, 1.1875rem); /* 17–19 prose     */
+  --cu-step-1: clamp(1.1875rem, 1.1rem + 0.4vw, 1.375rem); /* 19–22 lead/quote  */
+  --cu-step-2: clamp(1.375rem, 1.25rem + 0.7vw, 1.75rem); /* 22–28 term        */
+  --cu-step-3: clamp(1.75rem, 1.5rem + 1.6vw, 2.6rem);
+  --cu-step-4: clamp(2.2rem, 1.7rem + 3vw, 3.6rem); /* 35–58 closing      */
+  --cu-step-5: clamp(2.6rem, 1.9rem + 3.6vw, 4.6rem); /* 42–74 chapter    */
+  --cu-step-6: clamp(3.4rem, 1.8rem + 8vw, 9rem); /* 54–144 hero          */
 
-  --cu-leading-tight: 1.06;
+  --cu-leading-tight: 1.04;
   --cu-leading-snug: 1.24;
-  --cu-leading-body: 1.75;
-  --cu-leading-quote: 1.55;
+  --cu-leading-body: 1.68;
+  --cu-leading-quote: 1.5;
 
-  --cu-tracking-wide: 0.16em;
-  --cu-tracking-wider: 0.3em;
+  --cu-tracking-display: -0.02em;
 
   /* -- Space -------------------------------------------------------------- */
   --cu-space-3xs: 0.375rem;
@@ -112,14 +127,17 @@
   --cu-space-3xl: 12rem;
 
   /* -- Layout ------------------------------------------------------------- */
-  --cu-measure: 33rem; /* documentary prose measure */
+  --cu-measure: 34rem; /* documentary prose measure */
+  --cu-measure-wide: 48rem;
   --cu-measure-narrow: 26rem;
-  --cu-page-max: 76rem;
+  --cu-page-max: 78rem;
   --cu-gutter: clamp(1.25rem, 4vw, 4.5rem);
-  --cu-chapter-gap: clamp(5rem, 12vh, 10rem);
+  --cu-chapter-gap: clamp(6rem, 18vh, 13rem);
 
-  /* Reserved band for the hero ridge + fog, so text never sits on the mist. */
-  --cu-hero-band: clamp(13rem, 38vh, 26rem);
+  /* The scene: a pinned stage beside a scrolling column of text. The stage
+     holds its place with CSS `position: sticky`; GSAP only writes `--p`. */
+  --cu-stage-top: 0;
+  --cu-stage-radius: 3px;
 
   /* -- Motion ------------------------------------------------------------- */
   --cu-ease: cubic-bezier(0.22, 0.61, 0.36, 1);

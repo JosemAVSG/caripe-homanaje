@@ -13,7 +13,6 @@ import type { Chapter } from '../types';
 export const chapter: Chapter = {
   slug: 'chapter-3-neblina',
   order: 3,
-  number: '03',
   title: 'La neblina',
   kicker: 'En preparación',
   tone: 'bruma',

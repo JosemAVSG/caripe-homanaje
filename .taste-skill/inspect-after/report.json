@@ -1,0 +1,1426 @@
+{
+ "url": "http://localhost:4321",
+ "at": "2026-10-15T18:40:10.295Z",
+ "allow": [],
+ "viewports": [
+  {
+   "width": 1440,
+   "height": 900,
+   "load": "load",
+   "screens": 12,
+   "filled": [
+    0.67,
+    0.34,
+    0.96,
+    1,
+    1,
+    1,
+    0.98,
+    0.97,
+    1,
+    0.97,
+    1,
+    1
+   ],
+   "motion": {
+    "elements": 42,
+    "css": 8,
+    "transitions": 11,
+    "scripted": 23,
+    "videos": 0,
+    "playingVideos": 0
+   },
+   "metrics": {
+    "viewport": {
+     "w": 1440,
+     "h": 900
+    },
+    "page": {
+     "height": 15923,
+     "screens": 17.7,
+     "words": 2042,
+     "img": 35,
+     "video": 0,
+     "canvas": 4,
+     "svg": 0,
+     "sections": 13,
+     "horizontalOverflow": 0,
+     "overflowCulprits": [],
+     "uiFragments": 0,
+     "uiAbuse": false,
+     "realPictures": 31,
+     "videoCount": 0,
+     "uiPictures": 0,
+     "pictureSamples": [
+      "_image?href=%2F%40fs%2FUsers%2Fjosemiguelgonzale",
+      "_image?href=%2F%40fs%2FUsers%2Fjosemiguelgonzale",
+      "_image?href=%2F%40fs%2FUsers%2Fjosemiguelgonzale",
+      "_image?href=%2F%40fs%2FUsers%2Fjosemiguelgonzale",
+      "_image?href=%2F%40fs%2FUsers%2Fjosemiguelgonzale",
+      "_image?href=%2F%40fs%2FUsers%2Fjosemiguelgonzale",
+      "_image?href=%2F%40fs%2FUsers%2Fjosemiguelgonzale",
+      "_image?href=%2F%40fs%2FUsers%2Fjosemiguelgonzale"
+     ],
+     "blendText": 0,
+     "sideScrollers": 0,
+     "brokenImages": [],
+     "emoji": []
+    },
+    "hero": {
+     "text": "C a r i p e Caripe",
+     "words": 7,
+     "chars": 18,
+     "lines": 1,
+     "size": 144,
+     "vw": 10,
+     "font": "Fraunces Variable",
+     "weight": 500,
+     "tracking": -0.025,
+     "leading": 0.92,
+     "upper": false,
+     "italic": false,
+     "mono": false,
+     "align": "left",
+     "position": "center",
+     "widthRatio": 0.79,
+     "top": 646,
+     "tag": "h1",
+     "kind": "heading"
+    },
+    "h1": {
+     "text": "C a r i p e Caripe",
+     "words": 7,
+     "lines": 1,
+     "size": 144,
+     "font": "Fraunces Variable"
+    },
+    "headings": [
+     {
+      "text": "C a r i p e Caripe",
+      "words": 7,
+      "chars": 18,
+      "lines": 1,
+      "size": 144,
+      "vw": 10,
+      "font": "Fraunces Variable",
+      "weight": 500,
+      "tracking": -0.025,
+      "leading": 0.92,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.79,
+      "top": 646,
+      "tag": "h1",
+      "kind": "heading"
+     },
+     {
+      "text": "«el Jardín del Oriente»",
+      "words": 4,
+      "chars": 23,
+      "lines": 1,
+      "size": 28,
+      "vw": 1.9,
+      "font": "Fraunces Variable",
+      "weight": 400,
+      "tracking": 0,
+      "leading": 1.68,
+      "upper": false,
+      "italic": true,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.19,
+      "top": 861,
+      "tag": "span",
+      "kind": "statement"
+     },
+     {
+      "text": "1799",
+      "words": 1,
+      "chars": 4,
+      "lines": 1,
+      "size": 73.6,
+      "vw": 5.1,
+      "font": "Fraunces Variable",
+      "weight": 400,
+      "tracking": -0.02,
+      "leading": 0.96,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "right",
+      "widthRatio": 0.38,
+      "top": 1772,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "Steatornis caripensis",
+      "words": 2,
+      "chars": 21,
+      "lines": 1,
+      "size": 28,
+      "vw": 1.9,
+      "font": "Fraunces Variable",
+      "weight": 400,
+      "tracking": 0,
+      "leading": 1.15,
+      "upper": false,
+      "italic": true,
+      "mono": false,
+      "align": "left",
+      "position": "right",
+      "widthRatio": 0.34,
+      "top": 4739,
+      "tag": "p",
+      "kind": "statement"
+     },
+     {
+      "text": "El café",
+      "words": 2,
+      "chars": 7,
+      "lines": 1,
+      "size": 73.6,
+      "vw": 5.1,
+      "font": "Fraunces Variable",
+      "weight": 400,
+      "tracking": -0.02,
+      "leading": 0.96,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "right",
+      "widthRatio": 0.38,
+      "top": 7601,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "La neblina",
+      "words": 2,
+      "chars": 10,
+      "lines": 1,
+      "size": 73.6,
+      "vw": 5.1,
+      "font": "Fraunces Variable",
+      "weight": 400,
+      "tracking": -0.02,
+      "leading": 0.96,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "right",
+      "widthRatio": 0.38,
+      "top": 10039,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "Gracias a Caripe.",
+      "words": 3,
+      "chars": 17,
+      "lines": 1,
+      "size": 57.6,
+      "vw": 4,
+      "font": "Fraunces Variable",
+      "weight": 400,
+      "tracking": -0.015,
+      "leading": 1.05,
+      "upper": false,
+      "italic": true,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.38,
+      "top": 13211,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "Fotografías",
+      "words": 1,
+      "chars": 11,
+      "lines": 1,
+      "size": 28,
+      "vw": 1.9,
+      "font": "Fraunces Variable",
+      "weight": 400,
+      "tracking": 0,
+      "leading": 1.04,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.79,
+      "top": 13790,
+      "tag": "h3",
+      "kind": "heading"
+     },
+     {
+      "text": "Cartografía",
+      "words": 1,
+      "chars": 11,
+      "lines": 1,
+      "size": 28,
+      "vw": 1.9,
+      "font": "Fraunces Variable",
+      "weight": 400,
+      "tracking": 0,
+      "leading": 1.04,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.79,
+      "top": 15160,
+      "tag": "h3",
+      "kind": "heading"
+     }
+    ],
+    "headingSummary": {
+     "count": 9,
+     "maxLines": 1,
+     "over2Lines": 0,
+     "statements": 2,
+     "centered": 0,
+     "medianWords": 2,
+     "mixedFontHeadings": 0
+    },
+    "type": {
+     "families": [
+      {
+       "family": "Spectral",
+       "share": 0.95,
+       "mono": false
+      },
+      {
+       "family": "Fraunces Variable",
+       "share": 0.05,
+       "mono": false
+      }
+     ],
+     "familyCount": 2,
+     "sizes": [
+      14,
+      17,
+      19,
+      22,
+      28,
+      58,
+      74,
+      144
+     ],
+     "sizeCount": 8,
+     "notLoaded": [],
+     "body": {
+      "font": "Spectral",
+      "size": 17,
+      "leading": 1.5,
+      "weight": 400,
+      "tracking": 0,
+      "contrast": null
+     },
+     "measureChars": 87,
+     "max": {
+      "size": 144,
+      "vw": 10,
+      "font": "Fraunces Variable",
+      "text": "C"
+     },
+     "monoShare": 0,
+     "monoProseShare": 0,
+     "monoFamilies": [],
+     "monoSamples": [],
+     "microLabels": 0,
+     "microLabelShare": 0,
+     "microSamples": [],
+     "upperShare": 0.05,
+     "centerShare": 0,
+     "smallText": 0
+    },
+    "eyebrows": [],
+    "numbered": [],
+    "color": {
+     "bodyBg": "#060d08",
+     "bodyBgHsl": {
+      "h": 137,
+      "s": 0.37,
+      "l": 0.04
+     },
+     "dark": true,
+     "sectionBgs": [
+      {
+       "color": "#060d08",
+       "top": 0,
+       "hsl": {
+        "h": 137,
+        "s": 0.37,
+        "l": 0.04
+       }
+      },
+      {
+       "color": "#0c1b12",
+       "top": 1610,
+       "hsl": {
+        "h": 144,
+        "s": 0.38,
+        "l": 0.08
+       }
+      },
+      {
+       "color": "#0a1710",
+       "top": 1772,
+       "hsl": {
+        "h": 148,
+        "s": 0.39,
+        "l": 0.06
+       }
+      },
+      {
+       "color": "#130f08",
+       "top": 7439,
+       "hsl": {
+        "h": 38,
+        "s": 0.41,
+        "l": 0.05
+       }
+      },
+      {
+       "color": "#0e2216",
+       "top": 9877,
+       "hsl": {
+        "h": 144,
+        "s": 0.42,
+        "l": 0.09
+       }
+      },
+      {
+       "color": "#0c0c07",
+       "top": 13019,
+       "hsl": {
+        "h": 60,
+        "s": 0.26,
+        "l": 0.04
+       }
+      }
+     ],
+     "textColors": [
+      {
+       "color": "#b8beb7",
+       "share": 0.44
+      },
+      {
+       "color": "#ded6c7",
+       "share": 0.17
+      },
+      {
+       "color": "#f3ede2",
+       "share": 0.16
+      },
+      {
+       "color": "#9ba29b",
+       "share": 0.1
+      },
+      {
+       "color": "#d3d8d2",
+       "share": 0.06
+      }
+     ],
+     "button": {
+      "bg": "#c2a35f",
+      "hsl": {
+       "h": 41,
+       "s": 0.45,
+       "l": 0.57
+      },
+      "fg": "#060d08"
+     },
+     "lowContrast": []
+    },
+    "buttons": {
+     "count": 2,
+     "inHero": 2,
+     "radius": 2,
+     "height": 53,
+     "withShadow": 0,
+     "withGradient": 0,
+     "mono": 0,
+     "upper": 0,
+     "heroLabels": [
+      "Saltar al contenido",
+      "Ver como documental"
+     ]
+    },
+    "surfaces": {
+     "shadowStatic": 0,
+     "shadowOverlay": 0,
+     "shadowSamples": [],
+     "gradients": 0,
+     "scrims": 12,
+     "gradientSamples": [],
+     "gradientText": 0,
+     "hairlines": 0,
+     "hairlineSamples": [],
+     "outlinedBoxes": 0,
+     "dashed": 0,
+     "blurred": 0,
+     "roundedBoxes": 0,
+     "boxRadius": 0,
+     "squareMedia": 16,
+     "roundedMedia": 0,
+     "mediaRadius": 0,
+     "textShadow": 0,
+     "cardRows": []
+    },
+    "heroMedia": [
+     {
+      "type": "img",
+      "ratio": 0.2
+     },
+     {
+      "type": "img",
+      "ratio": 0.09
+     },
+     {
+      "type": "img",
+      "ratio": 0.09
+     }
+    ],
+    "nav": {
+     "links": 0,
+     "fixed": true,
+     "height": 168,
+     "floatingPill": false,
+     "blur": false
+    },
+    "fontsLoaded": [
+     "fraunces variable",
+     "spectral"
+    ]
+   },
+   "consoleErrors": []
+  },
+  {
+   "width": 768,
+   "height": 1024,
+   "load": "load",
+   "screens": 12,
+   "filled": [
+    0.88,
+    0.54,
+    1,
+    0.95,
+    0.97,
+    1,
+    0.98,
+    0.98,
+    0.96,
+    1,
+    1,
+    0.97
+   ],
+   "motion": {
+    "elements": 34,
+    "css": 8,
+    "transitions": 8,
+    "scripted": 18,
+    "videos": 0,
+    "playingVideos": 0
+   },
+   "metrics": {
+    "viewport": {
+     "w": 768,
+     "h": 1024
+    },
+    "page": {
+     "height": 22330,
+     "screens": 21.8,
+     "words": 1867,
+     "img": 35,
+     "video": 0,
+     "canvas": 4,
+     "svg": 0,
+     "sections": 13,
+     "horizontalOverflow": 0,
+     "overflowCulprits": [],
+     "uiFragments": 0,
+     "uiAbuse": false,
+     "realPictures": 22,
+     "videoCount": 0,
+     "uiPictures": 0,
+     "pictureSamples": [
+      "_image?href=%2F%40fs%2FUsers%2Fjosemiguelgonzale",
+      "_image?href=%2F%40fs%2FUsers%2Fjosemiguelgonzale",
+      "_image?href=%2F%40fs%2FUsers%2Fjosemiguelgonzale",
+      "_image?href=%2F%40fs%2FUsers%2Fjosemiguelgonzale",
+      "_image?href=%2F%40fs%2FUsers%2Fjosemiguelgonzale",
+      "_image?href=%2F%40fs%2FUsers%2Fjosemiguelgonzale",
+      "_image?href=%2F%40fs%2FUsers%2Fjosemiguelgonzale",
+      "_image?href=%2F%40fs%2FUsers%2Fjosemiguelgonzale"
+     ],
+     "blendText": 0,
+     "sideScrollers": 0,
+     "brokenImages": [],
+     "emoji": []
+    },
+    "hero": {
+     "text": "C a r i p e Caripe",
+     "words": 7,
+     "chars": 18,
+     "lines": 1,
+     "size": 90.2,
+     "vw": 11.7,
+     "font": "Fraunces Variable",
+     "weight": 500,
+     "tracking": -0.025,
+     "leading": 0.92,
+     "upper": false,
+     "italic": false,
+     "mono": false,
+     "align": "left",
+     "position": "center",
+     "widthRatio": 0.93,
+     "top": 939,
+     "tag": "h1",
+     "kind": "heading"
+    },
+    "h1": {
+     "text": "C a r i p e Caripe",
+     "words": 7,
+     "lines": 1,
+     "size": 90.2,
+     "font": "Fraunces Variable"
+    },
+    "headings": [
+     {
+      "text": "C a r i p e Caripe",
+      "words": 7,
+      "chars": 18,
+      "lines": 1,
+      "size": 90.2,
+      "vw": 11.7,
+      "font": "Fraunces Variable",
+      "weight": 500,
+      "tracking": -0.025,
+      "leading": 0.92,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.93,
+      "top": 939,
+      "tag": "h1",
+      "kind": "heading"
+     },
+     {
+      "text": "1799",
+      "words": 1,
+      "chars": 4,
+      "lines": 1,
+      "size": 58,
+      "vw": 7.6,
+      "font": "Fraunces Variable",
+      "weight": 400,
+      "tracking": -0.02,
+      "leading": 0.96,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.92,
+      "top": 1976,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "El café",
+      "words": 2,
+      "chars": 7,
+      "lines": 1,
+      "size": 58,
+      "vw": 7.6,
+      "font": "Fraunces Variable",
+      "weight": 400,
+      "tracking": -0.02,
+      "leading": 0.96,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.92,
+      "top": 9814,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "Gracias a Caripe.",
+      "words": 3,
+      "chars": 17,
+      "lines": 1,
+      "size": 50.2,
+      "vw": 6.5,
+      "font": "Fraunces Variable",
+      "weight": 400,
+      "tracking": -0.015,
+      "leading": 1.05,
+      "upper": false,
+      "italic": true,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.71,
+      "top": 19081,
+      "tag": "h2",
+      "kind": "heading"
+     }
+    ],
+    "headingSummary": {
+     "count": 4,
+     "maxLines": 1,
+     "over2Lines": 0,
+     "statements": 0,
+     "centered": 0,
+     "medianWords": 2,
+     "mixedFontHeadings": 0
+    },
+    "type": {
+     "families": [
+      {
+       "family": "Spectral",
+       "share": 0.94,
+       "mono": false
+      },
+      {
+       "family": "Fraunces Variable",
+       "share": 0.06,
+       "mono": false
+      }
+     ],
+     "familyCount": 2,
+     "sizes": [
+      14,
+      16,
+      18,
+      21,
+      25,
+      50,
+      58,
+      90
+     ],
+     "sizeCount": 8,
+     "notLoaded": [],
+     "body": {
+      "font": "Spectral",
+      "size": 16.4,
+      "leading": 1.5,
+      "weight": 400,
+      "tracking": 0,
+      "contrast": null
+     },
+     "measureChars": 86,
+     "max": {
+      "size": 90.2,
+      "vw": 11.7,
+      "font": "Fraunces Variable",
+      "text": "C"
+     },
+     "monoShare": 0,
+     "monoProseShare": 0,
+     "monoFamilies": [],
+     "monoSamples": [],
+     "microLabels": 0,
+     "microLabelShare": 0,
+     "microSamples": [],
+     "upperShare": 0.05,
+     "centerShare": 0,
+     "smallText": 0
+    },
+    "eyebrows": [],
+    "numbered": [],
+    "color": {
+     "bodyBg": "#060d08",
+     "bodyBgHsl": {
+      "h": 137,
+      "s": 0.37,
+      "l": 0.04
+     },
+     "dark": true,
+     "sectionBgs": [
+      {
+       "color": "#060d08",
+       "top": 0,
+       "hsl": {
+        "h": 137,
+        "s": 0.37,
+        "l": 0.04
+       }
+      },
+      {
+       "color": "#0a1710",
+       "top": 0,
+       "hsl": {
+        "h": 148,
+        "s": 0.39,
+        "l": 0.06
+       }
+      },
+      {
+       "color": "#0c1b12",
+       "top": 1791,
+       "hsl": {
+        "h": 144,
+        "s": 0.38,
+        "l": 0.08
+       }
+      },
+      {
+       "color": "#130f08",
+       "top": 9629,
+       "hsl": {
+        "h": 38,
+        "s": 0.41,
+        "l": 0.05
+       }
+      },
+      {
+       "color": "#0e2216",
+       "top": 13417,
+       "hsl": {
+        "h": 144,
+        "s": 0.42,
+        "l": 0.09
+       }
+      },
+      {
+       "color": "#0c0c07",
+       "top": 18889,
+       "hsl": {
+        "h": 60,
+        "s": 0.26,
+        "l": 0.04
+       }
+      }
+     ],
+     "textColors": [
+      {
+       "color": "#b8beb7",
+       "share": 0.44
+      },
+      {
+       "color": "#ded6c7",
+       "share": 0.19
+      },
+      {
+       "color": "#f3ede2",
+       "share": 0.16
+      },
+      {
+       "color": "#9ba29b",
+       "share": 0.11
+      },
+      {
+       "color": "#d3d8d2",
+       "share": 0.04
+      }
+     ],
+     "button": {
+      "bg": "#c2a35f",
+      "hsl": {
+       "h": 41,
+       "s": 0.45,
+       "l": 0.57
+      },
+      "fg": "#060d08"
+     },
+     "lowContrast": []
+    },
+    "buttons": {
+     "count": 2,
+     "inHero": 2,
+     "radius": 2,
+     "height": 52,
+     "withShadow": 0,
+     "withGradient": 0,
+     "mono": 0,
+     "upper": 0,
+     "heroLabels": [
+      "Saltar al contenido",
+      "Ver como documental"
+     ]
+    },
+    "surfaces": {
+     "shadowStatic": 0,
+     "shadowOverlay": 0,
+     "shadowSamples": [],
+     "gradients": 0,
+     "scrims": 5,
+     "gradientSamples": [],
+     "gradientText": 0,
+     "hairlines": 0,
+     "hairlineSamples": [],
+     "outlinedBoxes": 0,
+     "dashed": 0,
+     "blurred": 0,
+     "roundedBoxes": 0,
+     "boxRadius": 0,
+     "squareMedia": 28,
+     "roundedMedia": 0,
+     "mediaRadius": 0,
+     "textShadow": 0,
+     "cardRows": []
+    },
+    "heroMedia": [
+     {
+      "type": "img",
+      "ratio": 0.45
+     },
+     {
+      "type": "img",
+      "ratio": 0.09
+     },
+     {
+      "type": "img",
+      "ratio": 0.09
+     }
+    ],
+    "nav": {
+     "links": 0,
+     "fixed": true,
+     "height": 0,
+     "floatingPill": false,
+     "blur": false
+    },
+    "fontsLoaded": [
+     "fraunces variable",
+     "spectral"
+    ]
+   },
+   "consoleErrors": []
+  },
+  {
+   "width": 390,
+   "height": 844,
+   "load": "load",
+   "screens": 12,
+   "filled": [
+    0.79,
+    0.33,
+    1,
+    0.91,
+    0.93,
+    0.91,
+    1,
+    1,
+    1,
+    0.96,
+    0.92,
+    0.94
+   ],
+   "motion": {
+    "elements": 29,
+    "css": 8,
+    "transitions": 8,
+    "scripted": 13,
+    "videos": 0,
+    "playingVideos": 0
+   },
+   "metrics": {
+    "viewport": {
+     "w": 390,
+     "h": 844
+    },
+    "page": {
+     "height": 27607,
+     "screens": 32.7,
+     "words": 1728,
+     "img": 35,
+     "video": 0,
+     "canvas": 4,
+     "svg": 0,
+     "sections": 13,
+     "horizontalOverflow": 0,
+     "overflowCulprits": [],
+     "uiFragments": 0,
+     "uiAbuse": false,
+     "realPictures": 13,
+     "videoCount": 0,
+     "uiPictures": 0,
+     "pictureSamples": [
+      "_image?href=%2F%40fs%2FUsers%2Fjosemiguelgonzale",
+      "_image?href=%2F%40fs%2FUsers%2Fjosemiguelgonzale",
+      "_image?href=%2F%40fs%2FUsers%2Fjosemiguelgonzale",
+      "_image?href=%2F%40fs%2FUsers%2Fjosemiguelgonzale",
+      "_image?href=%2F%40fs%2FUsers%2Fjosemiguelgonzale",
+      "_image?href=%2F%40fs%2FUsers%2Fjosemiguelgonzale",
+      "_image?href=%2F%40fs%2FUsers%2Fjosemiguelgonzale",
+      "_image?href=%2F%40fs%2FUsers%2Fjosemiguelgonzale"
+     ],
+     "blendText": 0,
+     "sideScrollers": 0,
+     "brokenImages": [],
+     "emoji": []
+    },
+    "hero": {
+     "text": "C a r i p e Caripe",
+     "words": 7,
+     "chars": 18,
+     "lines": 1,
+     "size": 60,
+     "vw": 15.4,
+     "font": "Fraunces Variable",
+     "weight": 500,
+     "tracking": -0.025,
+     "leading": 0.92,
+     "upper": false,
+     "italic": false,
+     "mono": false,
+     "align": "left",
+     "position": "center",
+     "widthRatio": 0.9,
+     "top": 671,
+     "tag": "h1",
+     "kind": "heading"
+    },
+    "h1": {
+     "text": "C a r i p e Caripe",
+     "words": 7,
+     "lines": 1,
+     "size": 60,
+     "font": "Fraunces Variable"
+    },
+    "headings": [
+     {
+      "text": "C a r i p e Caripe",
+      "words": 7,
+      "chars": 18,
+      "lines": 1,
+      "size": 60,
+      "vw": 15.4,
+      "font": "Fraunces Variable",
+      "weight": 500,
+      "tracking": -0.025,
+      "leading": 0.92,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.9,
+      "top": 671,
+      "tag": "h1",
+      "kind": "heading"
+     },
+     {
+      "text": "«el Jardín del Oriente»",
+      "words": 4,
+      "chars": 23,
+      "lines": 1,
+      "size": 22.7,
+      "vw": 5.8,
+      "font": "Fraunces Variable",
+      "weight": 400,
+      "tracking": 0,
+      "leading": 1.68,
+      "upper": false,
+      "italic": true,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.58,
+      "top": 804,
+      "tag": "span",
+      "kind": "statement"
+     },
+     {
+      "text": "1799",
+      "words": 1,
+      "chars": 4,
+      "lines": 1,
+      "size": 44.4,
+      "vw": 11.4,
+      "font": "Fraunces Variable",
+      "weight": 400,
+      "tracking": -0.02,
+      "leading": 0.96,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.9,
+      "top": 1845,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "Steatornis caripensis",
+      "words": 2,
+      "chars": 21,
+      "lines": 1,
+      "size": 22.7,
+      "vw": 5.8,
+      "font": "Fraunces Variable",
+      "weight": 400,
+      "tracking": 0,
+      "leading": 1.15,
+      "upper": false,
+      "italic": true,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.79,
+      "top": 6705,
+      "tag": "p",
+      "kind": "statement"
+     },
+     {
+      "text": "Gracias a Caripe.",
+      "words": 3,
+      "chars": 17,
+      "lines": 1,
+      "size": 38.9,
+      "vw": 10,
+      "font": "Fraunces Variable",
+      "weight": 400,
+      "tracking": -0.015,
+      "leading": 1.05,
+      "upper": false,
+      "italic": true,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.9,
+      "top": 22726,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "Fotografías",
+      "words": 1,
+      "chars": 11,
+      "lines": 1,
+      "size": 22.7,
+      "vw": 5.8,
+      "font": "Fraunces Variable",
+      "weight": 400,
+      "tracking": 0,
+      "leading": 1.04,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.9,
+      "top": 23432,
+      "tag": "h3",
+      "kind": "heading"
+     },
+     {
+      "text": "Cartografía",
+      "words": 1,
+      "chars": 11,
+      "lines": 1,
+      "size": 22.7,
+      "vw": 5.8,
+      "font": "Fraunces Variable",
+      "weight": 400,
+      "tracking": 0,
+      "leading": 1.04,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.9,
+      "top": 26328,
+      "tag": "h3",
+      "kind": "heading"
+     }
+    ],
+    "headingSummary": {
+     "count": 7,
+     "maxLines": 1,
+     "over2Lines": 0,
+     "statements": 2,
+     "centered": 0,
+     "medianWords": 2,
+     "mixedFontHeadings": 0
+    },
+    "type": {
+     "families": [
+      {
+       "family": "Spectral",
+       "share": 0.94,
+       "mono": false
+      },
+      {
+       "family": "Fraunces Variable",
+       "share": 0.06,
+       "mono": false
+      }
+     ],
+     "familyCount": 2,
+     "sizes": [
+      14,
+      16,
+      17,
+      19,
+      23,
+      39,
+      44,
+      60
+     ],
+     "sizeCount": 8,
+     "notLoaded": [],
+     "body": {
+      "font": "Spectral",
+      "size": 16.1,
+      "leading": 1.5,
+      "weight": 400,
+      "tracking": 0,
+      "contrast": null
+     },
+     "measureChars": 43,
+     "max": {
+      "size": 60,
+      "vw": 15.4,
+      "font": "Fraunces Variable",
+      "text": "C"
+     },
+     "monoShare": 0,
+     "monoProseShare": 0,
+     "monoFamilies": [],
+     "monoSamples": [],
+     "microLabels": 0,
+     "microLabelShare": 0,
+     "microSamples": [],
+     "upperShare": 0.05,
+     "centerShare": 0,
+     "smallText": 0
+    },
+    "eyebrows": [],
+    "numbered": [],
+    "color": {
+     "bodyBg": "#060d08",
+     "bodyBgHsl": {
+      "h": 137,
+      "s": 0.37,
+      "l": 0.04
+     },
+     "dark": true,
+     "sectionBgs": [
+      {
+       "color": "#060d08",
+       "top": 0,
+       "hsl": {
+        "h": 137,
+        "s": 0.37,
+        "l": 0.04
+       }
+      },
+      {
+       "color": "#0a1710",
+       "top": 0,
+       "hsl": {
+        "h": 148,
+        "s": 0.39,
+        "l": 0.06
+       }
+      },
+      {
+       "color": "#0c1b12",
+       "top": 1693,
+       "hsl": {
+        "h": 144,
+        "s": 0.38,
+        "l": 0.08
+       }
+      },
+      {
+       "color": "#e5d9c9",
+       "top": 3411,
+       "hsl": {
+        "h": 34,
+        "s": 0.35,
+        "l": 0.84
+       }
+      },
+      {
+       "color": "#130f08",
+       "top": 11940,
+       "hsl": {
+        "h": 38,
+        "s": 0.41,
+        "l": 0.05
+       }
+      },
+      {
+       "color": "#0e2216",
+       "top": 16239,
+       "hsl": {
+        "h": 144,
+        "s": 0.42,
+        "l": 0.09
+       }
+      },
+      {
+       "color": "#0c0c07",
+       "top": 22534,
+       "hsl": {
+        "h": 60,
+        "s": 0.26,
+        "l": 0.04
+       }
+      }
+     ],
+     "textColors": [
+      {
+       "color": "#b8beb7",
+       "share": 0.41
+      },
+      {
+       "color": "#ded6c7",
+       "share": 0.2
+      },
+      {
+       "color": "#f3ede2",
+       "share": 0.17
+      },
+      {
+       "color": "#9ba29b",
+       "share": 0.11
+      },
+      {
+       "color": "#d3d8d2",
+       "share": 0.04
+      }
+     ],
+     "button": {
+      "bg": "#c2a35f",
+      "hsl": {
+       "h": 41,
+       "s": 0.45,
+       "l": 0.57
+      },
+      "fg": "#060d08"
+     },
+     "lowContrast": []
+    },
+    "buttons": {
+     "count": 2,
+     "inHero": 2,
+     "radius": 2,
+     "height": 51,
+     "withShadow": 0,
+     "withGradient": 0,
+     "mono": 0,
+     "upper": 0,
+     "heroLabels": [
+      "Saltar al contenido",
+      "Ver como documental"
+     ]
+    },
+    "surfaces": {
+     "shadowStatic": 0,
+     "shadowOverlay": 0,
+     "shadowSamples": [],
+     "gradients": 0,
+     "scrims": 5,
+     "gradientSamples": [],
+     "gradientText": 0,
+     "hairlines": 0,
+     "hairlineSamples": [],
+     "outlinedBoxes": 0,
+     "dashed": 0,
+     "blurred": 0,
+     "roundedBoxes": 0,
+     "boxRadius": 0,
+     "squareMedia": 21,
+     "roundedMedia": 0,
+     "mediaRadius": 0,
+     "textShadow": 0,
+     "cardRows": []
+    },
+    "heroMedia": [
+     {
+      "type": "img",
+      "ratio": 0.28
+     }
+    ],
+    "nav": {
+     "links": 0,
+     "fixed": true,
+     "height": 0,
+     "floatingPill": false,
+     "blur": false
+    },
+    "fontsLoaded": [
+     "fraunces variable",
+     "spectral"
+    ]
+   },
+   "consoleErrors": []
+  }
+ ],
+ "findings": [
+  {
+   "level": "WARN",
+   "id": "palette-cream",
+   "width": 1440,
+   "message": "Yellow-cream background (text #f3ede2).",
+   "fix": "Use the drawn palette. If you want warmth, take a low-chroma stone or bone, not a yellow cream.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "WARN",
+   "id": "no-footage",
+   "width": 1440,
+   "message": "No video anywhere on the page.",
+   "fix": "Look for one honest clip with scripts/assets.mjs --video (the place, the material, the process) and use it as a muted loop with a poster frame. Defend its absence only if no clip fits the subject."
+  }
+ ],
+ "images": [
+  {
+   "viewport": "desktop",
+   "width": 1440,
+   "fold": "/Users/josemiguelgonzalez/projects/SideProjects/caripe-homanaje/.taste-skill/inspect-after/desktop-fold.jpg",
+   "pages": [
+    "/Users/josemiguelgonzalez/projects/SideProjects/caripe-homanaje/.taste-skill/inspect-after/desktop-page-01.jpg",
+    "/Users/josemiguelgonzalez/projects/SideProjects/caripe-homanaje/.taste-skill/inspect-after/desktop-page-02.jpg",
+    "/Users/josemiguelgonzalez/projects/SideProjects/caripe-homanaje/.taste-skill/inspect-after/desktop-page-03.jpg"
+   ]
+  },
+  {
+   "viewport": "tablet",
+   "width": 768,
+   "fold": "/Users/josemiguelgonzalez/projects/SideProjects/caripe-homanaje/.taste-skill/inspect-after/tablet-fold.jpg",
+   "pages": [
+    "/Users/josemiguelgonzalez/projects/SideProjects/caripe-homanaje/.taste-skill/inspect-after/tablet-page-01.jpg",
+    "/Users/josemiguelgonzalez/projects/SideProjects/caripe-homanaje/.taste-skill/inspect-after/tablet-page-02.jpg"
+   ]
+  },
+  {
+   "viewport": "mobile",
+   "width": 390,
+   "fold": "/Users/josemiguelgonzalez/projects/SideProjects/caripe-homanaje/.taste-skill/inspect-after/mobile-fold.jpg",
+   "pages": [
+    "/Users/josemiguelgonzalez/projects/SideProjects/caripe-homanaje/.taste-skill/inspect-after/mobile-page-01.jpg",
+    "/Users/josemiguelgonzalez/projects/SideProjects/caripe-homanaje/.taste-skill/inspect-after/mobile-page-02.jpg"
+   ]
+  }
+ ]
+}

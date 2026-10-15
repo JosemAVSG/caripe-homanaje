@@ -29,19 +29,27 @@ export interface ResolvedPhoto {
   credit: PhotoCredit;
 }
 
-/** Resolve one archive key. Throws at build time when anything is missing. */
-export function getPhoto(id: string): ResolvedPhoto {
-  const credit = getPhotoCredit(id);
+/**
+ * Resolve a credit record onto its image module. Shared by every registry that
+ * points at `src/assets/fotos/`, so an uncredited or missing file fails the
+ * build the same way wherever it is referenced.
+ */
+export function resolvePhotoCredit(credit: PhotoCredit): ResolvedPhoto {
   const src = byFileName.get(credit.file);
 
   if (!src) {
     throw new Error(
-      `[caripe] Credit "${id}" points at "${credit.file}", which is not in ` +
-        'src/assets/fotos/. Re-run: node scripts/fetch-commons-photos.mjs',
+      `[caripe] Credit "${credit.id}" points at "${credit.file}", which is not in ` +
+        'src/assets/fotos/. Re-run its fetch script.',
     );
   }
 
-  return { id, src, credit };
+  return { id: credit.id, src, credit };
+}
+
+/** Resolve one archive key. Throws at build time when anything is missing. */
+export function getPhoto(id: string): ResolvedPhoto {
+  return resolvePhotoCredit(getPhotoCredit(id));
 }
 
 export { photoCredits, photoCreditById, getPhotoCredit } from './credits';

@@ -14,7 +14,6 @@ import type { Chapter } from '../types';
 export const chapter: Chapter = {
   slug: 'chapter-4-partir',
   order: 4,
-  number: '04',
   title: 'Quedarse o partir',
   kicker: 'En preparación',
   tone: 'monte',

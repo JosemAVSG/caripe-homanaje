@@ -1,7 +1,6 @@
 ---
 import '@fontsource-variable/fraunces/full.css';
 import '@fontsource-variable/fraunces/full-italic.css';
-import '@fontsource-variable/inter/wght.css';
 import '@fontsource/spectral/latin-300.css';
 import '@fontsource/spectral/latin-400.css';
 import '@fontsource/spectral/latin-400-italic.css';
@@ -47,8 +46,20 @@ const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : un
 
     <!-- Publish the motion contract to CSS from the very first paint. -->
     <script is:inline>
+      var root = document.documentElement;
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        document.documentElement.dataset.motion = 'reduced';
+        root.dataset.motion = 'reduced';
+      } else {
+        // Arm the hero title before it paints, so its letters condense out of
+        // fog instead of flashing in. The guard disarms it if the script never
+        // takes charge, so the title can never be left hidden.
+        root.dataset.letters = 'armed';
+        window.__caripeLettersGuard = window.setTimeout(function () {
+          var state = root.dataset.letters;
+          if (state === 'armed' || state === 'ready') {
+            root.dataset.letters = 'idle';
+          }
+        }, 6000);
       }
     </script>
   </head>

@@ -5,9 +5,10 @@ import type { PhotoSlot as PhotoSlotData } from '../content/types';
  * A reserved frame for photography that does not exist yet.
  *
  * The brief forbids placeholder imagery, so this is an honest, designed empty
- * frame: a hairline plate, a small aperture mark, and the caption the eventual
+ * frame: a flat tone panel, a small aperture mark, and the caption the eventual
  * photograph will carry. When real images arrive, replace the frame with an
- * `<img>`; the caption markup already fits a `<figure>`.
+ * `<img>`; the caption markup already fits a `<figure>`. No dashed edge, no
+ * gradient, no uppercase label.
  */
 interface Props {
   slot: PhotoSlotData;
@@ -37,22 +38,14 @@ const { slot } = Astro.props;
   }
 
   .photo__frame {
-    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: var(--cu-space-xs);
     aspect-ratio: 3 / 2;
-    background-color: color-mix(in srgb, var(--cu-monte-900) 70%, transparent);
-    background-image: repeating-linear-gradient(
-      -45deg,
-      color-mix(in srgb, var(--cu-bruma-400) 7%, transparent) 0 1px,
-      transparent 1px 11px
-    );
-    border: 1px dashed color-mix(in srgb, var(--cu-bruma-400) 40%, transparent);
-    border-radius: var(--cu-radius);
-    color: color-mix(in srgb, var(--cu-bruma-300) 55%, transparent);
+    background-color: color-mix(in srgb, var(--cu-monte-800) 62%, var(--cu-bg));
+    color: color-mix(in srgb, var(--cu-bruma-300) 60%, transparent);
   }
 
   .photo__mark {
@@ -61,10 +54,7 @@ const { slot } = Astro.props;
   }
 
   .photo__label {
-    font-family: var(--cu-font-sans);
     font-size: var(--cu-step--2);
-    letter-spacing: var(--cu-tracking-wider);
-    text-transform: uppercase;
   }
 
   .photo__caption {
@@ -73,8 +63,7 @@ const { slot } = Astro.props;
     align-items: baseline;
     gap: 0.5em var(--cu-space-xs);
     margin-top: var(--cu-space-xs);
-    padding-left: 0.9rem;
-    border-left: 1px solid var(--cu-doc-rule);
+    max-width: var(--cu-measure);
     font-size: var(--cu-step--1);
     line-height: 1.6;
     color: var(--cu-text-muted);
@@ -82,8 +71,6 @@ const { slot } = Astro.props;
 
   .photo__credit {
     font-size: var(--cu-step--2);
-    letter-spacing: var(--cu-tracking-wide);
-    text-transform: uppercase;
     color: var(--cu-text-faint);
   }
 </style>

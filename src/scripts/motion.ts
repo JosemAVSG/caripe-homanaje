@@ -1,15 +1,30 @@
 import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
+import { initFog } from './fog';
+import { initDocumentary } from './documentary';
+import { initHeroLetters } from './letters';
 
 /**
- * Progressive enhancement layer for the Caripe documentary.
+ * The scene engine.
+ *
+ * One chapter is one scene. `position: sticky` in the markup holds the
+ * photograph; this file only *describes* the scroll, publishing it as the CSS
+ * custom property `--p` (0 → 1) on each scene so the beats can light up as the
+ * reader passes. The moving parts, in order of importance:
+ *
+ *   · `--p` per scene, written by a scrubbed ScrollTrigger;
+ *   · a staggered entrance for headers and blocks (`[data-reveal-group]`);
+ *   · a slow drift on the hero photograph;
+ *   · a drawn timeline rule and the reading-progress signals;
+ *   · the fog layer and the "Ver como documental" control, each in its own file.
  *
  * Design rules this file obeys:
  *  1. NOTHING is hidden by CSS. Every element is readable at rest, so the page
  *     is complete if this script never runs, fails to load, or throws.
- *  2. With `prefers-reduced-motion: reduce` this function returns immediately.
- *     No pinning, no smooth scroll, no tweens: the document is 100% static.
+ *  2. `prefers-reduced-motion: reduce` skips ALL of the above — no pinning, no
+ *     smoothing, no beats — but still wires the passive time indicator, so the
+ *     reading signal survives.
  *  3. If anything throws after elements have been staged, `revealAll()` clears
  *     the inline styles GSAP applied so no copy can be left invisible.
  */
@@ -17,108 +32,110 @@ import Lenis from 'lenis';
 const MOTION_QUERY = '(prefers-reduced-motion: reduce)';
 
 /** Elements GSAP is allowed to stage as hidden before their reveal. */
-const STAGED_SELECTOR = '[data-reveal]';
+const REVEAL_SELECTOR = '[data-reveal]';
 
-/** Pinning is desktop-only: on phones it fights the dynamic browser chrome. */
-const PIN_QUERY = '(min-width: 48rem)';
+/** A group staggers its own `[data-reveal]` descendants. */
+const GROUP_SELECTOR = '[data-reveal-group]';
 
-/** Smooth scrolling is desktop-only for the same reason. */
+/** Smooth scrolling is desktop-only: on phones it fights the browser chrome. */
 const SMOOTH_QUERY = '(min-width: 48rem)';
 
 function prefersReducedMotion(): boolean {
   return window.matchMedia(MOTION_QUERY).matches;
 }
 
-/** Pins anything declaring `data-pin`, using `data-pin-distance` as a
- *  viewport-height multiplier. Generic, so any scene can opt in from markup. */
-function pinScenes(media: ReturnType<typeof gsap.matchMedia>): void {
-  for (const scene of gsap.utils.toArray<HTMLElement>('[data-pin]')) {
-    const multiplier = Number(scene.dataset.pinDistance ?? '0.7');
+/** Every scene, hero included, publishes a short label for the time bar. */
+function trackTimeIndicator(): void {
+  const text = document.querySelector<HTMLElement>('[data-time-text]');
+  if (!text) return;
 
-    media.add(PIN_QUERY, () => {
-      const distance = () => Math.round(window.innerHeight * multiplier);
+  const scenes = gsap.utils.toArray<HTMLElement>('[data-scene]');
+  if (!scenes.length) return;
 
-      const trigger = ScrollTrigger.create({
-        trigger: scene,
-        start: 'top top',
-        end: () => `+=${distance()}`,
-        pin: true,
-        pinSpacing: true,
-        anticipatePin: 1,
-        invalidateOnRefresh: true,
-      });
-
-      return () => trigger.kill();
-    });
-  }
-}
-
-/** The hero: the fog clears and the land settles while the scene is held. */
-function animateHero(): void {
-  const hero = document.querySelector<HTMLElement>('[data-scene="hero"]');
-  if (!hero) return;
-
-  const multiplier = Number(hero.dataset.pinDistance ?? '0.7');
-  const distance = () => Math.round(window.innerHeight * multiplier);
-
-  const mist = hero.querySelectorAll<HTMLElement>('[data-mist] .mist__layer');
-  const ridges = hero.querySelectorAll<HTMLElement>('[data-ridge]');
-  const content = hero.querySelectorAll<HTMLElement>('[data-hero-content]');
-
-  const scene = gsap.timeline({
-    defaults: { ease: 'none' },
-    scrollTrigger: {
-      trigger: hero,
-      start: 'top top',
-      end: () => `+=${distance()}`,
-      scrub: 0.6,
-      invalidateOnRefresh: true,
+  // A thin band across the middle of the viewport decides which scene is
+  // "now". It reads data, never guesses, and works without any motion.
+  const observer = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        const label = (entry.target as HTMLElement).dataset.time;
+        if (label && text.textContent !== label) text.textContent = label;
+      }
     },
-  });
-
-  // The signature device: fog lifts out of the valley and dissolves, the nearer
-  // layers rising fastest. This is what "Caripe seen through the fog" means.
-  scene.to(
-    mist,
-    {
-      autoAlpha: 0,
-      yPercent: (_i, el) => -100 * Number((el as HTMLElement).dataset.depth ?? 0.4),
-      stagger: 0.04,
-      duration: 0.7,
-    },
-    0,
+    { rootMargin: '-45% 0px -45% 0px' },
   );
 
-  // The land settles as the fog leaves it. Pixel-based so it works on the SVG
-  // roots without relying on getBBox percentages.
-  scene.to(
-    ridges,
-    {
-      y: (i) => -window.innerHeight * (0.012 + i * 0.018),
-      duration: 0.7,
-    },
-    0,
-  );
-
-  // The prologue holds, then hands the screen over to chapter one.
-  scene.to(content, { autoAlpha: 0, y: -56, duration: 0.45 }, 0.55);
+  for (const scene of scenes) observer.observe(scene);
 }
 
-/** Text, sources and plates fade in as they cross the reading line. */
-function revealOnScroll(): void {
-  for (const target of gsap.utils.toArray<HTMLElement>(STAGED_SELECTOR)) {
-    gsap.from(target, {
-      y: 26,
-      autoAlpha: 0,
-      duration: 0.85,
-      ease: 'power3.out',
+/**
+ * Writes `--p` for each chapter scene from the scroll, through a scrubbed
+ * ScrollTrigger. `--p` is declared `1` in the markup so beats are legible with
+ * no script; here it is driven down to 0 and back up across the scene.
+ */
+function trackScenes(): void {
+  for (const scene of gsap.utils.toArray<HTMLElement>('[data-chapter]')) {
+    const state = { p: 0 };
+    const apply = () => scene.style.setProperty('--p', state.p.toFixed(4));
+
+    gsap.to(state, {
+      p: 1,
+      ease: 'none',
+      onUpdate: apply,
       scrollTrigger: {
-        trigger: target,
-        start: 'top 88%',
-        once: true,
+        trigger: scene,
+        start: 'top 85%',
+        end: 'bottom 60%',
+        scrub: 0.4,
+        invalidateOnRefresh: true,
+        onRefresh: apply,
       },
     });
+
+    // Until the trigger has measured itself, the scene starts unrevealed on
+    // purpose. `revealAll()` is the safety net if anything throws.
+    apply();
   }
+}
+
+/** Headers and blocks rise in once, together, a beat apart. */
+function revealGroups(): void {
+  for (const group of gsap.utils.toArray<HTMLElement>(GROUP_SELECTOR)) {
+    const items = gsap.utils.toArray<HTMLElement>(REVEAL_SELECTOR, group);
+    if (!items.length) continue;
+
+    gsap.from(items, {
+      y: 26,
+      autoAlpha: 0,
+      duration: 0.8,
+      ease: 'power3.out',
+      stagger: 0.07,
+      scrollTrigger: { trigger: group, start: 'top 84%', once: true },
+    });
+  }
+}
+
+/** The hero photograph drifts against the scroll — one slow moving picture. */
+function driftHero(): void {
+  const photo = document.querySelector<HTMLElement>('[data-hero-photo]');
+  const hero = document.querySelector<HTMLElement>('[data-scene="hero"]');
+  if (!photo || !hero) return;
+
+  gsap.set(photo, { scale: 1.12 });
+  gsap.fromTo(
+    photo,
+    { yPercent: -4 },
+    {
+      yPercent: 4,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: hero,
+        start: 'top top',
+        end: 'bottom top',
+        scrub: 0.5,
+      },
+    },
+  );
 }
 
 /** The timeline rule is literally drawn by the scroll, one axis per layout. */
@@ -219,6 +236,26 @@ function markActiveChapter(): void {
   }
 }
 
+/**
+ * Scenes more than a viewport away are marked `is-far`, which lets the fog
+ * layer skip per-frame work for anything the reader cannot see yet.
+ */
+function markFarScenes(): void {
+  const scenes = gsap.utils.toArray<HTMLElement>('[data-scene]');
+  if (!scenes.length) return;
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        entry.target.classList.toggle('is-far', !entry.isIntersecting);
+      }
+    },
+    { rootMargin: '120% 0px' },
+  );
+
+  for (const scene of scenes) observer.observe(scene);
+}
+
 /** Anchor links ride the smooth scroller when it is available. */
 function bindAnchorScrolling(lenis: Lenis): void {
   for (const link of document.querySelectorAll<HTMLAnchorElement>('a[href^="#"]')) {
@@ -244,9 +281,21 @@ function bindAnchorScrolling(lenis: Lenis): void {
 /** Safety net: undo any inline staging so no content can be left hidden. */
 function revealAll(): void {
   try {
-    gsap.set(`${STAGED_SELECTOR}, [data-mist] .mist__layer, [data-hero-content]`, {
-      clearProps: 'all',
-    });
+    gsap.set(REVEAL_SELECTOR, { clearProps: 'all' });
+    for (const scene of document.querySelectorAll<HTMLElement>('[data-chapter]')) {
+      scene.style.setProperty('--p', '1');
+      scene.classList.remove('is-far');
+    }
+    for (const scene of document.querySelectorAll<HTMLElement>('[data-scene]')) {
+      scene.classList.remove('is-far');
+    }
+    // The title must be readable even if its script never ran: stand the guard
+    // down and let every letter settle, still and present.
+    const guard = (window as unknown as Record<string, number | undefined>).__caripeLettersGuard;
+    if (guard) window.clearTimeout(guard);
+    if (document.documentElement.dataset.letters !== 'done') {
+      document.documentElement.dataset.letters = 'idle';
+    }
     ScrollTrigger.refresh();
   } catch {
     /* Nothing else we can safely do here. */
@@ -259,8 +308,10 @@ export function initMotion(): void {
   const root = document.documentElement;
 
   if (prefersReducedMotion()) {
-    // The document is already complete and static. Do nothing at all.
+    // No motion. The document is already complete and static; keep only the
+    // passive time indicator, which does not move anything.
     root.dataset.motion = 'reduced';
+    trackTimeIndicator();
     return;
   }
 
@@ -268,11 +319,16 @@ export function initMotion(): void {
     gsap.registerPlugin(ScrollTrigger);
     ScrollTrigger.config({ ignoreMobileResize: true });
 
+    // The hero title's own entrance runs on load, independent of the scroll.
+    initHeroLetters();
+
+    // The smooth scroller, when the layout wants one. It is held in a variable
+    // so playback can freeze it (see `initDocumentary` below) without fighting.
+    let lenis: Lenis | null = null;
     const media = gsap.matchMedia();
 
-    // Smooth scrolling, wired to ScrollTrigger through the GSAP ticker.
     media.add(SMOOTH_QUERY, () => {
-      const lenis = new Lenis({
+      const instance = new Lenis({
         duration: 1.05,
         smoothWheel: true,
         wheelMultiplier: 1,
@@ -281,28 +337,58 @@ export function initMotion(): void {
         // Driven by gsap.ticker below, so Lenis must not run its own loop.
         autoRaf: false,
       });
+      lenis = instance;
 
-      lenis.on('scroll', ScrollTrigger.update);
-      const raf = (time: number) => lenis.raf(time * 1000);
+      instance.on('scroll', ScrollTrigger.update);
+      const raf = (time: number) => instance.raf(time * 1000);
       gsap.ticker.add(raf);
       gsap.ticker.lagSmoothing(0);
 
-      bindAnchorScrolling(lenis);
+      // Anything else that moves the page — a restored position, a native
+      // jump, a harness calling scrollTo — must be adopted rather than snapped
+      // back to Lenis's own target. Lenis only resyncs when it is idle, so
+      // while it is smoothing it would otherwise cancel an external scroll.
+      const adoptNativeScroll = () => {
+        if (Math.abs(window.scrollY - instance.scroll) > 2) {
+          instance.scrollTo(window.scrollY, { immediate: true, force: true });
+        }
+      };
+      window.addEventListener('scroll', adoptNativeScroll, { passive: true });
+
+      bindAnchorScrolling(instance);
 
       return () => {
+        window.removeEventListener('scroll', adoptNativeScroll);
         gsap.ticker.remove(raf);
-        lenis.destroy();
+        instance.destroy();
+        lenis = null;
       };
     });
 
-    pinScenes(media);
-    animateHero();
-    revealOnScroll();
+    trackScenes();
+    revealGroups();
+    driftHero();
     drawTimelines();
     trackProgress();
     markActiveChapter();
+    markFarScenes();
+    trackTimeIndicator();
 
-    // Web fonts change layout heights, which moves every pinned boundary.
+    initFog();
+
+    initDocumentary({
+      getScroll: () => window.scrollY,
+      scrollTo: (y, { immediate }) => {
+        // `force` lets the autonomous scroll move Lenis even while it is
+        // stopped for playback; without Lenis it is a plain scroll.
+        if (lenis) lenis.scrollTo(y, { immediate, force: true });
+        else window.scrollTo({ top: y, behavior: immediate ? 'auto' : 'smooth' });
+      },
+      onPlay: () => lenis?.stop(),
+      onPause: () => lenis?.start(),
+    });
+
+    // Web fonts change layout heights, which moves every measured boundary.
     document.fonts?.ready.then(() => ScrollTrigger.refresh());
     window.addEventListener('load', () => ScrollTrigger.refresh(), { once: true });
 

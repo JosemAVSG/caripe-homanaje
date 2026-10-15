@@ -1,0 +1,83 @@
+---
+import { Image } from 'astro:assets';
+import { bandPhoto } from '../content/layout';
+import { getPhoto } from '../content/photos';
+import PhotoCreditLine from './PhotoCreditLine.astro';
+
+/**
+ * A full-bleed photograph that breaks the run of chapters.
+ *
+ * One real picture of the place, held across the screen, with its caption and
+ * its credit. It is a rest between two chapters and a reminder of what the
+ * documentary is looking at; it claims nothing the archive does not.
+ */
+const photo = getPhoto(bandPhoto.photo);
+---
+
+<section class="band" aria-label="Caripe en una imagen">
+  <figure class="band__figure" data-band>
+    <Image
+      class="band__image"
+      src={photo.src}
+      alt={bandPhoto.alt}
+      widths={[960, 1440, 1920]}
+      sizes="100vw"
+      format="webp"
+      quality={74}
+      loading="lazy"
+      decoding="async"
+    />
+    <div class="u-scrim" aria-hidden="true"></div>
+    <figcaption class="band__caption">
+      <span class="band__text">{bandPhoto.caption}</span>
+      <PhotoCreditLine credit={photo.credit} />
+    </figcaption>
+  </figure>
+</section>
+
+<style>
+  .band {
+    margin: 0;
+  }
+
+  .band__figure {
+    position: relative;
+    margin: 0;
+    min-height: clamp(24rem, 72svh, 46rem);
+    overflow: clip;
+    background-color: var(--cu-monte-900);
+  }
+
+  .band__image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: saturate(0.84) contrast(1.04) brightness(0.96);
+  }
+
+  .band__caption {
+    position: absolute;
+    inset: auto 0 0 0;
+    z-index: 2;
+    display: grid;
+    gap: var(--cu-space-3xs);
+    padding: var(--cu-space-md) var(--cu-gutter) var(--cu-space-sm);
+    color: var(--cu-hueso);
+  }
+
+  .band__text {
+    max-width: var(--cu-measure);
+    font-size: var(--cu-step--1);
+    line-height: 1.5;
+    text-wrap: pretty;
+  }
+
+  .band__caption :global(.credit),
+  .band__caption :global(.credit__author),
+  .band__caption :global(.credit__license),
+  .band__caption :global(.credit__link) {
+    color: var(--cu-bruma-200);
+  }
+</style>

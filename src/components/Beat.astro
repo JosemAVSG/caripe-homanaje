@@ -2,38 +2,52 @@
 import type { Beat } from '../content/types';
 
 /**
- * Renders one narrative beat in the visual register its `voice` declares.
+ * One narrative beat, in the visual register its `voice` declares.
  *
- * The two voices must be unmistakable at a glance, so they differ in far more
- * than wording:
- *   - documental: sober serif, cool bone text, a thin source footnote.
- *   - testimonio: warm coffee panel, inset, italic display serif, a warm rule.
+ * The beat carries its own slice of the scene's scroll progress: `rangeA` is
+ * the point (`--p`) at which it starts to appear and `rangeR` how long it takes
+ * to settle. `motion.ts` writes `--p`; `global.css` and this file turn it into
+ * opacity and a short rise. With no script, `--p` stays at 1, so every beat is
+ * legible at rest and nothing is ever hidden by default.
  *
- * Nothing is hardcoded here that belongs to content: the beat carries the data,
- * the `voice` field picks the variant.
+ * The two voices stay unmistakable: sober serif in the full ink for the
+ * documentary, a warm filled panel in the display face for the testimony. The
+ * voice label sits *below* the quotation so it can never read as an eyebrow.
  */
 interface Props {
   beat: Beat;
+  /** Where in the scene (0–1) this beat starts to appear. */
+  rangeA: string;
+  /** How much of the scene's progress the appearance takes. */
+  rangeR: string;
 }
 
-const { beat } = Astro.props;
+const { beat, rangeA, rangeR } = Astro.props;
 const isTestimony = beat.voice === 'testimonio';
 ---
 
 {
   isTestimony ? (
-    <figure class="beat beat--testimonio" data-reveal>
-      <figcaption class="beat__voice" data-voice-label>
-        <span class="beat__voice-name">Testimonio</span>
-        {beat.placeholder ? <span class="beat__voice-note">voz preliminar</span> : null}
-      </figcaption>
+    <figure
+      class="beat beat--testimonio"
+      data-beat={`${rangeA} ${rangeR}`}
+      style={`--beat-a:${rangeA};--beat-r:${rangeR}`}
+    >
       <blockquote class="beat__quote">
         <p>{beat.text}</p>
       </blockquote>
-      {beat.attribution ? <p class="beat__attribution">{beat.attribution}</p> : null}
+      <figcaption class="beat__voice">
+        <span class="beat__voice-name">Testimonio</span>
+        {beat.placeholder ? <span class="beat__voice-note">voz preliminar</span> : null}
+        {beat.attribution ? <span class="beat__voice-note">{beat.attribution}</span> : null}
+      </figcaption>
     </figure>
   ) : (
-    <div class="beat beat--documental" data-reveal>
+    <div
+      class="beat beat--documental"
+      data-beat={`${rangeA} ${rangeR}`}
+      style={`--beat-a:${rangeA};--beat-r:${rangeR}`}
+    >
       <p class="beat__text">{beat.text}</p>
       {beat.source ? (
         <p class="beat__source">
@@ -48,46 +62,48 @@ const isTestimony = beat.voice === 'testimonio';
 <style>
   .beat {
     margin: 0;
+    /* Beat reveal is the only thing that hides a beat, and only when motion is
+       on. It is a transform and an opacity, never a layout change. */
   }
 
-  /* -- Voice: documental ---------------------------------------------------
-     Sober and cool. Sits in the main column at a comfortable reading measure. */
+  :global(html[data-motion='on']) .beat {
+    --beat-o: clamp(0, calc((var(--p) - var(--beat-a, 0)) / var(--beat-r, 0.3)), 1);
+    opacity: var(--beat-o);
+    transform: translate3d(0, calc((1 - var(--beat-o)) * 18px), 0);
+    transition:
+      opacity 240ms linear,
+      transform 240ms var(--cu-ease);
+  }
+
+  /* -- Voice: documental --------------------------------------------------
+     Sober, at a comfortable reading measure, in the full ink. */
 
   .beat--documental {
     max-width: var(--cu-measure);
   }
 
-  .beat--documental + .beat--documental {
-    margin-top: var(--cu-space-md);
-  }
-
   .beat__text {
-    font-family: var(--cu-font-serif);
-    font-size: var(--cu-step-1);
+    font-size: var(--cu-step-0);
     font-weight: 300;
     line-height: var(--cu-leading-body);
     color: var(--cu-doc-text);
   }
 
-  /* The source footnote is what makes the documentary voice trustworthy:
-     it is always present when a claim is a fact, never invented. */
+  /* The source note is what makes the documentary voice trustworthy: always
+     present when a claim is a fact, never invented. */
   .beat__source {
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;
-    gap: 0.55em;
+    gap: 0.5em;
     margin-top: var(--cu-space-2xs);
-    padding-left: 0.9rem;
-    border-left: 1px solid var(--cu-doc-rule);
-    font-family: var(--cu-font-sans);
     font-size: var(--cu-step--2);
     line-height: 1.5;
     color: var(--cu-text-faint);
   }
 
   .beat__source-label {
-    letter-spacing: var(--cu-tracking-wider);
-    text-transform: uppercase;
+    color: var(--cu-text-muted);
   }
 
   .beat__source-name {
@@ -95,55 +111,16 @@ const isTestimony = beat.voice === 'testimonio';
     color: var(--cu-text-muted);
   }
 
-  /* -- Voice: testimonio ---------------------------------------------------
-     Warm, inset, and set in a different typeface. The reader should never have
-     to wonder who is speaking. */
+  /* -- Voice: testimonio --------------------------------------------------
+     Warm, and set in the display face. The reader never has to wonder who is
+     speaking: the panel and the face say it before the words do. */
 
   .beat--testimonio {
     max-width: var(--cu-measure);
-    padding: clamp(1.4rem, 4vw, 2.4rem) clamp(1.3rem, 4vw, 2.4rem);
+    padding: clamp(1.4rem, 4vw, 2.4rem);
     background-color: var(--cu-testimony-bg);
-    background-image: radial-gradient(
-      120% 120% at 0% 0%,
-      color-mix(in srgb, var(--cu-cafe-600) 55%, transparent) 0%,
-      transparent 62%
-    );
-    border-radius: var(--cu-radius);
     border-left: 3px solid var(--cu-testimony-rule);
     color: var(--cu-testimony-text);
-    box-shadow: 0 24px 60px -40px color-mix(in srgb, #000 90%, transparent);
-  }
-
-  .beat--documental + .beat--testimonio,
-  .beat--testimonio + .beat--documental,
-  .beat--testimonio + .beat--testimonio {
-    margin-top: var(--cu-space-lg);
-  }
-
-  .beat__voice {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 0.6em;
-    margin-bottom: var(--cu-space-xs);
-  }
-
-  .beat__voice-name {
-    font-family: var(--cu-font-sans);
-    font-size: var(--cu-step--2);
-    font-weight: 600;
-    letter-spacing: var(--cu-tracking-wider);
-    text-transform: uppercase;
-    color: var(--cu-testimony-muted);
-  }
-
-  /* Honest, discreet marker: this voice is written, not yet collected. */
-  .beat__voice-note {
-    font-family: var(--cu-font-sans);
-    font-size: var(--cu-step--2);
-    letter-spacing: var(--cu-tracking-wide);
-    text-transform: lowercase;
-    color: color-mix(in srgb, var(--cu-testimony-muted) 62%, transparent);
   }
 
   .beat__quote {
@@ -152,7 +129,7 @@ const isTestimony = beat.voice === 'testimonio';
 
   .beat__quote p {
     font-family: var(--cu-font-display);
-    font-size: var(--cu-step-2);
+    font-size: var(--cu-step-1);
     font-style: italic;
     font-variation-settings: 'opsz' 40, 'SOFT' 70, 'WONK' 1, 'wght' 400;
     line-height: var(--cu-leading-quote);
@@ -160,12 +137,23 @@ const isTestimony = beat.voice === 'testimonio';
     color: var(--cu-testimony-text);
   }
 
-  .beat__attribution {
+  .beat__voice {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.6em;
     margin-top: var(--cu-space-sm);
-    font-family: var(--cu-font-sans);
     font-size: var(--cu-step--2);
-    letter-spacing: var(--cu-tracking-wide);
-    text-transform: uppercase;
-    color: color-mix(in srgb, var(--cu-testimony-muted) 80%, transparent);
+    color: var(--cu-testimony-muted);
+  }
+
+  .beat__voice-name {
+    color: var(--cu-testimony-muted);
+  }
+
+  /* Honest, discreet marker: this voice is written, not yet collected. */
+  .beat__voice-note {
+    font-style: italic;
+    color: color-mix(in srgb, var(--cu-testimony-muted) 78%, transparent);
   }
 </style>

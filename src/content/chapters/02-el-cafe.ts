@@ -14,7 +14,6 @@ import type { Chapter } from '../types';
 export const chapter: Chapter = {
   slug: 'chapter-2-cafe',
   order: 2,
-  number: '02',
   title: 'El café',
   kicker: 'En preparación',
   tone: 'cafe',
