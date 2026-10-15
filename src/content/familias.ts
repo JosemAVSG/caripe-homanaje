@@ -1,12 +1,28 @@
 /**
- * Structured family data for the Luongo family based solely on research report.
- * Only verifiable details included. Uncertainty is explicitly marked.
+ * Structured data for the documented families of Caripe.
+ *
+ * Everything here comes from the research report. Where the report says
+ * "Wikipedia, sin cita" the source says so too, and every entry that carries
+ * any doubt declares it in `uncertainty`. Nothing here invents a date, a source
+ * or a kinship.
+ *
+ * Evidence levels, as the report uses them:
+ *   a — corroborated by more than one documentary source.
+ *   b — oral tradition or an unsourced clue (a hint, not a fact).
+ *   c — no source at all.
+ * For this family every milestone is (b): the regional context is the only
+ * thing that could reach level (a), and no family date qualifies.
  */
-export interface TimelineMilestone {
+
+export type Level = 'a' | 'b' | 'c';
+
+export interface FamilyMilestone {
+  /** Year as written by the report; `null` when the report gives no date. */
   year: string | null;
   event: string;
   source?: string;
-  level: 'a' | 'b' | 'c';
+  level: Level;
+  /** Why the date or the attribution cannot be taken at face value. */
   uncertainty?: string;
 }
 
@@ -14,10 +30,18 @@ export interface Family {
   id: string;
   name: string;
   surnames: string;
+  /** Only when the report states it. */
   origin?: string;
   notes?: string;
-  milestones: TimelineMilestone[];
+  milestones: FamilyMilestone[];
 }
+
+/** What each confidence level means, spelled out for the reader. */
+export const levels = {
+  a: 'corroborado',
+  b: 'tradición oral o indicio',
+  c: 'sin fuente',
+} as const;
 
 export const families: Family[] = [
   {
@@ -26,56 +50,59 @@ export const families: Family[] = [
     surnames: 'Luongo',
     origin: 'Padula (Campania, Italia)',
     notes:
-      'Mayoría de hitos: tradición oral (nivel b). No se han hallado respaldos documentales para las fechas familiares. El único nivel (a) posible es contexto regional, no fechas familiares. "Wikipedia sin cita" debe tomarse como indicio.',
+      'La mayoría de los hitos son tradición oral (nivel b). No se han hallado respaldos documentales para las fechas familiares.',
     milestones: [
       {
         year: '~1870',
-        event: 'Francesco Luongo Di Stefano llega a Caripe (~1870). Origen Padula (Campania). Casa comercial "Luongo & Cía."',
+        event:
+          'Francesco Luongo Di Stefano llega a Caripe y establece la casa comercial "Luongo & Cía.".',
         source: 'Informe de investigación',
         level: 'b',
-        uncertainty: 'Fecha aproximada. No se ha hallado respaldo documental.',
+        uncertainty: 'Fecha aproximada, sin respaldo documental hallado.',
       },
       {
         year: null,
-        event: 'Antonio Luongo Bianco: puente migratorio',
+        event: 'Antonio Luongo Bianco, señalado como puente migratorio.',
         source: 'Informe de investigación',
         level: 'b',
-        uncertainty: 'Identidad y cronología no documentadas.',
+        uncertainty: 'Sin fecha ni parentesco documentados.',
       },
       {
         year: '1933',
-        event: 'Primera planta eléctrica (Hermanos Luongo Cabello)',
-        source: 'Wikipedia (sin cita)',
+        event: 'Primera planta eléctrica: hermanos Luongo Cabello.',
+        source: 'Wikipedia, sin cita',
         level: 'b',
-        uncertainty: 'Wikipedia sin cita. No corroborado documentalmente.',
+        uncertainty: 'Wikipedia sin cita: indicio, no hecho corroborado.',
       },
       {
         year: '1945',
-        event: 'Primer acueducto y tomas públicas de agua ("Amedeo/Amedeo Luongo")',
-        source: 'Wikipedia (sin cita)',
+        event:
+          'Primer acueducto y tomas públicas de agua, atribuidos a "Amedeo Luongo" (la misma fuente alterna "Amadeo").',
+        source: 'Wikipedia, sin cita',
         level: 'b',
-        uncertainty: 'Wikipedia sin cita. Posible identidad poco clara (Amedeo/Amadeo).',
+        uncertainty: 'Wikipedia sin cita. La identidad del autor de la obra no está documentada.',
       },
       {
-        year: '1950-01-02',
-        event: 'Presidente del Concejo Municipal José Amadeo Luongo (2 de enero de 1950)',
-        source: 'Wikipedia (sin cita)',
+        year: '1950',
+        event: 'El 2 de enero, José Amadeo Luongo preside el Concejo Municipal.',
+        source: 'Wikipedia, sin cita',
         level: 'b',
-        uncertainty: 'Wikipedia sin cita. No se ha hallado respaldo documental.',
-      },
-      {
-        year: null,
-        event: 'Raíces de Córcega y Padula se unen en Caripe (vínculo Luongo–Padula y Simonpietri–Córcega)',
-        source: 'Informe de investigación',
-        level: 'b',
-        uncertainty: 'Afirmación interpretativa/tradición oral.',
+        uncertainty: 'Wikipedia sin cita, sin respaldo documental hallado.',
       },
       {
         year: null,
-        event: 'Conflicto cronológico: finales del siglo XIX vs Primera Guerra Mundial (no resuelto)',
+        event:
+          'La frase "Raíces de Córcega y Padula se unen en Caripe" vincula a los Luongo con Padula y a los Simonpietri con Córcega.',
         source: 'Informe de investigación',
         level: 'b',
-        uncertainty: 'No resuelto. Contraposición entre versiones orales.',
+        uncertainty: 'Formulación de tradición oral, no un registro.',
+      },
+      {
+        year: null,
+        event: 'Contradicción sin resolver: la migración se sitúa a finales del siglo XIX o en la Primera Guerra Mundial.',
+        source: 'Informe de investigación',
+        level: 'b',
+        uncertainty: 'No resuelto. Las versiones orales discrepan.',
       },
     ],
   },

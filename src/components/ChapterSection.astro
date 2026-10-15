@@ -5,6 +5,7 @@ import Beat from './Beat.astro';
 import ChapterGallery from './ChapterGallery.astro';
 import ChapterTimeline from './ChapterTimeline.astro';
 import EvidencePlates from './EvidencePlates.astro';
+import FormingText from './FormingText.astro';
 import LexiconPlate from './LexiconPlate.astro';
 import PhotoSlot from './PhotoSlot.astro';
 import PhotoCreditLine from './PhotoCreditLine.astro';
@@ -44,6 +45,7 @@ const {
   lede,
   tone = 'monte',
   beats,
+  statement,
   lexicon,
   timeline,
   plates,
@@ -56,6 +58,7 @@ const {
 
 const titleId = `${slug}-title`;
 const hasBeats = beats.length > 0;
+const hasStatement = Boolean(statement);
 const hasTimeline = Boolean(timeline && timeline.length > 0);
 const hasPlates = Boolean(plates && plates.length > 0);
 
@@ -126,6 +129,29 @@ const fog = FOG[slug] ?? 'light';
     }
 
     <div class="scene__body" data-reveal-group>
+      {
+        statement ? (
+          <figure class="scene__statement">
+            <blockquote class="scene__statement-quote">
+              <FormingText
+                as="p"
+                class="scene__statement-text"
+                text={statement.text}
+                start={0.06}
+                spread={0.68}
+                dur={0.28}
+              />
+            </blockquote>
+            {statement.attribution || statement.placeholder ? (
+              <figcaption class="scene__statement-caption">
+                {statement.attribution ? <span>{statement.attribution}</span> : null}
+                {statement.placeholder ? <span>voz preliminar</span> : null}
+              </figcaption>
+            ) : null}
+          </figure>
+        ) : null
+      }
+
       {hasPlates ? <EvidencePlates plates={plates!} /> : null}
 
       {
@@ -227,6 +253,51 @@ const fog = FOG[slug] ?? 'light';
     font-size: var(--cu-step-1);
     line-height: var(--cu-leading-quote);
     color: var(--cu-hueso-soft);
+  }
+
+  /* -- The chapter's cita --------------------------------------------------
+     One quotation, on its own, at the largest size that is still a sentence
+     and not a headline: 36px on a desktop, 24px on a phone. Nothing overlaps
+     it, and it carries no gradient and no lift. The size and the measure do
+     the work. */
+
+  .scene__statement {
+    display: grid;
+    gap: var(--cu-space-xs);
+    margin: 0;
+  }
+
+  .scene__statement-quote {
+    margin: 0;
+  }
+
+  .scene__statement-text {
+    max-width: 44rem;
+    font-family: var(--cu-font-display);
+    font-size: 1.5rem; /* 24px — the ceiling on a phone */
+    font-style: italic;
+    font-variation-settings: 'opsz' 40, 'SOFT' 60, 'WONK' 1, 'wght' 400;
+    line-height: 1.32;
+    letter-spacing: var(--cu-tracking-display);
+    text-wrap: pretty;
+    color: var(--cu-hueso);
+  }
+
+  @media (min-width: 48rem) {
+    .scene__statement-text {
+      font-size: 2.25rem; /* 36px — the ceiling on a desktop */
+    }
+  }
+
+  /* The one line that says who is speaking, and whether it is yet a record.
+     Sentence case: this is a credit, not a label. */
+  .scene__statement-caption {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1rem;
+    max-width: 44rem;
+    font-size: var(--cu-step--1);
+    color: var(--cu-bruma-300);
   }
 
   /* -- Stage: the photograph that holds the screen ------------------------ */

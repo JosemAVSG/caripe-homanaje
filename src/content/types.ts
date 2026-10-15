@@ -39,6 +39,21 @@ export interface TestimonyBeat {
 
 export type Beat = DocumentaryBeat | TestimonyBeat;
 
+/**
+ * The chapter's single quotation, set large and alone.
+ *
+ * It is a statement, not another beat: it stands on its own, before the
+ * narration, and the letters that form it are the same device the hero uses.
+ * `placeholder` carries the testimony contract here too — a written stand-in
+ * says so on the page.
+ */
+export interface Statement {
+  text: string;
+  attribution?: string;
+  /** Marks a written stand-in still awaiting its recorded counterpart. */
+  placeholder?: boolean;
+}
+
 /** A dated milestone drawn on the chapter's timeline. */
 export interface Milestone {
   date: string;
@@ -110,6 +125,8 @@ export interface Chapter {
   lede?: string;
   tone?: Tone;
   beats: Beat[];
+  /** The chapter's own quotation, set large. Omitted when there is none. */
+  statement?: Statement;
   lexicon?: LexiconEntry;
   timeline?: Milestone[];
   /** Historical documents, staged as the chapter's evidence row. */

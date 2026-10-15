@@ -21,6 +21,14 @@ export const chapter: Chapter = {
   tone: 'monte',
   lede: 'Un naturalista alemán entró en una cueva del oriente de Venezuela, y el nombre del pueblo quedó escrito en la taxonomía del mundo.',
 
+  // The chapter's opening voice, set large and alone before the narration. It
+  // is the first testimony this file used to carry inside `beats`; keeping it
+  // in one place only is the point, so it is not repeated further down.
+  statement: {
+    text: 'Yo nací aquí y viví veintidós años entre esta neblina. Uno aprende a leer el día por el color de la bruma: si baja hasta el valle va a llover; si se queda arriba, todavía hay tiempo.',
+    placeholder: true,
+  },
+
   lexicon: {
     term: 'Steatornis caripensis',
     lang: 'la',
@@ -88,12 +96,6 @@ export const chapter: Chapter = {
       voice: 'documental',
       text: 'El ave que habita la cueva lleva el nombre del lugar: Steatornis caripensis, literalmente «ave grasa de Caripe». Es la razón por la que un pueblo de Monagas figura en la taxonomía mundial.',
       source: { label: 'Nomenclatura zoológica' },
-    },
-    {
-      // Placeholder voice: keep it free of proper nouns, dates and figures.
-      voice: 'testimonio',
-      text: 'Yo nací aquí y viví veintidós años entre esta neblina. Uno aprende a leer el día por el color de la bruma: si baja hasta el valle va a llover; si se queda arriba, todavía hay tiempo.',
-      placeholder: true,
     },
     {
       voice: 'documental',

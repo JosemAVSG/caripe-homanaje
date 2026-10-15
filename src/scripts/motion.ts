@@ -3,7 +3,7 @@ import ScrollTrigger from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
 import { initFog } from './fog';
 import { initDocumentary } from './documentary';
-import { initHeroLetters } from './letters';
+import { initFormingText } from './letters';
 
 /**
  * The scene engine.
@@ -329,12 +329,17 @@ function revealAll(): void {
     for (const beat of document.querySelectorAll<HTMLElement>('.beat')) {
       beat.style.setProperty('--beat-o', '1');
     }
-    // The title must be readable even if its script never ran: stand the guard
-    // down and let every letter settle, still and present.
-    const guard = (window as unknown as Record<string, number | undefined>).__caripeLettersGuard;
-    if (guard) window.clearTimeout(guard);
-    if (document.documentElement.dataset.letters !== 'done') {
-      document.documentElement.dataset.letters = 'idle';
+    // A run of forming text must be readable even if its script never ran:
+    // cancel every instance's guard and let its letters settle, still and
+    // present.
+    const guards = (window as unknown as { __caripeFormingGuards?: Map<Element, number> })
+      .__caripeFormingGuards;
+    if (guards) {
+      for (const timer of guards.values()) window.clearTimeout(timer);
+      guards.clear();
+    }
+    for (const instance of document.querySelectorAll<HTMLElement>('[data-forming]')) {
+      if (instance.dataset.forming !== 'done') instance.dataset.forming = 'idle';
     }
     ScrollTrigger.refresh();
   } catch {
@@ -359,8 +364,8 @@ export function initMotion(): void {
     gsap.registerPlugin(ScrollTrigger);
     ScrollTrigger.config({ ignoreMobileResize: true });
 
-    // The hero title's own entrance runs on load, independent of the scroll.
-    initHeroLetters();
+    // The title's own entrance runs per instance, independent of the scroll.
+    initFormingText();
 
     // The smooth scroller, when the layout wants one. It is held in a variable
     // so playback can freeze it (see `initDocumentary` below) without fighting.

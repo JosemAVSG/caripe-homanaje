@@ -1,10 +1,21 @@
 ---
-import { families } from '../content/familias';
+import { families, levels } from '../content/familias';
 
 /**
- * Families and horizontal timelines.
- * Spanish UI labels, English in code/comments/filenames per project rules.
+ * Familias — one card per family, and a horizontal timeline behind each.
+ *
+ * The panel is a native `<dialog>`:
+ *   · the static HTML ships it `open`, so with no JavaScript the reader simply
+ *     finds the timelines in the flow of the page — nothing is hidden by CSS;
+ *   · the script closes it and hands the work to `showModal()`, which brings
+ *     the backdrop, the focus trap and Esc for free.
+ *
+ * Nothing inside the dialog carries `[data-reveal]`: those are staged by GSAP
+ * from their position in the page, and a modal is not in the page.
+ *
+ * Interface copy is Spanish; code, comments and filenames are English.
  */
+const levelKeys = Object.keys(levels) as Array<keyof typeof levels>;
 ---
 
 <section class="familias" id="familias" data-scene data-time="Familias">
@@ -12,168 +23,210 @@ import { families } from '../content/familias';
     <header class="familias__header" data-reveal-group>
       <h2 class="familias__title" data-reveal>Familias</h2>
       <p class="familias__lede" data-reveal>
-        Sistema de familias con líneas de tiempo horizontales. Solo se muestran los datos verificados del informe de investigación.
+        Familias de las que hay noticia en Caripe. Cada una abre su propia
+        cronología: una línea de tiempo horizontal que se recorre deslizando de
+        izquierda a derecha.
       </p>
-      <p class="familias__disclaimer" data-reveal>
-        La mayoría de los hitos son tradición oral (nivel b). No se han hallado respaldos documentales para las fechas familiares. Solo el contexto regional podría considerarse nivel (a); no se asumen fechas familiares. Cuando se indica &ldquo;Wikipedia sin cita&rdquo;, ello se marca explícitamente.
+      <p class="familias__note" data-reveal>
+        La mayoría de los hitos son tradición oral (nivel b). No se han hallado
+        respaldos documentales para las fechas familiares. El nivel (a) solo
+        alcanzaría al contexto regional, nunca a una fecha de familia. Aquí se
+        dice explícitamente lo que no está respaldado.
       </p>
     </header>
 
-    <div class="familias__list" role="list">
-      {families.map((family) => (
-        <article class="familia-card" role="listitem" data-family-id={family.id}>
-          <button
-            type="button"
-            class="familia-card__button"
-            aria-expanded="false"
-            aria-controls={`timeline-panel-${family.id}`}
-            data-family-toggle
-          >
-            <div class="familia-card__header">
-              <h3 class="familia-card__name">{family.name}</h3>
-              <span class="familia-card__surnames">{family.surnames}</span>
-            </div>
-            {family.origin && <p class="familia-card__origin">Origen: {family.origin}</p>}
-            {family.notes && <p class="familia-card__notes">{family.notes}</p>}
-            <span class="familia-card__cta" aria-hidden="true">Ver línea de tiempo horizontal</span>
-          </button>
-        </article>
-      ))}
-    </div>
+    <ul class="familias__list">
+      {
+        families.map((family) => (
+          <li class="familia" data-reveal>
+            <button
+              type="button"
+              class="familia__button"
+              data-family-open={`timeline-${family.id}`}
+              aria-expanded="false"
+              aria-controls={`timeline-${family.id}`}
+            >
+              <span class="familia__name">{family.name}</span>
+              <span class="familia__meta">
+                {family.origin ? `Origen atribuido: ${family.origin}` : 'Origen no documentado'}
+              </span>
+              <span class="familia__meta">
+                {family.milestones.length} hitos · todos nivel b (tradición oral o indicio)
+              </span>
+              <span class="familia__action">Abrir la cronología horizontal</span>
+            </button>
+            {family.notes ? <p class="familia__notes">{family.notes}</p> : null}
+          </li>
+        ))
+      }
+    </ul>
   </div>
 
-  <!-- Timeline panels (modal-like behavior, inline for no-JS resilience) -->
-  {families.map((family) => (
-    <div
-      id={`timeline-panel-${family.id}`}
-      class="timeline-panel"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby={`timeline-title-${family.id}`}
-      aria-hidden="true"
-      data-timeline-panel
-      data-family-id={family.id}
-    >
-      <div class="timeline-panel__backdrop" data-timeline-close></div>
-      <div class="timeline-panel__content" role="document" tabindex="-1">
-        <header class="timeline-panel__header">
+  {
+    families.map((family) => (
+      <dialog
+        class="timeline"
+        id={`timeline-${family.id}`}
+        data-timeline
+        aria-labelledby={`timeline-title-${family.id}`}
+        open
+      >
+        <header class="timeline__header">
           <div>
-            <h3 id={`timeline-title-${family.id}`} class="timeline-panel__title">
-              {family.name} · Línea de tiempo horizontal
+            <h3 class="timeline__title" id={`timeline-title-${family.id}`}>
+              {family.name}
             </h3>
-            <p class="timeline-panel__subtitle">{family.surnames}{family.origin ? ` · ${family.origin}` : ''}</p>
+            <p class="timeline__subtitle">Cronología horizontal</p>
           </div>
-          <button
-            type="button"
-            class="timeline-panel__close"
-            aria-label="Cerrar línea de tiempo"
-            data-timeline-close
-          >
+          <button type="button" class="timeline__close" data-timeline-close>
             Cerrar
           </button>
         </header>
 
-        <div class="timeline-panel__legend" aria-label="Leyenda de niveles de fiabilidad">
-          <span class="legend-item"><strong>(a)</strong> corroborado</span>
-          <span class="legend-item"><strong>(b)</strong> tradición oral/indicio</span>
-          <span class="legend-item"><strong>(c)</strong> sin fuente</span>
+        <div
+          class="timeline__scroller"
+          data-lenis-prevent
+          tabindex="0"
+          role="group"
+          aria-label="Cronología horizontal. Se recorre con las flechas del teclado o deslizando."
+        >
+          <ol class="track">
+            {family.milestones.map((milestone) => (
+              <li class="event" data-level={milestone.level}>
+                <span class="event__node" aria-hidden="true" />
+                <p class="event__year">{milestone.year ?? 'Sin fecha'}</p>
+                <p class="event__text">{milestone.event}</p>
+                <p class="event__level">
+                  Nivel {milestone.level} · {levels[milestone.level]}
+                </p>
+                {milestone.source ? (
+                  <p class="event__source">Fuente: {milestone.source}</p>
+                ) : null}
+                {milestone.uncertainty ? (
+                  <p class="event__uncertainty">Incertidumbre: {milestone.uncertainty}</p>
+                ) : null}
+              </li>
+            ))}
+          </ol>
         </div>
 
-        <div class="timeline-panel__body">
-          <div class="h-timeline" role="region" aria-label="Línea de tiempo horizontal" data-horizontal-timeline>
-            <div class="h-timeline__track" tabindex="0" role="list">
-              {family.milestones.map((milestone, idx) => (
-                <article class="h-timeline__event" role="listitem" data-reveal>
-                  <div class="h-timeline__connector" aria-hidden="true"></div>
-                  <div class="h-timeline__node" aria-hidden="true"></div>
-                  <div class="h-timeline__content">
-                    {milestone.year && <p class="h-timeline__year">{milestone.year} <span class="h-timeline__level">({milestone.level})</span></p>}
-                    {!milestone.year && <p class="h-timeline__year">Sin fecha <span class="h-timeline__level">({milestone.level})</span></p>}
-                    <p class="h-timeline__event-text">{milestone.event}</p>
-                    {milestone.source && <p class="h-timeline__source">Fuente: {milestone.source}</p>}
-                    {milestone.uncertainty && <p class="h-timeline__uncertainty">Incertidumbre: {milestone.uncertainty}</p>}
-                  </div>
-                </article>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div class="timeline-panel__footer">
-          <p class="timeline-panel__note">
-            * La mayoría son nivel b. El único nivel (a) posible es contexto regional, NO fechas familiares. Cuando dice &ldquo;Wikipedia sin cita&rdquo;, se indica explícitamente. No se muestran certezas donde no las hay.
+        <footer class="timeline__footer">
+          <ul class="legend">
+            {levelKeys.map((key) => (
+              <li>
+                <span class="legend__key">({key})</span> {levels[key]}
+              </li>
+            ))}
+          </ul>
+          <p class="timeline__note">
+            Los siete hitos son nivel b: tradición oral o indicio sin respaldo
+            documental. Cuando la fuente es Wikipedia sin cita, así se indica.
           </p>
-        </div>
-      </div>
-    </div>
-  ))}
+        </footer>
+      </dialog>
+    ))
+  }
 </section>
 
 <script>
-  // Minimal JS for opening/closing panel and focus management. Respects no-JS (panel remains in DOM; buttons still usable).
-  function initFamilies() {
-    const toggles = document.querySelectorAll('[data-family-toggle]');
-    const panels = document.querySelectorAll('[data-timeline-panel]');
+  /**
+   * Progressive enhancement. The markup already ships the timelines `open` and
+   * in the flow, so the script only upgrades them: it closes them and opens them
+   * as modal dialogs, which brings the backdrop, the focus trap and Esc with no
+   * hand-rolled trap. If `showModal` is missing, nothing is touched and the
+   * reader keeps the in-flow version.
+   */
+  function initFamilies(): void {
+    const dialogs = Array.from(document.querySelectorAll<HTMLDialogElement>('[data-timeline]'));
+    if (!dialogs.length) return;
 
-    function closePanel(panel) {
-      panel.setAttribute('aria-hidden', 'true');
-      panel.classList.remove('is-open');
-      const id = panel.getAttribute('data-family-id');
-      const toggle = document.querySelector(`[data-family-toggle][aria-controls="timeline-panel-${id}"]`);
-      if (toggle) toggle.setAttribute('aria-expanded', 'false');
-      document.body.style.removeProperty('overflow');
+    // Without `showModal` there is no modal to speak of, and the in-flow markup
+    // is the better document: leave every dialog exactly as it shipped.
+    if (typeof HTMLDialogElement.prototype.showModal !== 'function') return;
+
+    const scrollStep = (scroller: HTMLElement) => scroller.clientWidth * 0.8;
+
+    for (const dialog of dialogs) {
+      // The element ships `open` so it is readable without a script; from here
+      // the user agent decides (`display: none` until it is shown).
+      dialog.removeAttribute('open');
+
+      const trigger = document.querySelector<HTMLElement>(`[data-family-open="${dialog.id}"]`);
+      const scroller = dialog.querySelector<HTMLElement>('.timeline__scroller');
+      const events = Array.from(dialog.querySelectorAll<HTMLElement>('.event'));
+
+      /**
+       * Writes `--event-o` (0 → 1) on each event from where THAT event is in
+       * the visible window right now.
+       *
+       * Deliberately not a global progress split by index: on this page that
+       * approach measured elements at full attention rendering at half
+       * opacity, and the last one never arriving at all. Here an event is
+       * measured on its own, fully revealed a short way inside the reading
+       * edge, and then held at exactly 1 for as long as it is on screen. It is
+       * the same contract `motion.ts` keeps for a beat.
+       */
+      const revealEvents = (): void => {
+        if (!scroller || !events.length) return;
+
+        const view = scroller.getBoundingClientRect();
+        const travel = Math.min(320, Math.max(140, view.width * 0.22));
+
+        for (const event of events) {
+          const offset = event.getBoundingClientRect().left - view.right;
+          const progress = offset >= 0 ? 0 : Math.min(1, -offset / travel);
+          event.style.setProperty('--event-o', progress.toFixed(4));
+        }
+      };
+
+      trigger?.addEventListener('click', () => {
+        dialog.showModal();
+        trigger.setAttribute('aria-expanded', 'true');
+        // The dialog was `display: none` a moment ago, so every child measured
+        // as zero. Measure it now that it is really on screen.
+        revealEvents();
+      });
+
+      for (const button of dialog.querySelectorAll('[data-timeline-close]')) {
+        button.addEventListener('click', () => dialog.close());
+      }
+
+      // Clicking the backdrop closes. The backdrop is painted by the dialog's
+      // own box, so a hit test against the element itself is the check.
+      dialog.addEventListener('click', (event) => {
+        if (event.target === dialog) dialog.close();
+      });
+
+      // Escape fires `cancel` first and then `close`, so the focus hand-back
+      // lives here, where the dialog is already gone and nothing overrides it.
+      dialog.addEventListener('close', () => {
+        trigger?.setAttribute('aria-expanded', 'false');
+        trigger?.focus();
+      });
+
+      // The rail is a scroll container, and the only thing that moves the
+      // events is the reader's own horizontal scroll inside it: the page's
+      // scroll is never taken over.
+      scroller?.addEventListener('scroll', revealEvents, { passive: true });
+      if (scroller) new ResizeObserver(revealEvents).observe(scroller);
+
+      // The arrows move the rail, and a reader who asked for no motion gets an
+      // instant jump.
+      scroller?.addEventListener('keydown', (event) => {
+        const behavior = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+          ? 'auto'
+          : 'smooth';
+        const step = scrollStep(scroller);
+
+        if (event.key === 'ArrowRight') {
+          scroller.scrollBy({ left: step, behavior });
+          event.preventDefault();
+        } else if (event.key === 'ArrowLeft') {
+          scroller.scrollBy({ left: -step, behavior });
+          event.preventDefault();
+        }
+      });
     }
-
-    function openPanel(panel) {
-      panels.forEach((p) => closePanel(p));
-      panel.setAttribute('aria-hidden', 'false');
-      panel.classList.add('is-open');
-      document.body.style.overflow = 'hidden';
-      const id = panel.getAttribute('data-family-id');
-      const toggle = document.querySelector(`[data-family-toggle][aria-controls="timeline-panel-${id}"]`);
-      if (toggle) toggle.setAttribute('aria-expanded', 'true');
-      const content = panel.querySelector('.timeline-panel__content');
-      if (content) content.focus();
-    }
-
-    toggles.forEach((toggle) => {
-      toggle.addEventListener('click', () => {
-        const targetId = toggle.getAttribute('aria-controls');
-        const panel = document.getElementById(targetId);
-        if (panel) {
-          if (panel.getAttribute('aria-hidden') === 'true') openPanel(panel);
-          else closePanel(panel);
-        }
-      });
-    });
-
-    panels.forEach((panel) => {
-      panel.querySelectorAll('[data-timeline-close]').forEach((el) => {
-        el.addEventListener('click', () => closePanel(panel));
-      });
-
-      panel.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-          closePanel(panel);
-        }
-      });
-    });
-
-    // Ensure keyboard accessibility for horizontal track (scroll with arrows).
-    document.querySelectorAll('[data-horizontal-timeline]').forEach((tl) => {
-      const track = tl.querySelector('.h-timeline__track');
-      if (!track) return;
-      track.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowLeft') {
-          e.preventDefault();
-          track.scrollBy({ left: -200, behavior: 'smooth' });
-        }
-        if (e.key === 'ArrowRight') {
-          e.preventDefault();
-          track.scrollBy({ left: 200, behavior: 'smooth' });
-        }
-      });
-    });
   }
 
   if (document.readyState === 'loading') {
@@ -196,294 +249,320 @@ import { families } from '../content/familias';
   }
 
   .familias__title {
+    margin-bottom: var(--cu-space-sm);
     font-family: var(--cu-font-display);
     font-size: var(--cu-step-5);
     font-weight: 400;
     line-height: var(--cu-leading-tight);
     letter-spacing: var(--cu-tracking-display);
-    color: var(--cu-text);
-    margin-bottom: var(--cu-space-sm);
+    color: var(--cu-hueso);
   }
 
   .familias__lede {
+    max-width: 44rem;
+    margin-bottom: var(--cu-space-sm);
     font-family: var(--cu-font-serif);
     font-size: var(--cu-step-1);
-    color: var(--cu-text-muted);
     line-height: var(--cu-leading-body);
-    max-width: 42rem;
-    margin-bottom: var(--cu-space-sm);
+    color: var(--cu-text-muted);
   }
 
-  .familias__disclaimer {
+  .familias__note {
+    max-width: 52rem;
+    padding-left: var(--cu-space-sm);
+    border-left: 3px solid var(--cu-accent-deep);
     font-family: var(--cu-font-serif);
     font-size: var(--cu-step--1);
-    color: var(--cu-text-muted);
     line-height: var(--cu-leading-body);
-    max-width: 48rem;
-    opacity: 0.9;
+    color: var(--cu-bruma-300);
   }
 
   .familias__list {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
     gap: var(--cu-space-md);
+    margin: 0;
+    padding: 0;
+    list-style: none;
   }
 
-  /* Defined by its fill, one tone step from the field it sits on: the house rule
-     separates surfaces by tone, never by a rule. */
-  .familia-card {
-    background: color-mix(in srgb, var(--cu-surface) 72%, var(--cu-scene-monte));
-  }
-
-  .familia-card__button {
-    width: 100%;
-    text-align: left;
-    padding: var(--cu-space-md);
-    background: transparent;
-    border: none;
-    color: var(--cu-text);
-    font: inherit;
-    cursor: pointer;
+  .familia {
     display: flex;
     flex-direction: column;
-    gap: var(--cu-space-2xs);
+    background-color: color-mix(in srgb, var(--cu-scene-monte) 62%, var(--cu-monte-700));
   }
 
-  .familia-card__button:focus-visible {
-    outline: 2px solid var(--cu-focus);
-    outline-offset: 2px;
-  }
-
-  .familia-card__header {
+  .familia__button {
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    align-items: baseline;
+    flex-direction: column;
+    gap: var(--cu-space-3xs);
+    width: 100%;
+    padding: var(--cu-space-md);
+    border: 0;
+    background-color: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
   }
 
-  .familia-card__name {
+  .familia__button:focus-visible {
+    outline: 2px solid var(--cu-focus);
+    outline-offset: 3px;
+  }
+
+  .familia__name {
     font-family: var(--cu-font-display);
     font-size: var(--cu-step-2);
-    font-weight: 400;
     line-height: var(--cu-leading-snug);
+    color: var(--cu-hueso);
   }
 
-  .familia-card__surnames {
+  .familia__meta {
     font-family: var(--cu-font-serif);
-    font-size: var(--cu-step--1);
-    color: var(--cu-text-muted);
+    font-size: var(--cu-step--2);
+    color: var(--cu-bruma-300);
   }
 
-  .familia-card__origin,
-  .familia-card__notes {
-    font-family: var(--cu-font-serif);
-    font-size: var(--cu-step--1);
-    color: var(--cu-text-muted);
-    line-height: var(--cu-leading-body);
-  }
-
-  .familia-card__cta {
+  .familia__action {
     margin-top: var(--cu-space-2xs);
     font-size: var(--cu-step--2);
     color: var(--cu-accent-soft);
     text-decoration: underline;
-    text-underline-offset: 3px;
+    text-underline-offset: 0.25em;
   }
 
-  /* Timeline panel */
-  .timeline-panel {
+  .familia__notes {
+    padding: 0 var(--cu-space-md) var(--cu-space-md);
+    font-family: var(--cu-font-serif);
+    font-size: var(--cu-step--2);
+    line-height: var(--cu-leading-body);
+    color: var(--cu-bruma-400);
+  }
+
+  /* -- The dialog --------------------------------------------------------- */
+
+  /* In flow, for the reader without a script. `:modal` is the real case. */
+  .timeline {
+    position: static;
+    width: min(74rem, calc(100% - 2rem));
+    max-height: min(88svh, 60rem);
+    margin: auto;
+    padding: var(--cu-space-md);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border: 0;
+    background-color: var(--cu-monte-800);
+    color: var(--cu-hueso);
+  }
+
+  .timeline:modal {
     position: fixed;
     inset: 0;
-    z-index: 100;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    padding: var(--cu-space-md);
   }
 
-  .timeline-panel.is-open {
+  .timeline::backdrop {
+    background-color: color-mix(in srgb, var(--cu-monte-950) 88%, transparent);
+  }
+
+  .timeline__header {
     display: flex;
-  }
-
-  .timeline-panel[aria-hidden="false"] {
-    display: flex;
-  }
-
-  .timeline-panel__backdrop {
-    position: absolute;
-    inset: 0;
-    background: color-mix(in srgb, var(--cu-bg) 90%, transparent);
-  }
-
-  .timeline-panel__content {
-    position: relative;
-    width: min(1200px, 100%);
-    max-height: 90vh;
-    overflow-y: auto;
-    background: var(--cu-monte-800);
-    padding: var(--cu-space-md);
-    display: flex;
-    flex-direction: column;
-    gap: var(--cu-space-md);
-    outline: none;
-  }
-
-  .timeline-panel__content:focus-visible {
-    outline: 2px solid var(--cu-focus);
-    outline-offset: 2px;
-  }
-
-  .timeline-panel__header {
-    display: flex;
+    flex-wrap: wrap;
+    gap: var(--cu-space-sm);
+    align-items: baseline;
     justify-content: space-between;
-    gap: var(--cu-space-md);
-    align-items: flex-start;
+    margin-bottom: var(--cu-space-2xs);
   }
 
-  .timeline-panel__title {
+  .timeline__title {
     font-family: var(--cu-font-display);
     font-size: var(--cu-step-3);
     font-weight: 400;
     line-height: var(--cu-leading-snug);
-    color: var(--cu-text);
+    color: var(--cu-hueso);
   }
 
-  .timeline-panel__subtitle {
+  .timeline__subtitle {
     font-family: var(--cu-font-serif);
     font-size: var(--cu-step--1);
-    color: var(--cu-text-muted);
-    margin-top: var(--cu-space-3xs);
+    color: var(--cu-bruma-300);
   }
 
-  .timeline-panel__close {
-    background: transparent;
+  .timeline__close {
+    padding: var(--cu-space-3xs) var(--cu-space-2xs);
+    border: 0;
+    background-color: transparent;
     color: var(--cu-accent-soft);
-    padding: var(--cu-space-2xs) var(--cu-space-sm);
-    font: inherit;
-    cursor: pointer;
+    font-family: inherit;
+    font-size: var(--cu-step--1);
     text-decoration: underline;
-    text-underline-offset: 3px;
+    text-underline-offset: 0.3em;
+    cursor: pointer;
   }
 
-  .timeline-panel__close:focus-visible {
+  .timeline__close:focus-visible {
+    outline: 2px solid var(--cu-focus);
+    outline-offset: 3px;
+  }
+
+  /* -- The horizontal rail ------------------------------------------------ */
+
+  .timeline__scroller {
+    padding-block: var(--cu-space-lg) var(--cu-space-md);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+    scrollbar-color: var(--cu-accent-deep) transparent;
+  }
+
+  .timeline__scroller:focus-visible {
     outline: 2px solid var(--cu-focus);
     outline-offset: 2px;
   }
 
-  .timeline-panel__legend {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--cu-space-sm);
-    font-size: var(--cu-step--2);
-    color: var(--cu-text-muted);
-  }
-
-  .timeline-panel__body {
-    overflow-x: auto;
-  }
-
-  /* Horizontal timeline */
-  .h-timeline {
+  .track {
     position: relative;
-    padding-block: var(--cu-space-md);
-  }
-
-  .h-timeline__track {
     display: flex;
     gap: var(--cu-space-lg);
-    overflow-x: auto;
-    overflow-y: hidden;
-    padding-inline: var(--cu-space-sm);
-    scroll-behavior: smooth;
-    min-width: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
   }
 
-  .h-timeline__track:focus-visible {
-    outline: 2px solid var(--cu-focus);
-    outline-offset: 2px;
-  }
-
-  .h-timeline__event {
+  /* Every event hangs from the rule: the connector is half a gap wide on each
+     side of its node, so the rail reads as one line under the whole row. */
+  .event {
     position: relative;
-    min-width: 16rem;
-    max-width: 20rem;
-    flex-shrink: 0;
+    flex: 0 0 auto;
+    width: 17rem;
     padding-top: var(--cu-space-md);
+    scroll-snap-align: start;
   }
 
-  .h-timeline__connector {
+  .event::before {
+    content: '';
     position: absolute;
-    top: 0.375rem;
+    top: 0;
     left: 0;
     right: calc(-1 * var(--cu-space-lg));
     height: 2px;
-    background: color-mix(in srgb, var(--cu-accent) 70%, transparent);
+    background-color: color-mix(in srgb, var(--cu-accent) 55%, transparent);
   }
 
-  .h-timeline__node {
+  .track .event:last-child::before {
+    right: 0;
+  }
+
+  /* Each event is revealed from its OWN place on screen (`--event-o`, written
+     per element by the script above), and only while motion is on. With no
+     script the variable is absent and the fallback keeps the whole rail
+     visible; with reduced motion the attribute never becomes `on`. */
+  :global(html[data-motion='on']) .event {
+    opacity: var(--event-o, 1);
+  }
+
+  /* The connector is drawn: it grows in LENGTH with the event it belongs to.
+     Never a colour change, never a gradient. */
+  :global(html[data-motion='on']) .event::before {
+    transform: scaleX(var(--event-o, 1));
+    transform-origin: left center;
+  }
+
+  .event__node {
     position: absolute;
-    top: 0.125rem;
+    top: -0.25rem;
     left: 0;
-    width: 0.5rem;
-    height: 0.5rem;
+    width: 0.625rem;
+    height: 0.625rem;
     border-radius: 50%;
-    background: var(--cu-accent);
+    background-color: var(--cu-accent);
   }
 
-  .h-timeline__content {
-    display: flex;
-    flex-direction: column;
-    gap: var(--cu-space-3xs);
-  }
-
-  .h-timeline__year {
+  .event__year {
+    margin-bottom: var(--cu-space-3xs);
     font-size: var(--cu-step--2);
     font-weight: 600;
+    letter-spacing: 0.01em;
     color: var(--cu-accent-soft);
   }
 
-  .h-timeline__level {
-    color: var(--cu-text-muted);
-    font-weight: 400;
-  }
-
-  .h-timeline__event-text {
+  .event__text {
     font-family: var(--cu-font-serif);
     font-size: var(--cu-step--1);
-    color: var(--cu-text);
-    line-height: var(--cu-leading-body);
+    line-height: 1.6;
+    color: var(--cu-hueso);
   }
 
-  .h-timeline__source,
-  .h-timeline__uncertainty {
+  .event__level,
+  .event__source,
+  .event__uncertainty {
+    margin-top: var(--cu-space-2xs);
     font-family: var(--cu-font-serif);
     font-size: var(--cu-step--2);
-    color: var(--cu-text-muted);
-    line-height: var(--cu-leading-body);
+    line-height: 1.55;
   }
 
-  .timeline-panel__footer {
+  .event__level {
+    display: inline-block;
+    padding: 0.15rem 0.45rem;
+    color: var(--cu-accent-soft);
+    background-color: color-mix(in srgb, var(--cu-accent-deep) 34%, transparent);
+  }
+
+  .event__source {
+    color: var(--cu-bruma-300);
+  }
+
+  .event__uncertainty {
+    padding-left: var(--cu-space-2xs);
+    border-left: 3px solid color-mix(in srgb, var(--cu-bruma-300) 35%, transparent);
+    color: var(--cu-bruma-400);
+  }
+
+  /* -- Footer inside the dialog ------------------------------------------- */
+
+  .timeline__footer {
     padding-top: var(--cu-space-sm);
   }
 
-  .timeline-panel__note {
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--cu-space-sm);
+    margin: 0 0 var(--cu-space-2xs);
+    padding: 0;
     font-size: var(--cu-step--2);
-    color: var(--cu-text-muted);
-    line-height: var(--cu-leading-body);
+    list-style: none;
+    color: var(--cu-bruma-300);
   }
 
-  /* Respect reduced motion */
-  @media (prefers-reduced-motion: reduce) {
-    .h-timeline__track {
-      scroll-behavior: auto;
+  .legend__key {
+    color: var(--cu-accent-soft);
+  }
+
+  .timeline__note {
+    max-width: 60ch;
+    font-family: var(--cu-font-serif);
+    font-size: var(--cu-step--2);
+    line-height: 1.6;
+    color: var(--cu-bruma-400);
+  }
+
+  @media (max-width: 47.99rem) {
+    .timeline {
+      width: calc(100% - 1rem);
+      padding: var(--cu-space-sm);
+    }
+
+    .event {
+      width: 15rem;
     }
   }
 
-  /* Responsive */
-  @media (max-width: 47.99rem) {
-    .h-timeline__event {
-      min-width: 14rem;
-      max-width: 18rem;
+  @media (prefers-reduced-motion: reduce) {
+    .timeline__scroller {
+      scroll-behavior: auto;
+      scroll-snap-type: none;
     }
   }
 </style>

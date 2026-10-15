@@ -2,6 +2,7 @@
 import { Image } from 'astro:assets';
 import { site } from '../content/site';
 import { resolvedCollage } from '../content/collage';
+import FormingText from './FormingText.astro';
 import PhotoCreditLine from './PhotoCreditLine.astro';
 
 /**
@@ -13,11 +14,10 @@ import PhotoCreditLine from './PhotoCreditLine.astro';
  * so the grid and the paper are the texture; the single photograph is the note
  * that moves.
  *
- * The title does not fade in. It **condenses out of the fog**: each letter is a
- * span whose droplet drifts in, flashes faintly and lets its glyph condense.
- * The choreography is CSS driven by one custom property per letter (`--t`),
- * written only by `src/scripts/letters.ts`; with no JavaScript, or with motion
- * switched off, every letter is simply present and still.
+ * The title does not fade in: it **condenses out of the fog**. That device is
+ * not owned by this file — it is `FormingText.astro`, which any run of text on
+ * the page can use, and this is simply its first, largest instance. With no
+ * JavaScript, or with motion switched off, every letter is present and still.
  *
  * The geography lives in the standfirst and the facts, so the first thing a
  * reader meets is still the name of the place.
@@ -26,28 +26,6 @@ const { facts } = site;
 
 /** Support text arrives after the collage and the title, ~70ms apart. */
 const textDelay = [950, 1020, 1090, 1160];
-
-/** The title, split into letters that will travel as droplets. */
-const letters = site.title.split('');
-const lastIndex = Math.max(1, letters.length - 1);
-
-/**
- * A droplet's starting offset, seeded so it is calculated once and is stable
- * between builds (never random per load). `sx` spreads left/right, `sy` falls
- * in from above the glyph.
- */
-const seeded = (index: number, salt: number): number => {
-  const value = Math.sin((index + 1) * 127.1 + salt * 311.7) * 43758.5453;
-  return value - Math.floor(value);
-};
-
-const titleLetters = letters.map((char, index) => ({
-  char,
-  /** stagger position, 0 → 1, read by CSS and JS as `data-d` */
-  d: (index / lastIndex).toFixed(4),
-  sx: ((seeded(index, 1) * 2 - 1) * 1.05).toFixed(3),
-  sy: (-0.35 - seeded(index, 2) * 0.95).toFixed(3),
-}));
 
 /** Responsive `sizes` per cell weight; the living cell is the widest. */
 const sizesFor = (slot: string): string =>
@@ -99,25 +77,15 @@ const widthsFor = (slot: string): number[] =>
   </div>
 
   <div class="hero__content u-container">
-    <h1
+    <FormingText
+      as="h1"
       class="hero__title"
       id="hero-title"
-      data-letters
-      data-start="0.05"
-      data-spread="0.62"
-      data-dur="0.32"
-    >
-      <span class="hero__title-visual" aria-hidden="true">
-        {
-          titleLetters.map((letter) => (
-            <span class="l" data-d={letter.d} style={`--sx:${letter.sx};--sy:${letter.sy}`}>
-              <span class="l__glyph">{letter.char}</span>
-            </span>
-          ))
-        }
-      </span>
-      <span class="sr-only">{site.title}</span>
-    </h1>
+      text={site.title}
+      start={0.05}
+      spread={0.62}
+      dur={0.32}
+    />
 
     <p class="hero__full-title" style={`animation-delay:${textDelay[0]}ms`}>{site.fullTitle}</p>
 
@@ -147,14 +115,6 @@ const widthsFor = (slot: string): number[] =>
 </section>
 
 <style>
-  /* Registered as a number so the per-letter progress is a cheap, typed value
-     the browser can interpolate, not a re-parsed token. */
-  @property --t {
-    syntax: '<number>';
-    inherits: false;
-    initial-value: 0;
-  }
-
   .hero {
     position: relative;
     isolation: isolate;
@@ -252,9 +212,12 @@ const widthsFor = (slot: string): number[] =>
     display: none;
   }
 
-  /* -- The title: letters condensing out of fog ---------------------------- */
-
-  .hero__title {
+  /* -- The title: the place's name, condensing out of fog -------------------
+     The letters, the condensation and the gate all belong to `FormingText`;
+     this host element only decides how the name is set. It is a descendant of
+     this component and not of the astro-scope, so the rule is global on a
+     class this page owns. */
+  :global(.hero__title) {
     font-family: var(--cu-font-display);
     font-weight: 500;
     font-variation-settings: 'opsz' 144, 'wght' 480, 'SOFT' 30, 'WONK' 1;
@@ -262,80 +225,6 @@ const widthsFor = (slot: string): number[] =>
     line-height: 0.92;
     letter-spacing: -0.025em;
     color: var(--cu-hueso);
-  }
-
-  .hero__title-visual {
-    display: inline-flex;
-  }
-
-  .l {
-    position: relative;
-    display: inline-block;
-  }
-
-  .l__glyph {
-    display: inline-block;
-  }
-
-  /* The real title, for assistive technology: the letters above are decorative
-     and hidden from it. Without this rule the accessible name would be read out
-     as a second, visible copy of the title. */
-  .sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    margin: -1px;
-    padding: 0;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-    border: 0;
-  }
-
-  /* Armed / ready: the states the title lives in only while the script is in
-     charge. The default (no JS, reduced motion, or a failed script) is a plain,
-     readable title, never a hidden one. */
-  :global(html:is([data-letters='armed'], [data-letters='ready'])) .l {
-    --m0: clamp(0, calc(var(--t) / 0.72), 1);
-    --m: calc(var(--m0) * var(--m0) * (3 - 2 * var(--m0)));
-    --f: clamp(0, calc((var(--t) - 0.6) / 0.2), 1);
-    --g0: clamp(0, calc((var(--t) - 0.66) / 0.34), 1);
-    --g: calc(var(--g0) * var(--g0) * (3 - 2 * var(--g0)));
-    --pa: calc(clamp(0, calc(var(--m0) * 1.4), 1) * (1 - var(--g)) * (0.5 + 0.5 * var(--f)));
-  }
-
-  /* Only the letters actually travelling are promoted, so the compositor is
-     asked for work only where there is work to do. */
-  .l.is-moving .l__glyph {
-    will-change: opacity, transform;
-  }
-
-  /* The light condenses into the letter. */
-  :global(html:is([data-letters='armed'], [data-letters='ready'])) .l__glyph {
-    opacity: var(--g);
-    transform: scale(calc(1.14 - 0.14 * var(--g)));
-  }
-
-  /* The droplet: a fog bead that drifts in on a smooth curve and flashes as it
-     arrives. It is a single small element, so it stays cheap. */
-  :global(html:is([data-letters='armed'], [data-letters='ready'])) .l::before {
-    content: '';
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    width: 0.32em;
-    height: 0.32em;
-    margin: -0.16em 0 0 -0.16em;
-    border-radius: 50%;
-    background-color: var(--cu-bruma-100);
-    filter: blur(0.5px);
-    opacity: var(--pa);
-    transform: translate(
-        calc(var(--sx) * 1em * (1 - var(--m))),
-        calc(var(--sy) * 1em * (1 - var(--m)))
-      )
-      scale(calc(0.7 + 0.7 * var(--f)));
-    pointer-events: none;
   }
 
   /* -- Content: the name of the place and its orientation ------------------ */
@@ -550,10 +439,6 @@ const widthsFor = (slot: string): number[] =>
     .hero__cue-arrow,
     .cell--living .cell__img {
       animation: none !important;
-    }
-
-    .l::before {
-      display: none;
     }
 
     .cell--living .cell__img {

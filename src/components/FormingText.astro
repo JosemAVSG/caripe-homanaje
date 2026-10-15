@@ -1,0 +1,219 @@
+---
+/**
+ * FormingText — a run of text whose glyphs condense out of fog.
+ *
+ * This is the house device, extracted whole from the hero so any line on the
+ * page can carry it: every letter is a fog bead that drifts in from its own
+ * seeded offset, flashes as it arrives, and settles into the real glyph. The
+ * choreography is CSS, driven by one custom property per letter (`--t`,
+ * 0 → 1, registered with `@property`) and written by `src/scripts/letters.ts`.
+ *
+ * The gate lives ON THE INSTANCE, not on the document. A page can carry more
+ * than one of these (the hero title, a chapter's cita), so each one arms and
+ * fires on its own:
+ *
+ *   data-forming=""       what the server sends. No letter is hidden by CSS,
+ *                         so a document with no script at all is complete.
+ *   data-forming="armed"  set by the instance's own inline script, before the
+ *                         element has had a chance to paint.
+ *   data-forming="ready"  reserved, for a script that takes the long way in.
+ *   data-forming="done"   the condensation finished; the rule stops applying
+ *                         and the text is simply there.
+ *   data-forming="idle"   the guard fired, or the script failed. Also plain.
+ *
+ * The letters are decorative and hidden from assistive technology; the real
+ * text is rendered once, whole, in `.sr-only`.
+ */
+interface Props {
+  /** The real text: set as letters for the eye, once whole for AT. */
+  text: string;
+  /** Timeline position (0 → 1) where the first letter begins to condense. */
+  start?: number;
+  /** How much of the timeline the stagger is spread over. */
+  spread?: number;
+  /** How long one letter takes, in timeline progress. */
+  dur?: number;
+  /** The tag the run is set in: `h1`, `p`, `span`… */
+  as?: string;
+  class?: string;
+  id?: string;
+}
+
+const {
+  text,
+  start = 0.05,
+  spread = 0.62,
+  dur = 0.32,
+  as: Tag = 'span',
+  class: className,
+  id,
+} = Astro.props;
+
+const chars = Array.from(text);
+const lastIndex = Math.max(1, chars.length - 1);
+
+/**
+ * A letter's drift, seeded from its index so it is stable between builds and
+ * never random per load. `sx` spreads left/right; `sy` falls in from above.
+ */
+const seeded = (index: number, salt: number): number => {
+  const value = Math.sin((index + 1) * 127.1 + salt * 311.7) * 43758.5453;
+  return value - Math.floor(value);
+};
+
+const letters = chars.map((char, index) => ({
+  char,
+  /** A word space stays a word space, and a break opportunity. */
+  space: char === ' ',
+  /** stagger position, 0 → 1, read by CSS and JS as `data-d` */
+  d: (index / lastIndex).toFixed(4),
+  sx: ((seeded(index, 1) * 2 - 1) * 1.05).toFixed(3),
+  sy: (-0.35 - seeded(index, 2) * 0.95).toFixed(3),
+}));
+---
+
+<Tag
+  class:list={['forming', className]}
+  id={id}
+  data-forming=""
+  data-start={start}
+  data-spread={spread}
+  data-dur={dur}
+>
+  <span class="forming__visual" aria-hidden="true">
+    {
+      letters.map((letter) =>
+        letter.space ? (
+          ' '
+        ) : (
+          <span class="l" data-d={letter.d} style={`--sx:${letter.sx};--sy:${letter.sy}`}>
+            <span class="l__glyph">{letter.char}</span>
+          </span>
+        ),
+      )
+    }
+  </span>
+  <span class="sr-only">{text}</span>
+</Tag>
+
+<script is:inline>
+  /**
+   * Arm this instance — and only this one — before it can paint.
+   *
+   * The script is a classic inline script, so it runs the moment the parser
+   * reaches it and the element beside it has not been painted yet. Nothing is
+   * touched if the state never arrives: the letters are already there.
+   */
+  (function () {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    var el = document.currentScript && document.currentScript.previousElementSibling;
+    while (el && !el.hasAttribute('data-forming')) el = el.previousElementSibling;
+    if (!el) return;
+
+    el.setAttribute('data-forming', 'armed');
+
+    var guards = window.__caripeFormingGuards || (window.__caripeFormingGuards = new Map());
+    guards.set(
+      el,
+      window.setTimeout(function () {
+        var state = el.getAttribute('data-forming');
+        if (state === 'armed' || state === 'ready') el.setAttribute('data-forming', 'idle');
+        guards.delete(el);
+      }, 6000),
+    );
+  })();
+</script>
+
+<style>
+  /* Registered as a number, so the per-letter progress is a cheap, typed value
+     the browser can interpolate rather than a re-parsed token. */
+  @property --t {
+    syntax: '<number>';
+    inherits: false;
+    initial-value: 0;
+  }
+
+  /* The letters sit in normal inline flow: a word space wraps, and a long
+     quotation breaks across lines like any other paragraph. */
+  .forming__visual {
+    display: inline;
+  }
+
+  .l {
+    position: relative;
+    display: inline-block;
+  }
+
+  .l__glyph {
+    display: inline-block;
+  }
+
+  /* The real text, for assistive technology: the letters above are decorative
+     and hidden from it. Without this rule the accessible name would be read
+     out as a second, visible copy. */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* Armed / ready: the states a run lives in only while the script is in
+     charge. The default (no JS, reduced motion, or a failed script) is plain,
+     readable text, never hidden text. */
+  .forming:is([data-forming='armed'], [data-forming='ready']) .l {
+    --m0: clamp(0, calc(var(--t) / 0.72), 1);
+    --m: calc(var(--m0) * var(--m0) * (3 - 2 * var(--m0)));
+    --f: clamp(0, calc((var(--t) - 0.6) / 0.2), 1);
+    --g0: clamp(0, calc((var(--t) - 0.66) / 0.34), 1);
+    --g: calc(var(--g0) * var(--g0) * (3 - 2 * var(--g0)));
+    --pa: calc(clamp(0, calc(var(--m0) * 1.4), 1) * (1 - var(--g)) * (0.5 + 0.5 * var(--f)));
+  }
+
+  /* Only the letters actually travelling are promoted, so the compositor is
+     asked for work only where there is work to do. */
+  .l.is-moving .l__glyph {
+    will-change: opacity, transform;
+  }
+
+  /* The light condenses into the letter. */
+  .forming:is([data-forming='armed'], [data-forming='ready']) .l__glyph {
+    opacity: var(--g);
+    transform: scale(calc(1.14 - 0.14 * var(--g)));
+  }
+
+  /* The droplet: a fog bead that drifts in on a smooth curve and flashes as it
+     arrives. It is a single small element, so it stays cheap. */
+  .forming:is([data-forming='armed'], [data-forming='ready']) .l::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 0.32em;
+    height: 0.32em;
+    margin: -0.16em 0 0 -0.16em;
+    border-radius: 50%;
+    background-color: var(--cu-bruma-100);
+    filter: blur(0.5px);
+    opacity: var(--pa);
+    transform: translate(
+        calc(var(--sx) * 1em * (1 - var(--m))),
+        calc(var(--sy) * 1em * (1 - var(--m)))
+      )
+      scale(calc(0.7 + 0.7 * var(--f)));
+    pointer-events: none;
+  }
+
+  /* No motion: no droplets, no travel. Every letter is present and still. */
+  @media (prefers-reduced-motion: reduce) {
+    .l::before {
+      display: none;
+    }
+  }
+</style>
