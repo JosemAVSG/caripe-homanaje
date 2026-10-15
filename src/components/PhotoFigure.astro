@@ -1,0 +1,135 @@
+---
+import { Image } from 'astro:assets';
+import type { ChapterImage } from '../content/types';
+import { getPhoto } from '../content/photos';
+import PhotoCreditLine from './PhotoCreditLine.astro';
+
+/**
+ * One photograph, framed as document rather than decoration.
+ *
+ * Every photograph carries its caption *and* its attribution in the
+ * `<figcaption>`: the credit is part of the reading, not a footnote hidden in
+ * the colophon. The frame applies a single, mild tonal treatment to unify
+ * sources shot on wildly different cameras across twenty years — the change is
+ * declared in the colophon, as CC BY-SA requires.
+ */
+interface Props {
+  image: ChapterImage;
+  /** Responsive `sizes` for the generated `srcset`. */
+  sizes: string;
+  /** Generate a srcset from these widths (feature images only). */
+  widths?: number[];
+  /** Single output width when no srcset is needed. */
+  width?: number;
+}
+
+const { image, sizes, widths, width = 860 } = Astro.props;
+const photo = getPhoto(image.photo);
+const layout = image.layout ?? 'grid';
+
+/** Vectors are not re-encoded by the image service; hand them to the browser. */
+const isVector = photo.src.format === 'svg';
+---
+
+<figure class:list={['photo', `photo--${layout}`]}>
+  <div class="photo__frame">
+    {
+      isVector ? (
+        <img
+          class="photo__image"
+          src={photo.src.src}
+          width={photo.src.width}
+          height={photo.src.height}
+          alt={image.alt}
+          loading="lazy"
+          decoding="async"
+        />
+      ) : (
+        <Image
+          class="photo__image"
+          src={photo.src}
+          alt={image.alt}
+          widths={widths}
+          width={widths ? undefined : width}
+          sizes={sizes}
+          format="webp"
+          quality={widths ? 72 : 68}
+          loading="lazy"
+          decoding="async"
+        />
+      )
+    }
+  </div>
+
+  <figcaption class="photo__caption">
+    <span class="photo__text">{image.caption}</span>
+    <PhotoCreditLine credit={photo.credit} />
+  </figcaption>
+</figure>
+
+<style>
+  .photo {
+    margin: 0;
+    min-width: 0;
+  }
+
+  .photo__frame {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--cu-line);
+    border-radius: var(--cu-radius);
+    background-color: var(--cu-monte-900);
+  }
+
+  /* A faint fog veil: the photographs belong to the same weather as the site. */
+  .photo__frame::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--cu-bruma-300) 6%, transparent) 0%,
+      transparent 26%,
+      color-mix(in srgb, var(--cu-monte-950) 34%, transparent) 100%
+    );
+  }
+
+  .photo__image {
+    display: block;
+    width: 100%;
+    height: auto;
+    /* One editorial treatment for a heterogeneous archive. */
+    filter: saturate(0.84) contrast(1.04) brightness(0.97);
+    transition: filter var(--cu-dur-slow) var(--cu-ease);
+  }
+
+  .photo:hover .photo__image {
+    filter: saturate(0.95) contrast(1.03) brightness(1);
+  }
+
+  .photo__caption {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    margin-top: var(--cu-space-xs);
+    padding-left: 0.9rem;
+    border-left: 1px solid var(--cu-doc-rule);
+  }
+
+  .photo__text {
+    font-family: var(--cu-font-serif);
+    font-size: var(--cu-step--1);
+    font-weight: 300;
+    line-height: 1.65;
+    color: var(--cu-text-muted);
+    text-wrap: pretty;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .photo__image {
+      transition: none;
+    }
+  }
+</style>

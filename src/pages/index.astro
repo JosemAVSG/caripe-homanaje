@@ -1,0 +1,31 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import ChapterSection from '../components/ChapterSection.astro';
+import ProgressRail from '../components/ProgressRail.astro';
+import Colophon from '../components/Colophon.astro';
+import { chapters } from '../content';
+import { site } from '../content/site';
+
+const pageTitle = `${site.title} · ${site.fullTitle} — homenaje documental`;
+---
+
+<BaseLayout title={pageTitle} description={site.description}>
+  <div class="progress" aria-hidden="true">
+    <span class="progress__fill" data-progress-fill></span>
+  </div>
+
+  <ProgressRail chapters={chapters} />
+
+  <main id="main">
+    <Hero />
+
+    {
+      chapters.map((chapter) => (
+        <ChapterSection chapter={chapter} />
+      ))
+    }
+  </main>
+
+  <Colophon />
+</BaseLayout>

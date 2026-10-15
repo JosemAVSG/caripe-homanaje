@@ -1,0 +1,170 @@
+---
+import type { Milestone } from '../content/types';
+
+/**
+ * The chapter timeline: a rule that is literally drawn by the scroll.
+ *
+ * Horizontal on wide screens, vertical on narrow ones; in both cases the line
+ * grows from 0 to 1 as the list crosses the viewport (see `motion.ts`). Without
+ * JavaScript the line is simply a static hairline and every milestone is
+ * readable.
+ */
+interface Props {
+  milestones: Milestone[];
+  title?: string;
+}
+
+const { milestones, title = 'Cronología' } = Astro.props;
+---
+
+<div class="timeline" data-timeline>
+  <p class="timeline__title u-kicker">{title}</p>
+
+  <div class="timeline__stage">
+    <span class="timeline__line" aria-hidden="true" data-timeline-line></span>
+
+    <ol class="timeline__list">
+      {
+        milestones.map((milestone) => (
+          <li class="timeline__item" data-reveal>
+            <span class="timeline__node" aria-hidden="true"></span>
+            <p class="timeline__date">{milestone.date}</p>
+            <h3 class="timeline__label">{milestone.label}</h3>
+            {milestone.detail ? <p class="timeline__detail">{milestone.detail}</p> : null}
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</div>
+
+<style>
+  .timeline {
+    margin-top: var(--cu-space-xl);
+  }
+
+  .timeline__title {
+    margin-bottom: var(--cu-space-sm);
+  }
+
+  .timeline__stage {
+    position: relative;
+  }
+
+  /* The rule itself. Static hairline without JS; scrubbed to full length with it. */
+  .timeline__line {
+    position: absolute;
+    background: linear-gradient(
+      90deg,
+      var(--cu-accent-deep),
+      var(--cu-accent) 40%,
+      color-mix(in srgb, var(--cu-accent-soft) 60%, transparent)
+    );
+    transform-origin: left center;
+  }
+
+  .timeline__list {
+    display: grid;
+    gap: var(--cu-space-md);
+  }
+
+  .timeline__item {
+    position: relative;
+    padding-left: 1.6rem;
+  }
+
+  .timeline__node {
+    position: absolute;
+    display: block;
+    background-color: var(--cu-accent);
+    border-radius: 50%;
+    box-shadow:
+      0 0 0 4px color-mix(in srgb, var(--cu-accent) 18%, transparent),
+      0 0 22px -4px var(--cu-accent-soft);
+  }
+
+  .timeline__date {
+    font-family: var(--cu-font-sans);
+    font-size: var(--cu-step--2);
+    font-weight: 600;
+    letter-spacing: var(--cu-tracking-wide);
+    text-transform: uppercase;
+    color: var(--cu-accent-soft);
+  }
+
+  .timeline__label {
+    margin-top: 0.35rem;
+    font-family: var(--cu-font-serif);
+    font-size: var(--cu-step-1);
+    font-weight: 400;
+    line-height: var(--cu-leading-snug);
+    color: var(--cu-hueso);
+  }
+
+  .timeline__detail {
+    margin-top: 0.35rem;
+    max-width: 30rem;
+    font-size: var(--cu-step--1);
+    line-height: 1.65;
+    color: var(--cu-text-muted);
+  }
+
+  /* -- Narrow: a vertical rail on the left --------------------------------- */
+  @media (max-width: 47.99rem) {
+    .timeline__line {
+      top: 0;
+      bottom: 0;
+      left: 3px;
+      width: 1px;
+      background: linear-gradient(
+        180deg,
+        var(--cu-accent-deep),
+        var(--cu-accent) 45%,
+        color-mix(in srgb, var(--cu-accent-soft) 60%, transparent)
+      );
+      transform-origin: top center;
+    }
+
+    .timeline__node {
+      top: 0.45rem;
+      left: 0;
+      width: 7px;
+      height: 7px;
+    }
+
+    .timeline__item {
+      padding-left: 1.6rem;
+    }
+  }
+
+  /* -- Wide: a horizontal rule above the milestones ------------------------ */
+  @media (min-width: 48rem) {
+    .timeline__stage {
+      padding-top: var(--cu-space-md);
+    }
+
+    .timeline__line {
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+    }
+
+    .timeline__list {
+      grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+      gap: var(--cu-space-md);
+    }
+
+    .timeline__item {
+      padding-left: 0;
+      padding-top: 0;
+    }
+
+    .timeline__node {
+      top: calc(var(--cu-space-md) * -1 - 4px);
+      left: 0;
+      width: 9px;
+      height: 9px;
+    }
+  }
+</style>

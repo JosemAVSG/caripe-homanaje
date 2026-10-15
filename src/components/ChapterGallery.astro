@@ -1,0 +1,76 @@
+---
+import type { ChapterGallery } from '../content/types';
+import PhotoFigure from './PhotoFigure.astro';
+
+/**
+ * A chapter's photographic documentation.
+ *
+ * Images keep their natural aspect ratio: nothing is cropped, so the caption
+ * and the alternative text always describe exactly what is on screen. Only the
+ * first `feature` image is given a srcset; the grid gets one optimised file per
+ * photograph, which keeps the page light.
+ */
+interface Props {
+  gallery: ChapterGallery;
+}
+
+const { gallery } = Astro.props;
+
+const gridSizes = '(min-width: 78rem) 21rem, (min-width: 48rem) 40vw, 88vw';
+const featureSizes = '(min-width: 62rem) 52rem, 92vw';
+---
+
+<section
+  class="gallery"
+  aria-label={gallery.label ?? 'Fotografías del capítulo'}
+  data-reveal
+>
+  {gallery.label ? <p class="gallery__label u-kicker">{gallery.label}</p> : null}
+
+  <div class="gallery__grid">
+    {
+      gallery.images.map((image) => (
+        <PhotoFigure
+          image={image}
+          sizes={image.layout === 'feature' ? featureSizes : gridSizes}
+          widths={image.layout === 'feature' ? [600, 1000, 1400] : undefined}
+        />
+      ))
+    }
+  </div>
+</section>
+
+<style>
+  .gallery {
+    margin-top: var(--cu-space-xl);
+  }
+
+  .gallery__label {
+    padding-bottom: var(--cu-space-2xs);
+    border-bottom: 1px solid var(--cu-line);
+    margin-bottom: var(--cu-space-md);
+  }
+
+  .gallery__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+    gap: var(--cu-space-lg) var(--cu-space-md);
+  }
+
+  .gallery__grid :global(.photo--feature) {
+    grid-column: 1 / -1;
+  }
+
+  @media (min-width: 48rem) {
+    .gallery__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 78rem) {
+    .gallery__grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+</style>

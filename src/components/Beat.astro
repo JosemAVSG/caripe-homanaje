@@ -1,0 +1,171 @@
+---
+import type { Beat } from '../content/types';
+
+/**
+ * Renders one narrative beat in the visual register its `voice` declares.
+ *
+ * The two voices must be unmistakable at a glance, so they differ in far more
+ * than wording:
+ *   - documental: sober serif, cool bone text, a thin source footnote.
+ *   - testimonio: warm coffee panel, inset, italic display serif, a warm rule.
+ *
+ * Nothing is hardcoded here that belongs to content: the beat carries the data,
+ * the `voice` field picks the variant.
+ */
+interface Props {
+  beat: Beat;
+}
+
+const { beat } = Astro.props;
+const isTestimony = beat.voice === 'testimonio';
+---
+
+{
+  isTestimony ? (
+    <figure class="beat beat--testimonio" data-reveal>
+      <figcaption class="beat__voice" data-voice-label>
+        <span class="beat__voice-name">Testimonio</span>
+        {beat.placeholder ? <span class="beat__voice-note">voz preliminar</span> : null}
+      </figcaption>
+      <blockquote class="beat__quote">
+        <p>{beat.text}</p>
+      </blockquote>
+      {beat.attribution ? <p class="beat__attribution">{beat.attribution}</p> : null}
+    </figure>
+  ) : (
+    <div class="beat beat--documental" data-reveal>
+      <p class="beat__text">{beat.text}</p>
+      {beat.source ? (
+        <p class="beat__source">
+          <span class="beat__source-label">Fuente</span>
+          <cite class="beat__source-name">{beat.source.label}</cite>
+        </p>
+      ) : null}
+    </div>
+  )
+}
+
+<style>
+  .beat {
+    margin: 0;
+  }
+
+  /* -- Voice: documental ---------------------------------------------------
+     Sober and cool. Sits in the main column at a comfortable reading measure. */
+
+  .beat--documental {
+    max-width: var(--cu-measure);
+  }
+
+  .beat--documental + .beat--documental {
+    margin-top: var(--cu-space-md);
+  }
+
+  .beat__text {
+    font-family: var(--cu-font-serif);
+    font-size: var(--cu-step-1);
+    font-weight: 300;
+    line-height: var(--cu-leading-body);
+    color: var(--cu-doc-text);
+  }
+
+  /* The source footnote is what makes the documentary voice trustworthy:
+     it is always present when a claim is a fact, never invented. */
+  .beat__source {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.55em;
+    margin-top: var(--cu-space-2xs);
+    padding-left: 0.9rem;
+    border-left: 1px solid var(--cu-doc-rule);
+    font-family: var(--cu-font-sans);
+    font-size: var(--cu-step--2);
+    line-height: 1.5;
+    color: var(--cu-text-faint);
+  }
+
+  .beat__source-label {
+    letter-spacing: var(--cu-tracking-wider);
+    text-transform: uppercase;
+  }
+
+  .beat__source-name {
+    font-style: normal;
+    color: var(--cu-text-muted);
+  }
+
+  /* -- Voice: testimonio ---------------------------------------------------
+     Warm, inset, and set in a different typeface. The reader should never have
+     to wonder who is speaking. */
+
+  .beat--testimonio {
+    max-width: var(--cu-measure);
+    padding: clamp(1.4rem, 4vw, 2.4rem) clamp(1.3rem, 4vw, 2.4rem);
+    background-color: var(--cu-testimony-bg);
+    background-image: radial-gradient(
+      120% 120% at 0% 0%,
+      color-mix(in srgb, var(--cu-cafe-600) 55%, transparent) 0%,
+      transparent 62%
+    );
+    border-radius: var(--cu-radius);
+    border-left: 3px solid var(--cu-testimony-rule);
+    color: var(--cu-testimony-text);
+    box-shadow: 0 24px 60px -40px color-mix(in srgb, #000 90%, transparent);
+  }
+
+  .beat--documental + .beat--testimonio,
+  .beat--testimonio + .beat--documental,
+  .beat--testimonio + .beat--testimonio {
+    margin-top: var(--cu-space-lg);
+  }
+
+  .beat__voice {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.6em;
+    margin-bottom: var(--cu-space-xs);
+  }
+
+  .beat__voice-name {
+    font-family: var(--cu-font-sans);
+    font-size: var(--cu-step--2);
+    font-weight: 600;
+    letter-spacing: var(--cu-tracking-wider);
+    text-transform: uppercase;
+    color: var(--cu-testimony-muted);
+  }
+
+  /* Honest, discreet marker: this voice is written, not yet collected. */
+  .beat__voice-note {
+    font-family: var(--cu-font-sans);
+    font-size: var(--cu-step--2);
+    letter-spacing: var(--cu-tracking-wide);
+    text-transform: lowercase;
+    color: color-mix(in srgb, var(--cu-testimony-muted) 62%, transparent);
+  }
+
+  .beat__quote {
+    margin: 0;
+  }
+
+  .beat__quote p {
+    font-family: var(--cu-font-display);
+    font-size: var(--cu-step-2);
+    font-style: italic;
+    font-variation-settings: 'opsz' 40, 'SOFT' 70, 'WONK' 1, 'wght' 400;
+    line-height: var(--cu-leading-quote);
+    text-wrap: pretty;
+    color: var(--cu-testimony-text);
+  }
+
+  .beat__attribution {
+    margin-top: var(--cu-space-sm);
+    font-family: var(--cu-font-sans);
+    font-size: var(--cu-step--2);
+    letter-spacing: var(--cu-tracking-wide);
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--cu-testimony-muted) 80%, transparent);
+  }
+</style>

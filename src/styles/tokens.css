@@ -1,0 +1,141 @@
+/* ============================================================================
+   Caripe — design tokens
+   Plain CSS custom properties. Every visual decision in the site resolves to
+   one of these variables, so re-theming happens in a single file.
+   ========================================================================= */
+
+:root {
+  /* -- Palette ------------------------------------------------------------
+     The identity of Caripe: deep mountain green, roasted coffee brown,
+     fog grey, bone white and a single warm accent.                      */
+
+  /* Monte — the green of the cordillera */
+  --cu-monte-950: #060d08;
+  --cu-monte-900: #0a1710;
+  --cu-monte-800: #0f2418;
+  --cu-monte-700: #163523;
+  --cu-monte-600: #1e4a2f;
+  --cu-monte-500: #2a6240;
+  --cu-monte-400: #3b7d55;
+
+  /* Cafe — the brown of roasted coffee */
+  --cu-cafe-950: #120b05;
+  --cu-cafe-900: #1c1108;
+  --cu-cafe-800: #2a180b;
+  --cu-cafe-700: #3a2312;
+  --cu-cafe-600: #51321a;
+  --cu-cafe-500: #6c4424;
+  --cu-cafe-400: #8d5c33;
+
+  /* Bruma — the fog (cool greys with a green cast) */
+  --cu-bruma-050: #f5f6f4;
+  --cu-bruma-100: #e7eae6;
+  --cu-bruma-200: #d3d8d2;
+  --cu-bruma-300: #b8beb7;
+  --cu-bruma-400: #9ba29b;
+  --cu-bruma-500: #7d847d;
+  --cu-bruma-600: #606760;
+  --cu-bruma-700: #464c46;
+
+  /* Hueso — bone / cream */
+  --cu-hueso: #f3ede2;
+  --cu-hueso-soft: #ded6c7;
+  --cu-hueso-dim: #b6ae9f;
+
+  /* Accent — the single warm note */
+  --cu-accent: #c97b33;
+  --cu-accent-soft: #e9a969;
+  --cu-accent-deep: #93501b;
+
+  /* -- Semantic surfaces -------------------------------------------------- */
+  --cu-bg: var(--cu-monte-950);
+  --cu-bg-raise: var(--cu-monte-900);
+  --cu-surface: var(--cu-monte-800);
+  --cu-surface-warm: var(--cu-cafe-900);
+
+  --cu-text: var(--cu-hueso);
+  --cu-text-muted: var(--cu-bruma-300);
+  --cu-text-faint: var(--cu-bruma-400);
+
+  --cu-line: color-mix(in srgb, var(--cu-bruma-300) 20%, transparent);
+  --cu-line-strong: color-mix(in srgb, var(--cu-bruma-100) 34%, transparent);
+  --cu-focus: var(--cu-accent-soft);
+
+  /* -- Voices -------------------------------------------------------------
+     The two narrative registers of the documentary are also two visual
+     registers. A reader should always know who is speaking.              */
+  --cu-doc-text: var(--cu-hueso);
+  --cu-doc-muted: var(--cu-bruma-300);
+  --cu-doc-rule: color-mix(in srgb, var(--cu-bruma-200) 26%, transparent);
+
+  --cu-testimony-bg: color-mix(in srgb, var(--cu-cafe-800) 94%, #000);
+  --cu-testimony-text: #f7f0e4;
+  --cu-testimony-muted: color-mix(in srgb, var(--cu-accent-soft) 78%, var(--cu-hueso-soft));
+  --cu-testimony-rule: var(--cu-accent);
+
+  /* -- Typography --------------------------------------------------------- */
+  --cu-font-display: 'Fraunces Variable', 'Iowan Old Style', 'Palatino Linotype',
+    Palatino, Georgia, 'Times New Roman', serif;
+  --cu-font-serif: 'Spectral', 'Iowan Old Style', 'Palatino Linotype', Palatino,
+    Georgia, 'Times New Roman', serif;
+  --cu-font-sans: 'Inter Variable', ui-sans-serif, system-ui, -apple-system,
+    'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+  /* Fluid type scale */
+  --cu-step--2: clamp(0.7rem, 0.68rem + 0.1vw, 0.76rem);
+  --cu-step--1: clamp(0.82rem, 0.79rem + 0.15vw, 0.9rem);
+  --cu-step-0: clamp(1rem, 0.96rem + 0.2vw, 1.12rem);
+  --cu-step-1: clamp(1.18rem, 1.1rem + 0.4vw, 1.4rem);
+  --cu-step-2: clamp(1.42rem, 1.28rem + 0.75vw, 1.9rem);
+  --cu-step-3: clamp(1.8rem, 1.5rem + 1.5vw, 2.75rem);
+  --cu-step-4: clamp(2.3rem, 1.7rem + 3vw, 4.1rem);
+  --cu-step-5: clamp(3rem, 1.8rem + 6vw, 7rem);
+  --cu-step-6: clamp(3.6rem, 1.4rem + 11vw, 11rem);
+
+  --cu-leading-tight: 1.06;
+  --cu-leading-snug: 1.24;
+  --cu-leading-body: 1.75;
+  --cu-leading-quote: 1.55;
+
+  --cu-tracking-wide: 0.16em;
+  --cu-tracking-wider: 0.3em;
+
+  /* -- Space -------------------------------------------------------------- */
+  --cu-space-3xs: 0.375rem;
+  --cu-space-2xs: 0.625rem;
+  --cu-space-xs: 1rem;
+  --cu-space-sm: 1.5rem;
+  --cu-space-md: 2.25rem;
+  --cu-space-lg: 3.5rem;
+  --cu-space-xl: 5.5rem;
+  --cu-space-2xl: 8rem;
+  --cu-space-3xl: 12rem;
+
+  /* -- Layout ------------------------------------------------------------- */
+  --cu-measure: 33rem; /* documentary prose measure */
+  --cu-measure-narrow: 26rem;
+  --cu-page-max: 76rem;
+  --cu-gutter: clamp(1.25rem, 4vw, 4.5rem);
+  --cu-chapter-gap: clamp(5rem, 12vh, 10rem);
+
+  /* Reserved band for the hero ridge + fog, so text never sits on the mist. */
+  --cu-hero-band: clamp(13rem, 38vh, 26rem);
+
+  /* -- Motion ------------------------------------------------------------- */
+  --cu-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --cu-dur-fast: 180ms;
+  --cu-dur: 360ms;
+  --cu-dur-slow: 720ms;
+
+  --cu-radius: 2px;
+}
+
+/* Users who ask for less motion get a shorter, calmer version of every
+   transition that is purely decorative (never a functional one). */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --cu-dur-fast: 1ms;
+    --cu-dur: 1ms;
+    --cu-dur-slow: 1ms;
+  }
+}

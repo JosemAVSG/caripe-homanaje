@@ -1,0 +1,107 @@
+---
+/**
+ * Mist — the signature device of the site.
+ *
+ * Caripe is the town seen through the fog, so fog is a real actor here, not a
+ * filter. Each instance stacks three blurred gradient layers at different
+ * depths; `data-depth` drives how fast a layer rises when the scene is scrolled
+ * (see `src/scripts/motion.ts`).
+ *
+ * The layers are purely decorative and always sit *behind* or *between* the
+ * landscape bands, never over body copy, so text contrast is never sacrificed.
+ */
+interface Props {
+  /**
+   * `valley` — dense fog filling the valley, sits behind the near ridge.
+   * `veil`   — a faint sheet in front of the ridge, for depth.
+   * `band`   — a standalone low fog band used to open or close a section.
+   */
+  variant?: 'valley' | 'veil' | 'band';
+  class?: string;
+}
+
+const { variant = 'band', class: className } = Astro.props;
+---
+
+<div class:list={['mist', `mist--${variant}`, className]} aria-hidden="true" data-mist>
+  <span class="mist__layer mist__layer--far" data-depth="0.35"></span>
+  <span class="mist__layer mist__layer--mid" data-depth="0.55"></span>
+  <span class="mist__layer mist__layer--near" data-depth="0.8"></span>
+</div>
+
+<style>
+  .mist {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .mist--valley {
+    height: 100%;
+    --mist-strength: 1;
+  }
+
+  .mist--veil {
+    height: 62%;
+    --mist-strength: 0.5;
+  }
+
+  .mist--band {
+    position: relative;
+    height: clamp(5rem, 12vh, 9rem);
+    --mist-strength: 0.75;
+  }
+
+  .mist__layer {
+    position: absolute;
+    inset-inline: -14%;
+    display: block;
+    border-radius: 50%;
+    opacity: calc(var(--mist-strength) * 0.55);
+  }
+
+  /* Promote layers to their own compositor layer only while motion is running,
+     so a static page never pays for GPU memory it cannot use. */
+  :global(html[data-motion='on']) .mist__layer {
+    will-change: transform, opacity;
+  }
+
+  .mist__layer--far {
+    bottom: 34%;
+    height: 56%;
+    background: radial-gradient(
+      58% 100% at 42% 100%,
+      color-mix(in srgb, var(--cu-bruma-100) 24%, transparent) 0%,
+      color-mix(in srgb, var(--cu-bruma-200) 9%, transparent) 46%,
+      transparent 76%
+    );
+    filter: blur(26px);
+  }
+
+  .mist__layer--mid {
+    bottom: 10%;
+    height: 66%;
+    background: radial-gradient(
+      64% 100% at 62% 100%,
+      color-mix(in srgb, var(--cu-bruma-050) 26%, transparent) 0%,
+      color-mix(in srgb, var(--cu-bruma-200) 10%, transparent) 52%,
+      transparent 80%
+    );
+    filter: blur(34px);
+    opacity: calc(var(--mist-strength) * 0.48);
+  }
+
+  .mist__layer--near {
+    bottom: -8%;
+    height: 72%;
+    background: radial-gradient(
+      72% 100% at 50% 100%,
+      color-mix(in srgb, var(--cu-bruma-100) 30%, transparent) 0%,
+      transparent 74%
+    );
+    filter: blur(44px);
+    opacity: calc(var(--mist-strength) * 0.42);
+  }
+</style>

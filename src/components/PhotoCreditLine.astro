@@ -1,0 +1,74 @@
+---
+import type { PhotoCredit } from '../content/credits';
+
+/**
+ * The visible attribution a free licence requires.
+ *
+ * CC BY and CC BY-SA both oblige us to name the author and the licence, and to
+ * link to the original. This component is the only place that obligation is
+ * discharged, so it cannot be forgotten on one image and honoured on another.
+ */
+interface Props {
+  credit: PhotoCredit;
+}
+
+const { credit } = Astro.props;
+
+/** "Public domain" is the API's wording; the site speaks Spanish. */
+const licenseLabel =
+  credit.license.toLowerCase() === 'public domain' ? 'Dominio público' : credit.license;
+---
+
+<p class="credit">
+  <span class="credit__author">{credit.author}</span>
+  <span class="credit__sep" aria-hidden="true">·</span>
+  {
+    credit.licenseUrl ? (
+      <a class="credit__link" href={credit.licenseUrl} rel="license noopener" target="_blank">
+        {licenseLabel}
+      </a>
+    ) : (
+      <span class="credit__license">{licenseLabel}</span>
+    )
+  }
+  <span class="credit__sep" aria-hidden="true">·</span>
+  <a class="credit__link" href={credit.sourceUrl} rel="noopener" target="_blank">
+    <span class="credit__source">Wikimedia Commons</span>
+  </a>
+</p>
+
+<style>
+  .credit {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.45em;
+    font-family: var(--cu-font-sans);
+    font-size: var(--cu-step--2);
+    line-height: 1.6;
+    color: var(--cu-text-faint);
+  }
+
+  .credit__author {
+    color: var(--cu-text-muted);
+  }
+
+  .credit__license {
+    color: var(--cu-text-faint);
+  }
+
+  .credit__sep {
+    color: color-mix(in srgb, var(--cu-accent) 70%, transparent);
+  }
+
+  .credit__link {
+    color: var(--cu-text-muted);
+    text-decoration-color: color-mix(in srgb, var(--cu-accent) 55%, transparent);
+    text-underline-offset: 0.25em;
+    transition: color var(--cu-dur-fast) var(--cu-ease);
+  }
+
+  .credit__link:hover {
+    color: var(--cu-accent-soft);
+  }
+</style>

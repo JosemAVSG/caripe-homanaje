@@ -1,0 +1,23 @@
+{
+  "name": "caripe-homanaje",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "A documentary scrollytelling homage to Caripe del Guacharo, Monagas, Venezuela.",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "photos": "node scripts/fetch-commons-photos.mjs",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@fontsource-variable/fraunces": "^5.3.0",
+    "@fontsource-variable/inter": "^5.3.0",
+    "@fontsource/spectral": "^5.3.0",
+    "astro": "^7.3.8",
+    "gsap": "^3.15.0",
+    "lenis": "^1.3.26"
+  }
+}

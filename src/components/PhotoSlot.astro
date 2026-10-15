@@ -1,0 +1,89 @@
+---
+import type { PhotoSlot as PhotoSlotData } from '../content/types';
+
+/**
+ * A reserved frame for photography that does not exist yet.
+ *
+ * The brief forbids placeholder imagery, so this is an honest, designed empty
+ * frame: a hairline plate, a small aperture mark, and the caption the eventual
+ * photograph will carry. When real images arrive, replace the frame with an
+ * `<img>`; the caption markup already fits a `<figure>`.
+ */
+interface Props {
+  slot: PhotoSlotData;
+}
+
+const { slot } = Astro.props;
+---
+
+<figure class="photo" data-photo-slot data-reveal>
+  <div class="photo__frame" aria-hidden="true">
+    <svg class="photo__mark" viewBox="0 0 48 48" focusable="false">
+      <circle cx="24" cy="24" r="15" fill="none" stroke="currentColor" stroke-width="1.1" />
+      <path d="M6.5 24h9l4.5-8 5 16 4-8h12.5" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round" />
+    </svg>
+    <span class="photo__label">Espacio reservado</span>
+  </div>
+
+  <figcaption class="photo__caption">
+    <span class="photo__text">{slot.caption}</span>
+    {slot.credit ? <span class="photo__credit">{slot.credit}</span> : null}
+  </figcaption>
+</figure>
+
+<style>
+  .photo {
+    margin: var(--cu-space-xl) 0 0;
+  }
+
+  .photo__frame {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--cu-space-xs);
+    aspect-ratio: 3 / 2;
+    background-color: color-mix(in srgb, var(--cu-monte-900) 70%, transparent);
+    background-image: repeating-linear-gradient(
+      -45deg,
+      color-mix(in srgb, var(--cu-bruma-400) 7%, transparent) 0 1px,
+      transparent 1px 11px
+    );
+    border: 1px dashed color-mix(in srgb, var(--cu-bruma-400) 40%, transparent);
+    border-radius: var(--cu-radius);
+    color: color-mix(in srgb, var(--cu-bruma-300) 55%, transparent);
+  }
+
+  .photo__mark {
+    width: 3rem;
+    height: 3rem;
+  }
+
+  .photo__label {
+    font-family: var(--cu-font-sans);
+    font-size: var(--cu-step--2);
+    letter-spacing: var(--cu-tracking-wider);
+    text-transform: uppercase;
+  }
+
+  .photo__caption {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5em var(--cu-space-xs);
+    margin-top: var(--cu-space-xs);
+    padding-left: 0.9rem;
+    border-left: 1px solid var(--cu-doc-rule);
+    font-size: var(--cu-step--1);
+    line-height: 1.6;
+    color: var(--cu-text-muted);
+  }
+
+  .photo__credit {
+    font-size: var(--cu-step--2);
+    letter-spacing: var(--cu-tracking-wide);
+    text-transform: uppercase;
+    color: var(--cu-text-faint);
+  }
+</style>

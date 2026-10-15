@@ -1,0 +1,159 @@
+---
+import { Image } from 'astro:assets';
+import type { EvidencePlate } from '../content/types';
+import { getPhoto } from '../content/photos';
+import PhotoCreditLine from './PhotoCreditLine.astro';
+
+/**
+ * Historical documents, staged as evidence.
+ *
+ * These are the oldest things on the site — a lithograph, an engraved plate, a
+ * 19th-century print — and they are treated as documents rather than pictures:
+ * a paper-toned frame, a date tag, and the plate itself left uncropped so the
+ * annotation around it stays legible.
+ */
+interface Props {
+  plates: EvidencePlate[];
+}
+
+const { plates } = Astro.props;
+
+const sizes = '(min-width: 62rem) 19rem, (min-width: 34rem) 44vw, 88vw';
+---
+
+<section class="plates" aria-label="Evidencia histórica" data-reveal>
+  <p class="plates__label u-kicker">Evidencia histórica</p>
+
+  <ul class="plates__list">
+    {
+      plates.map((plate) => {
+        const photo = getPhoto(plate.photo);
+        const isVector = photo.src.format === 'svg';
+
+        return (
+          <li class="plates__item">
+            <figure class="plate">
+              <div class="plate__frame">
+                {isVector ? (
+                  <img
+                    class="plate__image"
+                    src={photo.src.src}
+                    width={photo.src.width}
+                    height={photo.src.height}
+                    alt={plate.alt}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                ) : (
+                  <Image
+                    class="plate__image"
+                    src={photo.src}
+                    alt={plate.alt}
+                    widths={[420, 760]}
+                    sizes={sizes}
+                    format="webp"
+                    quality={76}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                )}
+              </div>
+
+              <figcaption class="plate__caption">
+                {plate.label ? <span class="plate__tag">{plate.label}</span> : null}
+                <span class="plate__text">{plate.caption}</span>
+                <PhotoCreditLine credit={photo.credit} />
+              </figcaption>
+            </figure>
+          </li>
+        );
+      })
+    }
+  </ul>
+</section>
+
+<style>
+  .plates {
+    margin-top: var(--cu-space-xl);
+  }
+
+  .plates__label {
+    padding-bottom: var(--cu-space-2xs);
+    border-bottom: 1px solid var(--cu-line);
+    margin-bottom: var(--cu-space-md);
+  }
+
+  .plates__list {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+    gap: var(--cu-space-lg) var(--cu-space-md);
+  }
+
+  @media (min-width: 34rem) {
+    .plates__list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 62rem) {
+    .plates__list {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .plate {
+    margin: 0;
+    min-width: 0;
+  }
+
+  /* Paper, not screen: the documents come from another century. */
+  .plate__frame {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(0.6rem, 1.6vw, 1rem);
+    background-color: color-mix(in srgb, var(--cu-hueso) 90%, var(--cu-cafe-400));
+    background-image: linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--cu-hueso) 96%, #fff) 0%,
+      color-mix(in srgb, var(--cu-cafe-400) 42%, var(--cu-hueso)) 100%
+    );
+    border: 1px solid color-mix(in srgb, var(--cu-cafe-700) 40%, transparent);
+    box-shadow: 0 22px 50px -34px color-mix(in srgb, #000 92%, transparent);
+  }
+
+  .plate__image {
+    display: block;
+    width: 100%;
+    height: auto;
+    filter: saturate(0.92) contrast(1.02);
+  }
+
+  .plate__caption {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-top: var(--cu-space-sm);
+    padding-left: 0.9rem;
+    border-left: 1px solid var(--cu-doc-rule);
+  }
+
+  .plate__tag {
+    font-family: var(--cu-font-sans);
+    font-size: var(--cu-step--2);
+    font-weight: 600;
+    letter-spacing: var(--cu-tracking-wide);
+    text-transform: uppercase;
+    color: var(--cu-accent-soft);
+  }
+
+  .plate__text {
+    font-family: var(--cu-font-serif);
+    font-size: var(--cu-step--1);
+    font-weight: 300;
+    line-height: 1.65;
+    color: var(--cu-text-muted);
+    text-wrap: pretty;
+  }
+</style>

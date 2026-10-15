@@ -1,0 +1,96 @@
+---
+import type { Source } from '../content/types';
+
+/**
+ * The source footer of a documentary block.
+ *
+ * Sources are descriptive and generic by design — this project states where its
+ * facts come from without inventing citations or links. `url` is rendered only
+ * when a real, verified one exists.
+ */
+interface Props {
+  sources?: Source[];
+  /** Generic provenance note, e.g. "registros de acceso público". */
+  note?: string;
+}
+
+const { sources = [], note } = Astro.props;
+---
+
+{
+  sources.length > 0 || note ? (
+    <footer class="source-note" data-source-note data-reveal>
+      {sources.length > 0 ? (
+        <p class="source-note__line">
+          <span class="source-note__label">Fuentes</span>
+          {sources.map((source, index) => (
+            <>
+              {index > 0 ? (
+                <span class="source-note__sep" aria-hidden="true">
+                  ·
+                </span>
+              ) : null}
+              {source.url ? (
+                <a class="source-note__link" href={source.url}>
+                  {source.label}
+                </a>
+              ) : (
+                <span class="source-note__name">{source.label}</span>
+              )}
+            </>
+          ))}
+        </p>
+      ) : null}
+
+      {note ? <p class="source-note__meta">{note}</p> : null}
+    </footer>
+  ) : null
+}
+
+<style>
+  .source-note {
+    margin-top: var(--cu-space-lg);
+    padding-top: var(--cu-space-sm);
+    border-top: 1px solid var(--cu-line);
+    max-width: var(--cu-measure-wide);
+  }
+
+  .source-note__line {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5em;
+    font-family: var(--cu-font-sans);
+    font-size: var(--cu-step--2);
+    line-height: 1.6;
+    color: var(--cu-text-faint);
+  }
+
+  .source-note__label {
+    letter-spacing: var(--cu-tracking-wider);
+    text-transform: uppercase;
+    color: var(--cu-text-muted);
+  }
+
+  .source-note__name,
+  .source-note__link {
+    color: var(--cu-text-muted);
+  }
+
+  .source-note__link {
+    text-decoration-color: var(--cu-accent);
+    text-underline-offset: 0.25em;
+  }
+
+  .source-note__sep {
+    color: var(--cu-accent);
+  }
+
+  .source-note__meta {
+    margin-top: var(--cu-space-2xs);
+    max-width: 44rem;
+    font-size: var(--cu-step--2);
+    line-height: 1.7;
+    color: var(--cu-text-faint);
+  }
+</style>

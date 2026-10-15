@@ -1,0 +1,377 @@
+---
+import Mist from './Mist.astro';
+import { site } from '../content/site';
+
+const { facts } = site;
+---
+
+<section
+  class="hero"
+  id="prologue"
+  aria-labelledby="hero-title"
+  data-scene="hero"
+  data-pin
+  data-pin-distance="0.7"
+>
+  <div class="hero__sky" aria-hidden="true">
+    <span class="hero__glow"></span>
+  </div>
+
+  <div class="hero__landscape" aria-hidden="true">
+    <svg
+      class="hero__ridge hero__ridge--far"
+      viewBox="0 0 1440 480"
+      preserveAspectRatio="none"
+      focusable="false"
+      data-ridge="far"
+    >
+      <defs>
+        <linearGradient id="cu-ridge-far-fill" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="var(--cu-monte-600)" stop-opacity="0.55" />
+          <stop offset="100%" stop-color="var(--cu-monte-800)" stop-opacity="0.9" />
+        </linearGradient>
+      </defs>
+      <path
+        d="M0,214 C96,222 168,196 262,208 C356,220 424,254 512,246 C604,238 676,200 768,210 C860,220 928,252 1024,242 C1116,232 1188,200 1280,208 C1352,214 1400,206 1440,198 L1440,480 L0,480 Z"
+        fill="url(#cu-ridge-far-fill)"
+      />
+    </svg>
+
+    <Mist variant="valley" />
+
+    <svg
+      class="hero__ridge hero__ridge--near"
+      viewBox="0 0 1440 480"
+      preserveAspectRatio="none"
+      focusable="false"
+      data-ridge="near"
+    >
+      <defs>
+        <linearGradient id="cu-ridge-near-fill" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="var(--cu-monte-500)" stop-opacity="0.75" />
+          <stop offset="100%" stop-color="var(--cu-monte-900)" stop-opacity="1" />
+        </linearGradient>
+      </defs>
+      <path
+        d="M0,320 C88,306 158,336 248,326 C344,316 404,282 500,296 C596,310 660,344 760,336 C860,328 928,292 1024,302 C1116,312 1180,344 1276,336 C1352,330 1402,318 1440,312 L1440,480 L0,480 Z"
+        fill="url(#cu-ridge-near-fill)"
+      />
+    </svg>
+
+    <Mist variant="veil" />
+  </div>
+
+  <div class="hero__content u-container" data-hero-content>
+    <p class="hero__eyebrow u-kicker">{site.eyebrow}</p>
+
+    <h1 class="hero__title" id="hero-title">
+      <span class="hero__title-mask">
+        <span class="hero__title-inner">{site.title}</span>
+      </span>
+    </h1>
+
+    <p class="hero__full-title">{site.fullTitle}</p>
+
+    <p class="hero__epithet">
+      <span class="hero__epithet-word">«{site.epithet}»</span>
+      <span class="hero__epithet-note">{site.epithetNote}</span>
+    </p>
+
+    <p class="hero__standfirst">{site.standfirst}</p>
+
+    <dl class="hero__facts">
+      {
+        facts.map((fact) => (
+          <>
+            <dt class="hero__fact-label">{fact.label}</dt>
+            <dd class="hero__fact-value">{fact.value}</dd>
+          </>
+        ))
+      }
+    </dl>
+
+    <p class="hero__cue">
+      <span class="hero__cue-label">{site.scrollCue}</span>
+      <span class="hero__cue-arrow" aria-hidden="true"></span>
+    </p>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 100svh;
+    overflow: clip;
+    isolation: isolate;
+  }
+
+  /* -- Sky ---------------------------------------------------------------- */
+
+  .hero__sky {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background:
+      linear-gradient(
+        180deg,
+        var(--cu-monte-950) 0%,
+        var(--cu-monte-900) 42%,
+        color-mix(in srgb, var(--cu-monte-700) 70%, var(--cu-bruma-700)) 100%
+      );
+  }
+
+  /* The single warm note of the palette: light catching the fog at the horizon. */
+  .hero__glow {
+    position: absolute;
+    right: 8%;
+    bottom: 26%;
+    width: min(52rem, 90vw);
+    height: min(30rem, 52vh);
+    background: radial-gradient(
+      50% 50% at 50% 50%,
+      color-mix(in srgb, var(--cu-accent) 34%, transparent) 0%,
+      color-mix(in srgb, var(--cu-accent-deep) 14%, transparent) 42%,
+      transparent 72%
+    );
+    filter: blur(18px);
+    opacity: 0.85;
+  }
+
+  /* -- Landscape ---------------------------------------------------------- */
+
+  .hero__landscape {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 1;
+    height: var(--cu-hero-band);
+    pointer-events: none;
+  }
+
+  .hero__ridge {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Only pay for compositor layers when the scroll scene is actually running. */
+  :global(html[data-motion='on']) .hero__ridge {
+    will-change: transform;
+  }
+
+  .hero__ridge--far {
+    z-index: 1;
+    height: 86%;
+    opacity: 0.9;
+  }
+
+  .hero__ridge--near {
+    z-index: 3;
+    height: 62%;
+  }
+
+  /* Fog sits *between* the ridges, and a faint veil in front of the near one. */
+  .hero__landscape :global(.mist--valley) {
+    z-index: 2;
+  }
+
+  .hero__landscape :global(.mist--veil) {
+    z-index: 4;
+  }
+
+  /* -- Content ------------------------------------------------------------ */
+
+  .hero__content {
+    position: relative;
+    z-index: 5;
+    width: 100%;
+    padding-block: clamp(4rem, 13vh, 9rem) calc(var(--cu-hero-band) + var(--cu-space-sm));
+  }
+
+  .hero__eyebrow {
+    animation: cu-fade 900ms var(--cu-ease) 120ms both;
+  }
+
+  .hero__title {
+    margin-top: var(--cu-space-sm);
+    font-family: var(--cu-font-display);
+    font-weight: 500;
+    font-variation-settings: 'opsz' 144, 'wght' 480, 'SOFT' 30, 'WONK' 1;
+    font-size: var(--cu-step-6);
+    line-height: 0.92;
+    letter-spacing: -0.025em;
+    color: var(--cu-hueso);
+  }
+
+  .hero__title-mask {
+    display: block;
+    overflow: hidden;
+  }
+
+  .hero__title-inner {
+    display: block;
+    animation: cu-mask-rise 1150ms var(--cu-ease) 220ms both;
+  }
+
+  .hero__full-title {
+    margin-top: var(--cu-space-2xs);
+    font-family: var(--cu-font-display);
+    font-size: var(--cu-step-1);
+    font-style: italic;
+    font-variation-settings: 'opsz' 60, 'SOFT' 60, 'WONK' 0;
+    letter-spacing: 0.02em;
+    color: var(--cu-bruma-200);
+    animation: cu-fade 900ms var(--cu-ease) 520ms both;
+  }
+
+  .hero__epithet {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--cu-space-2xs) var(--cu-space-xs);
+    margin-top: var(--cu-space-md);
+    padding-top: var(--cu-space-sm);
+    border-top: 1px solid var(--cu-line);
+    max-width: 44rem;
+    animation: cu-fade 900ms var(--cu-ease) 640ms both;
+  }
+
+  .hero__epithet-word {
+    font-family: var(--cu-font-serif);
+    font-size: var(--cu-step-2);
+    font-style: italic;
+    color: var(--cu-accent-soft);
+  }
+
+  .hero__epithet-note {
+    font-size: var(--cu-step--1);
+    color: var(--cu-text-faint);
+  }
+
+  .hero__standfirst {
+    margin-top: var(--cu-space-sm);
+    max-width: 40rem;
+    font-family: var(--cu-font-serif);
+    font-size: var(--cu-step-1);
+    line-height: 1.6;
+    color: var(--cu-hueso-soft);
+    animation: cu-fade 900ms var(--cu-ease) 760ms both;
+  }
+
+  .hero__facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+    gap: var(--cu-space-sm) var(--cu-space-md);
+    margin-top: var(--cu-space-lg);
+    max-width: 52rem;
+    padding-top: var(--cu-space-sm);
+    border-top: 1px solid var(--cu-line);
+    animation: cu-fade 900ms var(--cu-ease) 900ms both;
+  }
+
+  .hero__fact-label {
+    font-size: var(--cu-step--2);
+    font-weight: 500;
+    letter-spacing: var(--cu-tracking-wide);
+    text-transform: uppercase;
+    color: var(--cu-text-faint);
+  }
+
+  .hero__fact-value {
+    margin: 0;
+    font-family: var(--cu-font-serif);
+    font-size: var(--cu-step-0);
+    color: var(--cu-hueso-soft);
+  }
+
+  .hero__cue {
+    display: flex;
+    align-items: center;
+    gap: var(--cu-space-2xs);
+    margin-top: var(--cu-space-xl);
+    font-size: var(--cu-step--2);
+    font-weight: 500;
+    letter-spacing: var(--cu-tracking-wider);
+    text-transform: uppercase;
+    color: var(--cu-text-faint);
+    animation: cu-fade 900ms var(--cu-ease) 1100ms both;
+  }
+
+  .hero__cue-arrow {
+    display: block;
+    width: 1.5rem;
+    height: 1px;
+    background-color: currentColor;
+    transform-origin: left center;
+    animation: cu-cue 2600ms var(--cu-ease) 1400ms infinite;
+  }
+
+  /* -- Intro keyframes ----------------------------------------------------
+     The hero animates in with CSS so it works with zero JavaScript and never
+     flashes hidden text: if the animation never runs, the content is simply
+     visible. */
+
+  @keyframes cu-fade {
+    from {
+      opacity: 0;
+      transform: translateY(1.1rem);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes cu-mask-rise {
+    from {
+      transform: translateY(108%);
+    }
+    to {
+      transform: none;
+    }
+  }
+
+  @keyframes cu-cue {
+    0%,
+    100% {
+      transform: scaleX(0.4);
+      opacity: 0.5;
+    }
+    50% {
+      transform: scaleX(1);
+      opacity: 1;
+    }
+  }
+
+  @media (max-width: 40rem) {
+    .hero {
+      align-items: flex-start;
+    }
+
+    .hero__facts {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--cu-space-xs);
+    }
+  }
+
+  /* No intro motion: everything is present, immediately, at rest. */
+  @media (prefers-reduced-motion: reduce) {
+    .hero__eyebrow,
+    .hero__title-inner,
+    .hero__full-title,
+    .hero__epithet,
+    .hero__standfirst,
+    .hero__facts,
+    .hero__cue {
+      animation: none !important;
+    }
+
+    .hero__cue-arrow {
+      animation: none !important;
+    }
+  }
+</style>

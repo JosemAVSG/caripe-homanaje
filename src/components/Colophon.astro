@@ -1,0 +1,221 @@
+---
+import Mist from './Mist.astro';
+import PhotoCreditLine from './PhotoCreditLine.astro';
+import { site } from '../content/site';
+import { photoCredits } from '../content/photos';
+
+const { colophon } = site;
+const year = new Date().getFullYear();
+
+/** The file name is provenance, not a title: show it without its extension. */
+const works = photoCredits.map((credit) => ({
+  ...credit,
+  displayTitle: credit.title.replace(/\.[a-z0-9]+$/i, ''),
+}));
+---
+
+<footer class="colophon" id="colophon" aria-labelledby="colophon-title">
+  <div class="colophon__sky" aria-hidden="true">
+    <Mist variant="band" />
+  </div>
+
+  <div class="colophon__inner u-container">
+    <p class="colophon__kicker u-kicker">{colophon.kicker}</p>
+
+    <h2 class="colophon__thanks" id="colophon-title" data-reveal>{colophon.thanks}</h2>
+
+    <p class="colophon__intro" data-reveal>{colophon.intro}</p>
+
+    <div class="colophon__notes">
+      {
+        colophon.paragraphs.map((paragraph) => (
+          <p class="colophon__note" data-reveal>
+            {paragraph}
+          </p>
+        ))
+      }
+    </div>
+
+    <section class="credits" aria-labelledby="credits-title" data-reveal>
+      <h3 class="credits__title" id="credits-title">{colophon.creditsTitle}</h3>
+
+      <p class="credits__intro">{colophon.creditsIntro}</p>
+
+      <ul class="credits__list">
+        {
+          works.map((work) => (
+            <li class="credits__item">
+              <span class="credits__work">{work.displayTitle}</span>
+              <PhotoCreditLine credit={work} />
+            </li>
+          ))
+        }
+      </ul>
+
+      <p class="credits__changes">{colophon.creditsChanges}</p>
+    </section>
+
+    <p class="colophon__year" data-reveal>
+      <span aria-hidden="true">{year}</span>
+      <span class="u-visually-hidden">Sitio publicado en {year}.</span>
+    </p>
+  </div>
+</footer>
+
+<style>
+  .colophon {
+    position: relative;
+    isolation: isolate;
+    padding-block: var(--cu-space-3xl) var(--cu-space-2xl);
+    background-color: var(--cu-monte-950);
+    background-image: linear-gradient(
+      180deg,
+      transparent 0%,
+      color-mix(in srgb, var(--cu-cafe-950) 55%, transparent) 100%
+    );
+    overflow: clip;
+  }
+
+  .colophon__sky {
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    z-index: 0;
+    height: clamp(6rem, 16vh, 12rem);
+    pointer-events: none;
+    transform: translateY(-50%);
+  }
+
+  .colophon__inner {
+    position: relative;
+    z-index: 1;
+  }
+
+  .colophon__kicker {
+    margin-bottom: var(--cu-space-sm);
+  }
+
+  .colophon__thanks {
+    max-width: 34rem;
+    font-family: var(--cu-font-display);
+    font-size: var(--cu-step-4);
+    font-weight: 400;
+    font-style: italic;
+    font-variation-settings: 'opsz' 144, 'SOFT' 60, 'WONK' 1;
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+    color: var(--cu-hueso);
+  }
+
+  .colophon__intro {
+    margin-top: var(--cu-space-sm);
+    max-width: var(--cu-measure);
+    font-family: var(--cu-font-serif);
+    font-size: var(--cu-step-1);
+    line-height: 1.6;
+    color: var(--cu-hueso-soft);
+  }
+
+  .colophon__notes {
+    display: grid;
+    gap: var(--cu-space-sm);
+    margin-top: var(--cu-space-xl);
+    padding-top: var(--cu-space-sm);
+    border-top: 1px solid var(--cu-line);
+    max-width: var(--cu-measure-wide);
+  }
+
+  @media (min-width: 48rem) {
+    .colophon__notes {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--cu-space-md);
+    }
+  }
+
+  .colophon__note {
+    font-size: var(--cu-step--1);
+    line-height: 1.75;
+    color: var(--cu-text-faint);
+  }
+
+  /* -- Image credits ------------------------------------------------------
+     A licence obligation and, just as much, a reader's tool: every photograph
+     on the page can be traced from here back to its author and its source. */
+
+  .credits {
+    margin-top: var(--cu-space-2xl);
+    padding-top: var(--cu-space-md);
+    border-top: 1px solid var(--cu-line-strong);
+    max-width: var(--cu-page-max);
+  }
+
+  .credits__title {
+    font-family: var(--cu-font-serif);
+    font-size: var(--cu-step-2);
+    font-weight: 400;
+    color: var(--cu-hueso);
+  }
+
+  .credits__intro {
+    margin-top: var(--cu-space-sm);
+    max-width: 46rem;
+    font-size: var(--cu-step--1);
+    line-height: 1.75;
+    color: var(--cu-text-muted);
+  }
+
+  .credits__list {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--cu-space-sm) var(--cu-space-md);
+    margin-top: var(--cu-space-lg);
+  }
+
+  @media (min-width: 48rem) {
+    .credits__list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 72rem) {
+    .credits__list {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .credits__item {
+    min-width: 0;
+    padding-left: 0.9rem;
+    border-left: 1px solid var(--cu-line);
+  }
+
+  .credits__work {
+    display: block;
+    margin-bottom: var(--cu-space-3xs);
+    font-family: var(--cu-font-serif);
+    font-size: var(--cu-step--1);
+    font-style: italic;
+    line-height: 1.5;
+    color: var(--cu-hueso-soft);
+    overflow-wrap: anywhere;
+  }
+
+  .credits__changes {
+    margin-top: var(--cu-space-lg);
+    padding-top: var(--cu-space-sm);
+    border-top: 1px solid var(--cu-line);
+    max-width: 46rem;
+    font-size: var(--cu-step--2);
+    line-height: 1.75;
+    color: var(--cu-text-faint);
+  }
+
+  .colophon__year {
+    margin-top: var(--cu-space-xl);
+    font-family: var(--cu-font-sans);
+    font-size: var(--cu-step--2);
+    letter-spacing: var(--cu-tracking-wider);
+    color: var(--cu-text-faint);
+    font-variant-numeric: lining-nums;
+  }
+</style>

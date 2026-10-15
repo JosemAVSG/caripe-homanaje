@@ -1,0 +1,172 @@
+---
+import type { Chapter } from '../content/types';
+
+/**
+ * A vertical reading rail, shown from 1024px up.
+ *
+ * It doubles as chapter navigation and as the progress indicator: the track
+ * fills with the scroll and the active chapter is marked. It is deliberately
+ * narrow — numerals only — so it can never overlap the page content; the full
+ * chapter names reach assistive technology through `aria-label`.
+ *
+ * Below 1024px the rail is hidden and the thin top progress bar takes over
+ * (see `global.css`), so the reading signal is never lost, only simplified.
+ */
+interface Props {
+  chapters: Chapter[];
+}
+
+const { chapters } = Astro.props;
+---
+
+<nav class="rail" aria-label="Capítulos">
+  <p class="rail__brand" aria-hidden="true">Caripe</p>
+
+  <div class="rail__track">
+    <span class="rail__fill" aria-hidden="true" data-rail-fill></span>
+
+    <ol class="rail__list">
+      {
+        chapters.map((chapter) => (
+          <li class="rail__item">
+            <a
+              class="rail__link"
+              href={`#${chapter.slug}`}
+              data-rail-link={chapter.slug}
+              aria-label={`Capítulo ${chapter.number}: ${chapter.title}`}
+            >
+              <span class="rail__dot" aria-hidden="true" />
+              <span class="rail__num" aria-hidden="true">{chapter.number}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</nav>
+
+<style>
+  .rail {
+    --rail-offset: 1.15rem;
+    position: fixed;
+    top: 50%;
+    right: clamp(1rem, 2.4vw, 2.5rem);
+    z-index: 50;
+    display: none;
+    transform: translateY(-50%);
+  }
+
+  .rail__brand {
+    margin: 0 0 var(--cu-space-sm) calc(var(--rail-offset) - 0.1rem);
+    font-family: var(--cu-font-sans);
+    font-size: var(--cu-step--2);
+    font-weight: 600;
+    letter-spacing: var(--cu-tracking-wide);
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--cu-text-faint);
+  }
+
+  .rail__track {
+    position: relative;
+    padding-left: var(--rail-offset);
+  }
+
+  /* The rail's own hairline, drawn at the left edge of the track. */
+  .rail__track::before {
+    content: '';
+    position: absolute;
+    top: 0.45rem;
+    bottom: 0.45rem;
+    left: 0;
+    width: 1px;
+    background-color: color-mix(in srgb, var(--cu-bruma-400) 32%, transparent);
+  }
+
+  /* Scroll-driven fill, layered over the hairline. Starts empty: with no
+     JavaScript there is no progress to report, and faking a full bar would
+     be a lie. */
+  .rail__fill {
+    position: absolute;
+    top: 0.45rem;
+    left: 0;
+    width: 1px;
+    height: calc(100% - 0.9rem);
+    background: linear-gradient(
+      180deg,
+      var(--cu-accent-deep),
+      var(--cu-accent) 50%,
+      var(--cu-accent-soft)
+    );
+    transform: scaleY(0);
+    transform-origin: top center;
+  }
+
+  .rail__list {
+    display: grid;
+    gap: var(--cu-space-sm);
+  }
+
+  .rail__item {
+    position: relative;
+  }
+
+  .rail__link {
+    display: flex;
+    align-items: center;
+    min-height: 1.4rem;
+    text-decoration: none;
+    color: var(--cu-text-faint);
+  }
+
+  /* Sits exactly on the hairline. */
+  .rail__dot {
+    position: absolute;
+    left: calc(var(--rail-offset) * -1 - 3.5px);
+    width: 8px;
+    height: 8px;
+    background-color: var(--cu-monte-950);
+    border: 1px solid color-mix(in srgb, var(--cu-bruma-300) 45%, transparent);
+    border-radius: 50%;
+    transition:
+      background-color var(--cu-dur) var(--cu-ease),
+      border-color var(--cu-dur) var(--cu-ease),
+      box-shadow var(--cu-dur) var(--cu-ease);
+  }
+
+  .rail__num {
+    font-family: var(--cu-font-sans);
+    font-size: var(--cu-step--2);
+    font-variant-numeric: lining-nums;
+    letter-spacing: var(--cu-tracking-wide);
+    transition: color var(--cu-dur) var(--cu-ease);
+  }
+
+  .rail__link:hover {
+    color: var(--cu-hueso);
+  }
+
+  /* Active chapter, driven by ScrollTrigger. */
+  .rail__link[aria-current='true'] {
+    color: var(--cu-accent-soft);
+  }
+
+  .rail__link[aria-current='true'] .rail__dot {
+    background-color: var(--cu-accent);
+    border-color: var(--cu-accent-soft);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--cu-accent) 20%, transparent);
+  }
+
+  @media (min-width: 1024px) {
+    .rail {
+      display: block;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rail__dot,
+    .rail__num {
+      transition: none;
+    }
+  }
+</style>

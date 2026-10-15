@@ -1,0 +1,65 @@
+---
+import '@fontsource-variable/fraunces/full.css';
+import '@fontsource-variable/fraunces/full-italic.css';
+import '@fontsource-variable/inter/wght.css';
+import '@fontsource/spectral/latin-300.css';
+import '@fontsource/spectral/latin-400.css';
+import '@fontsource/spectral/latin-400-italic.css';
+import 'lenis/dist/lenis.css';
+
+import '../styles/tokens.css';
+import '../styles/global.css';
+
+/**
+ * The document shell.
+ *
+ * Fonts are self-hosted through @fontsource (no third-party requests) and CSS
+ * is imported globally so the design tokens are available to every component.
+ */
+interface Props {
+  title: string;
+  description: string;
+}
+
+const { title, description } = Astro.props;
+const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : undefined;
+---
+
+<!doctype html>
+<html lang="es" data-motion="static">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {canonical ? <link rel="canonical" href={canonical} /> : null}
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#060d08" />
+    <meta name="generator" content={Astro.generator} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    {canonical ? <meta property="og:url" content={canonical} /> : null}
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    <!-- Publish the motion contract to CSS from the very first paint. -->
+    <script is:inline>
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.documentElement.dataset.motion = 'reduced';
+      }
+    </script>
+  </head>
+
+  <body>
+    <a class="u-skip-link" href="#main">Saltar al contenido</a>
+    <slot />
+
+    <script>
+      import { initMotion } from '../scripts/motion';
+      initMotion();
+    </script>
+  </body>
+</html>

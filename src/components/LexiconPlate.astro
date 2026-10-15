@@ -1,0 +1,94 @@
+---
+import type { LexiconEntry } from '../content/types';
+
+/**
+ * A term the documentary stops at. Used for the scientific name that ties the
+ * town to the bird — the factual spine of chapter 01.
+ */
+interface Props {
+  entry: LexiconEntry;
+}
+
+const { entry } = Astro.props;
+---
+
+<aside class="lexicon" data-lexicon data-reveal>
+  <p class="lexicon__label">Nombre científico</p>
+
+  <p class="lexicon__term">
+    <span lang={entry.lang ?? 'la'}>{entry.term}</span>
+  </p>
+
+  <p class="lexicon__gloss">{entry.gloss}</p>
+
+  {entry.note ? <p class="lexicon__note">{entry.note}</p> : null}
+</aside>
+
+<style>
+  .lexicon {
+    position: relative;
+    padding: clamp(1.25rem, 3vw, 1.9rem);
+    background-color: color-mix(in srgb, var(--cu-cafe-950) 72%, transparent);
+    background-image: radial-gradient(
+      130% 120% at 100% 0%,
+      color-mix(in srgb, var(--cu-cafe-600) 42%, transparent) 0%,
+      transparent 60%
+    );
+    border: 1px solid var(--cu-line);
+    border-radius: var(--cu-radius);
+    overflow: hidden;
+  }
+
+  /* A soft suggestion of the cave mouth: warmth swallowed by darkness. */
+  .lexicon::after {
+    content: '';
+    position: absolute;
+    inset: auto -20% -60% -20%;
+    height: 70%;
+    background: radial-gradient(
+      50% 100% at 50% 100%,
+      color-mix(in srgb, #000 55%, transparent) 0%,
+      transparent 70%
+    );
+    pointer-events: none;
+  }
+
+  .lexicon__label {
+    font-family: var(--cu-font-sans);
+    font-size: var(--cu-step--2);
+    font-weight: 500;
+    letter-spacing: var(--cu-tracking-wider);
+    text-transform: uppercase;
+    color: var(--cu-text-faint);
+  }
+
+  .lexicon__term {
+    position: relative;
+    margin-top: var(--cu-space-2xs);
+    font-family: var(--cu-font-display);
+    font-size: var(--cu-step-2);
+    font-style: italic;
+    font-variation-settings: 'opsz' 40, 'SOFT' 40, 'WONK' 1;
+    line-height: 1.15;
+    color: var(--cu-hueso);
+  }
+
+  .lexicon__gloss {
+    position: relative;
+    margin-top: var(--cu-space-3xs);
+    font-family: var(--cu-font-serif);
+    font-size: var(--cu-step-1);
+    font-style: italic;
+    color: var(--cu-accent-soft);
+  }
+
+  .lexicon__note {
+    position: relative;
+    margin-top: var(--cu-space-xs);
+    padding-top: var(--cu-space-xs);
+    border-top: 1px solid var(--cu-line);
+    font-size: var(--cu-step--1);
+    line-height: 1.65;
+    color: var(--cu-text-muted);
+  }
+</style>

@@ -1,0 +1,314 @@
+---
+import type { Chapter } from '../content/types';
+import Beat from './Beat.astro';
+import ChapterGallery from './ChapterGallery.astro';
+import ChapterTimeline from './ChapterTimeline.astro';
+import EvidencePlates from './EvidencePlates.astro';
+import LexiconPlate from './LexiconPlate.astro';
+import PhotoSlot from './PhotoSlot.astro';
+import SourceNote from './SourceNote.astro';
+import { site } from '../content/site';
+
+/**
+ * One chapter of the documentary.
+ *
+ * Composition is data-driven: the chapter supplies the beats, the lexicon, the
+ * timeline, the historical plates, the photographic documentation and its
+ * sources, and this shell decides how they are staged. A chapter with no beats
+ * is a declared stub and says so out loud; every part is optional, so a chapter
+ * with nothing but a title still renders cleanly.
+ */
+interface Props {
+  chapter: Chapter;
+}
+
+const { chapter } = Astro.props;
+const {
+  slug,
+  number,
+  title,
+  kicker,
+  lede,
+  tone = 'monte',
+  beats,
+  lexicon,
+  timeline,
+  plates,
+  gallery,
+  photo,
+  sources,
+  pending,
+  pendingNote,
+} = chapter;
+
+const hasBeats = beats.length > 0;
+const hasTimeline = Boolean(timeline && timeline.length > 0);
+const hasPlates = Boolean(plates && plates.length > 0);
+const hasGallery = Boolean(gallery && gallery.images.length > 0);
+---
+
+<section
+  class:list={['chapter', `chapter--${tone}`, pending && 'chapter--pending']}
+  id={slug}
+  data-chapter={slug}
+  aria-labelledby={`${slug}-title`}
+>
+  <div class="chapter__inner u-container">
+    <div class="chapter__marker" aria-hidden="true">
+      <span class="chapter__number">{number}</span>
+      <span class="chapter__marker-rule"></span>
+    </div>
+
+    <div class="chapter__content">
+      <header class="chapter__header" data-reveal>
+        <p class="chapter__eyebrow u-kicker">
+          Capítulo {number}{kicker ? ` · ${kicker}` : ''}
+        </p>
+        <h2 class="chapter__title" id={`${slug}-title`}>{title}</h2>
+        {lede ? <p class="chapter__lede">{lede}</p> : null}
+      </header>
+
+      {
+        hasPlates ? (
+          <EvidencePlates plates={plates!} />
+        ) : null
+      }
+
+      {
+        hasBeats ? (
+          <div class="chapter__body">
+            <div class="chapter__narration">
+              {beats.map((beat) => (
+                <Beat beat={beat} />
+              ))}
+            </div>
+
+            {lexicon ? (
+              <aside class="chapter__evidence" aria-label="Evidencia del capítulo">
+                <LexiconPlate entry={lexicon} />
+              </aside>
+            ) : null}
+          </div>
+        ) : null
+      }
+
+      {
+        pending ? (
+          <div class="chapter__pending" data-reveal>
+            <p class="chapter__pending-title">Capítulo en preparación</p>
+            {pendingNote ? <p class="chapter__pending-note">{pendingNote}</p> : null}
+          </div>
+        ) : null
+      }
+
+      {hasGallery ? <ChapterGallery gallery={gallery!} /> : null}
+
+      {hasTimeline ? <ChapterTimeline milestones={timeline!} /> : null}
+
+      {photo ? <PhotoSlot slot={photo} /> : null}
+
+      <SourceNote sources={sources} note={site.sourceFootnote} />
+    </div>
+  </div>
+</section>
+
+<style>
+  .chapter {
+    position: relative;
+    /* Contains the `::before` wash so it never falls behind the page background. */
+    isolation: isolate;
+    padding-block: var(--cu-chapter-gap);
+    scroll-margin-top: 2rem;
+  }
+
+  /* Tonal temperature. Every chapter can sit at a different distance from the
+     mountain, which gives the long scroll a rhythm. */
+  .chapter::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-color: var(--cu-chapter-bg, transparent);
+    background-image: var(--cu-chapter-glow, none);
+    pointer-events: none;
+  }
+
+  .chapter--monte {
+    --cu-chapter-bg: transparent;
+  }
+
+  .chapter--cafe {
+    --cu-chapter-bg: color-mix(in srgb, var(--cu-cafe-950) 62%, transparent);
+    --cu-chapter-glow: radial-gradient(
+      100% 60% at 15% 0%,
+      color-mix(in srgb, var(--cu-cafe-700) 55%, transparent) 0%,
+      transparent 65%
+    );
+  }
+
+  .chapter--bruma {
+    --cu-chapter-bg: color-mix(in srgb, var(--cu-monte-800) 55%, transparent);
+    --cu-chapter-glow: radial-gradient(
+      90% 70% at 80% 0%,
+      color-mix(in srgb, var(--cu-bruma-600) 34%, transparent) 0%,
+      transparent 70%
+    );
+  }
+
+  .chapter__inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--cu-space-md);
+  }
+
+  .chapter__content {
+    min-width: 0;
+  }
+
+  /* -- Marker ------------------------------------------------------------- */
+
+  .chapter__marker {
+    display: flex;
+    align-items: baseline;
+    gap: var(--cu-space-xs);
+  }
+
+  .chapter__number {
+    font-family: var(--cu-font-display);
+    font-size: var(--cu-step-4);
+    font-style: italic;
+    font-variation-settings: 'opsz' 144, 'SOFT' 40, 'WONK' 1, 'wght' 400;
+    line-height: 1;
+    color: color-mix(in srgb, var(--cu-bruma-200) 26%, transparent);
+    font-variant-numeric: lining-nums;
+  }
+
+  .chapter__marker-rule {
+    flex: 1;
+    height: 1px;
+    min-width: 2rem;
+    background: linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--cu-bruma-300) 30%, transparent),
+      transparent
+    );
+  }
+
+  /* -- Header ------------------------------------------------------------- */
+
+  .chapter__eyebrow {
+    margin-bottom: var(--cu-space-2xs);
+  }
+
+  .chapter__title {
+    font-family: var(--cu-font-serif);
+    font-size: var(--cu-step-5);
+    font-weight: 400;
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    color: var(--cu-hueso);
+  }
+
+  .chapter__lede {
+    margin-top: var(--cu-space-sm);
+    max-width: var(--cu-measure);
+    font-family: var(--cu-font-serif);
+    font-size: var(--cu-step-2);
+    font-weight: 300;
+    line-height: 1.5;
+    color: var(--cu-hueso-soft);
+  }
+
+  /* -- Body: narration beside a pinned evidence plate --------------------- */
+
+  .chapter__body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--cu-space-lg);
+    margin-top: var(--cu-space-xl);
+  }
+
+  .chapter__narration {
+    min-width: 0;
+  }
+
+  .chapter__evidence {
+    min-width: 0;
+  }
+
+  /* -- Pending stub ------------------------------------------------------- */
+
+  .chapter__pending {
+    margin-top: var(--cu-space-lg);
+    max-width: var(--cu-measure);
+    padding: clamp(1.25rem, 3vw, 1.9rem);
+    border: 1px solid var(--cu-line);
+    border-style: dashed;
+    border-radius: var(--cu-radius);
+    background-color: color-mix(in srgb, var(--cu-monte-900) 55%, transparent);
+  }
+
+  .chapter__pending-title {
+    font-family: var(--cu-font-sans);
+    font-size: var(--cu-step--2);
+    font-weight: 600;
+    letter-spacing: var(--cu-tracking-wider);
+    text-transform: uppercase;
+    color: var(--cu-accent-soft);
+  }
+
+  .chapter__pending-note {
+    margin-top: var(--cu-space-2xs);
+    font-family: var(--cu-font-serif);
+    font-size: var(--cu-step-0);
+    line-height: 1.7;
+    color: var(--cu-text-muted);
+  }
+
+  /* -- Wide layout -------------------------------------------------------- */
+
+  @media (min-width: 62rem) {
+    .chapter__inner {
+      grid-template-columns: 5.5rem minmax(0, 1fr);
+      gap: var(--cu-space-lg) var(--cu-space-md);
+      align-items: start;
+    }
+
+    /* The numeral column holds its place for the whole chapter. */
+    .chapter__marker {
+      position: sticky;
+      top: 5.5rem;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--cu-space-sm);
+    }
+
+    .chapter__marker-rule {
+      width: 1px;
+      height: 6rem;
+      min-width: 0;
+      background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--cu-bruma-300) 40%, transparent),
+        transparent
+      );
+    }
+
+    .chapter__number {
+      font-size: var(--cu-step-5);
+    }
+
+    .chapter__body {
+      grid-template-columns: minmax(0, 34rem) minmax(16rem, 1fr);
+      gap: var(--cu-space-xl);
+    }
+
+    /* The evidence keeps the reader company while the narration scrolls past:
+       a pinned scene with no JavaScript required. */
+    .chapter__evidence {
+      position: sticky;
+      top: 5.5rem;
+      align-self: start;
+    }
+  }
+</style>
