@@ -1,37 +1,138 @@
 import type { Chapter } from '../types';
 
 /**
- * Chapter 02 — structural stub.
+ * Chapter 02 — El café.
  *
- * `beats` is intentionally empty: this chapter carries NO verified content yet.
- * `pendingNote` describes the territory it is reserved for, as a plan rather
- * than a claim. Replace with real beats once research and sources exist.
+ * The cultivated mountain. Every documentary beat states only sourced facts and
+ * names its provenance in words, because a beat's `source` renders as a citation
+ * line, not a link. Where the sources disagree, the disagreement is kept: the
+ * Variedad Caripe is dated twice, because two credible sources date it
+ * differently and neither has been established as the correct one.
  *
- * The gallery is documentation of that territory, not narration: each caption
- * describes only what the photograph shows, and the pending note says out loud
- * that the chapter itself is still unwritten.
+ * The closing testimony is a written stand-in marked `placeholder: true`. It
+ * carries no name, date or figure — only a sensation — and the page says out
+ * loud that it is preliminary.
+ *
+ * The chapter's own document is the drawn coffee branch, grown by the reader's
+ * scroll; the gallery is photographic documentation of the valley it describes.
  */
 export const chapter: Chapter = {
   slug: 'chapter-2-cafe',
   order: 2,
   title: 'El café',
-  kicker: 'En preparación',
+  kicker: 'La montaña cultivada',
   tone: 'cafe',
   layout: 'band',
   decor: 'coffee-branches',
-  pending: true,
-  pendingNote:
-    'Territorio reservado para la montaña cultivada: el café, el trabajo de la cordillera y la vida cotidiana del pueblo. Pendiente de investigación, fuentes y voces.',
-  beats: [],
+  lede: 'Fue la montaña cultivada: café en las laderas, mulas cargadas hacia el muelle, y una variedad que terminó llevando el nombre del pueblo.',
+
+  lexicon: {
+    term: 'Variedad Caripe',
+    gloss: '«Cogollo Verde»',
+    note: 'La primera variedad venezolana de café admitida en el catálogo mundial de World Coffee Research, en 2023. Es afín al Typica, de grano grande, y susceptible a la roya. El pueblo no solo le dio su nombre a un ave: también se lo dio a un café.',
+  },
+
+  timeline: [
+    {
+      date: '1799',
+      label: 'Los primeros cafetos anotados',
+      detail:
+        'Humboldt registra cinco mil pies de cafetos en el conuco comunitario del valle. Es la mención más antigua que se conoce del café en Caripe.',
+    },
+    {
+      date: 'Finales del siglo XIX',
+      label: 'Las haciendas',
+      detail:
+        'Familias italianas y corsas se establecen en el valle e introducen métodos de cultivo más avanzados. Nacen las grandes haciendas cafetaleras.',
+    },
+    {
+      date: '1925',
+      label: 'La carretera al Muelle de Cariaco',
+      detail:
+        'Hasta entonces el café salía a lomo de mula por un camino de indios. La carretera cambia el comercio del valle.',
+    },
+    {
+      date: 'Mediados del siglo XX',
+      label: 'El petróleo vacía el campo',
+      detail:
+        'La mano de obra se desplaza a la industria petrolera. Muchas fincas cafetaleras se abandonan y el pueblo se vuelve hacia las hortalizas y, después, hacia el turismo.',
+    },
+    {
+      date: '1956–1958',
+      label: 'Se selecciona la Variedad Caripe',
+      detail:
+        'World Coffee Research fecha la identificación de la variedad en 1956; otras fuentes sitúan el inicio del programa de selección en 1958. Las dos fechas siguen en pie.',
+    },
+    {
+      date: '2023',
+      label: 'La Variedad Caripe entra al catálogo mundial',
+      detail:
+        'World Coffee Research la incorpora a su catálogo de variedades: la primera de Venezuela en figurar en él.',
+    },
+  ],
+
+  beats: [
+    {
+      voice: 'documental',
+      text: 'En 1799, Alexander von Humboldt anotó en su diario de viaje que en el valle de Caripe había un conuco comunitario con cinco mil pies de cafetos, «que prometían una hermosa cosecha». Es la mención más antigua que se conoce del café en el pueblo.',
+      source: {
+        label:
+          'Humboldt, Viaje a las Regiones Equinocciales (1799), citado en el Boletín de la Academia Nacional de la Historia, 1982',
+      },
+    },
+    {
+      voice: 'documental',
+      text: 'A finales del siglo XIX, familias italianas y corsas se establecieron en el valle. Con ellas llegaron métodos de cultivo más avanzados, y con ellas nacieron las grandes haciendas cafetaleras y los primeros comercios.',
+      source: {
+        label:
+          'Historia local de Caripe; registro de la inmigración corsa en Venezuela',
+      },
+    },
+    {
+      voice: 'documental',
+      text: 'Antes de que existiera carretera, el café salía del valle a hombros de hombres y a lomo de mulas, por un camino de indios hasta el Muelle de Cariaco. Allí se cambiaba por sal, pescado y kerosén, y de allí seguía por mar hacia Cumaná o La Guaira. En 1925 se construyó la carretera.',
+      source: {
+        label:
+          'Gonzalo Martínez, manuscrito local sobre el café en Caripe (2002); estudios sobre el agrarismo en el oriente venezolano',
+      },
+    },
+    {
+      voice: 'documental',
+      text: 'Hacia mediados del siglo XX, el auge petrolero desplazó la mano de obra del campo. Muchas fincas cafetaleras del valle se abandonaron, y el pueblo fue volviéndose hacia las hortalizas, los cítricos y, más tarde, el turismo.',
+      source: {
+        label: 'Reportajes sobre el café de Caripe (2022, 2024)',
+      },
+    },
+    {
+      voice: 'documental',
+      text: 'En Caripe se seleccionó una variedad propia de café. Los caficultores la llaman «Cogollo Verde»; es afín al Typica, de grano grande, y susceptible a la roya. En 2023, World Coffee Research la incluyó en su catálogo mundial: la primera variedad venezolana en figurar en él.',
+      source: {
+        label: 'World Coffee Research, catálogo de variedades (2023)',
+      },
+    },
+    {
+      voice: 'documental',
+      text: 'La caficultura que queda es mayoritariamente de sombra, cerca del noventa por ciento, entre los 950 y los 1.300 metros de altura, y sigue plantando Typica, Bourbon, Catuaí, Caturra y Mundo Novo.',
+      source: {
+        label: 'Reportajes sobre el café de Caripe (2024)',
+      },
+    },
+    {
+      // Placeholder voice: no name, no date, no figure. A sensation only.
+      voice: 'testimonio',
+      text: 'Ninguna fotografía me devuelve al pueblo tan rápido como el olor del café. Un patio de grano puestos a asolear se ve de lejos, como una sábana tendida; y cuando alguien tuesta cerca, yo vuelvo.',
+      placeholder: true,
+    },
+  ],
 
   gallery: {
-    label: 'Documentación visual · la montaña cultivada',
+    label: 'Documentación visual · el valle cultivado',
     images: [
       {
         photo: 'montana-caripe',
         layout: 'feature',
         caption:
-          'Ladera de montaña en Caripe, muy cerca del poblado de El Guácharo. La cordillera que el capítulo todavía debe contar.',
+          'Ladera de montaña en Caripe, muy cerca del poblado de El Guácharo. La cordillera que el capítulo cuenta.',
         alt: 'Ladera de montaña cubierta de vegetación en Caripe, cerca del poblado de El Guácharo.',
       },
       {
@@ -57,9 +158,25 @@ export const chapter: Chapter = {
       },
       {
         photo: 'caballito-volador',
-        caption: 'Un «caballito volador» —un odonato— fotografiado en Caripe, Monagas.',
+        caption: 'Un «caballito volador», un odonato, fotografiado en Caripe, Monagas.',
         alt: 'Libélula (odonato) fotografiada en Caripe, estado Monagas.',
       },
     ],
   },
+
+  sources: [
+    {
+      label: 'Humboldt, Viaje a las Regiones Equinocciales del Nuevo Continente (1799)',
+    },
+    {
+      label: 'Gonzalo Martínez, manuscrito local sobre el café en Caripe (2002)',
+    },
+    {
+      label: 'World Coffee Research, catálogo de variedades de café',
+      url: 'https://varieties.worldcoffeeresearch.org/es/variedades/caripe',
+    },
+    {
+      label: 'Reportajes sobre el café de Caripe (Perfect Daily Grind, 2024)',
+    },
+  ],
 };

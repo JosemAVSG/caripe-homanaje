@@ -22,13 +22,10 @@ export const chapter: Chapter = {
   layout: 'stage',
   lede: 'Un naturalista alemán entró en una cueva del oriente de Venezuela, y el nombre del pueblo quedó escrito en la taxonomía del mundo.',
 
-  // The chapter's opening voice, set large and alone before the narration. It
-  // is the first testimony this file used to carry inside `beats`; keeping it
-  // in one place only is the point, so it is not repeated further down.
-  statement: {
-    text: 'Yo nací aquí y viví veintidós años entre esta neblina. Uno aprende a leer el día por el color de la bruma: si baja hasta el valle va a llover; si se queda arriba, todavía hay tiempo.',
-    placeholder: true,
-  },
+  // This chapter used to open with a cita about reading the day by the colour of
+  // the mist. It lives in `03-la-neblina.ts` now, and in one place only: it is
+  // the fog chapter's own voice, and the `mist` layout exists to let it condense
+  // out of the weather before the heading. The testimony kept here is the cave's.
 
   lexicon: {
     term: 'Steatornis caripensis',
@@ -100,8 +97,11 @@ export const chapter: Chapter = {
     },
     {
       voice: 'documental',
-      text: 'La Cueva del Guácharo es la mayor caverna de Venezuela. Su desarrollo conocido ronda los 10,2 kilómetros y el recorrido turístico abarca alrededor de 1,2 kilómetros. En su interior habita una colonia de aproximadamente 10.000 guácharos.',
-      source: { label: 'Registros espeleológicos' },
+      text: 'La Cueva del Guácharo fue la mayor caverna conocida de Venezuela hasta 1990, cuando se topografió el Sistema del Samán, en el Zulia, tres veces más largo. Su desarrollo conocido ronda los 10,2 kilómetros y el recorrido turístico abarca alrededor de 1,2 kilómetros. En su interior habita una colonia de aproximadamente 10.000 guácharos.',
+      source: {
+        label: 'Sociedad Venezolana de Espeleología, topografía de 1970',
+        url: 'https://sve-espeleologia.org.ve/',
+      },
     },
     {
       voice: 'documental',
@@ -175,5 +175,18 @@ export const chapter: Chapter = {
     ],
   },
 
-  sources: [{ label: 'Wikipedia' }, { label: 'Prensa venezolana' }],
+  sources: [
+    {
+      label:
+        'Relato de la expedición de Humboldt y Bonpland a la Cueva del Guácharo (1799)',
+    },
+    {
+      label: 'Sociedad Venezolana de Espeleología',
+      url: 'https://sve-espeleologia.org.ve/',
+    },
+    {
+      label: 'INPARQUES, Parque Nacional El Guácharo',
+      url: 'https://www.inparques.gob.ve/cms/main/verGaleria/96',
+    },
+  ],
 };

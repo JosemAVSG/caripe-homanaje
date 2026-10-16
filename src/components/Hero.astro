@@ -3,6 +3,7 @@ import { Image } from 'astro:assets';
 import { site } from '../content/site';
 import { resolvedCollage } from '../content/collage';
 import FormingText from './FormingText.astro';
+import Guacharo from './Guacharo.astro';
 import PhotoCreditLine from './PhotoCreditLine.astro';
 
 /**
@@ -77,6 +78,8 @@ const widthsFor = (slot: string): number[] =>
   </div>
 
   <div class="hero__content u-container">
+    <Guacharo />
+
     <FormingText
       as="h1"
       class="hero__title"
