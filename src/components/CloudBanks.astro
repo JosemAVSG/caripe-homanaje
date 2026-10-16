@@ -15,9 +15,12 @@
  * chart draws a cloud. Line work, no fills, no gradients — the counterpart to
  * the coffee plate, which is a herbarium sheet. This one is a chart.
  *
- * Cold is carried by colour, not by an extra ornament: the strokes are the
- * cool `bruma` ramp while the café plate is warm `hueso`, so the two chapters
- * are drawn in two different temperatures. The descent does the rest.
+ * Cold is carried by colour, and that colour had to be added: the palette had
+ * no blue in it, so this plate was drawn from the `bruma` ramp — which is
+ * green-cast, and reads as wet vegetation rather than as cold. The strokes now
+ * use the `cold` ramp (the same greys with the cast moved from green to blue),
+ * so the two chapters are genuinely drawn in two temperatures: this one cold,
+ * the café plate warm `hueso`. The descent does the rest.
  *
  * This is a second layer, not a replacement for the fog canvas in
  * `scripts/fog.ts`. That one is an ambient drifting haze over the photograph;
@@ -234,9 +237,14 @@ const plates = banks.slice(0, count).map((bank, i) => ({ ...bank, i, outline: cu
   /*
     Strokes only. A contour chart of a cloud: the same outline repeated inward,
     so the drawing has shading without ever using a fill or a gradient.
+
+    The colour is the `cold` ramp, not `bruma`: cold-100 is the exact twin of
+    bruma-100 (same lightness) with the cast moved from green to blue. Using
+    `bruma` here was the bug — it drew the chapter's cold in the colour of wet
+    vegetation.
   */
   .clouds :global(.clouds__contour) {
-    stroke: var(--cu-bruma-100);
+    stroke: var(--cu-cold-100);
     stroke-width: 2;
     stroke-linecap: round;
     stroke-linejoin: round;

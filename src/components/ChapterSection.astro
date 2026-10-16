@@ -163,7 +163,12 @@ const fog = FOG[slug] ?? 'light';
               decoding="async"
             />
             <div class="u-scrim u-scrim--deep" aria-hidden="true" />
-            <canvas class="scene__fog" data-fog={fog} aria-hidden="true" />
+            <canvas
+              class="scene__fog"
+              data-fog={fog}
+              data-fog-tone={tone === 'bruma' ? 'cold' : 'neutral'}
+              aria-hidden="true"
+            />
             <figcaption class="scene__stage-caption">
               <span class="scene__stage-text">{stageImage.caption}</span>
               <PhotoCreditLine credit={stagePhoto.credit} />

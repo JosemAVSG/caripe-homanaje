@@ -75,7 +75,9 @@
   --cu-apamate-500: #a72b70;
   --cu-apamate-400: #f0aecb;
 
-  /* Bruma — the fog (cool greys with a green cast) */
+  /* Bruma — the page's neutral. Cool greys with a green cast, and structural:
+     body ink at low emphasis, rules, rails, borders. Because it is structural
+     it is NOT the cold, whatever its name suggests — see `Frio` below. */
   --cu-bruma-050: #f5f6f4;
   --cu-bruma-100: #e7eae6;
   --cu-bruma-200: #d3d8d2;
@@ -84,6 +86,26 @@
   --cu-bruma-500: #7d847d;
   --cu-bruma-600: #606760;
   --cu-bruma-700: #464c46;
+
+  /* Frío — a temperature, not a colour of the place.
+     The palette had no blue in it at all: green, gold, pink, wine, bone. So
+     the chapter about the cold had nothing to say it with, and the haze was
+     being drawn from the green-cast neutral instead — which reads as wet
+     vegetation, not as cold. These are the same greys as `bruma` with the
+     cast moved from green to blue, and nothing structural may use them: body
+     ink, rules and rails stay on `bruma` so the page's neutral never moves.
+     They are for the things that portray weather — the haze over the mountain
+     scenes, the drawn cloud, and the field the fog chapter sits on. */
+  --cu-cold-100: #e6ebf0;
+  --cu-cold-200: #d2dae2;
+  --cu-cold-300: #b6c1cc;
+  --cu-cold-400: #97a4b1;
+  --cu-cold-500: #78848f;
+  --cu-cold-600: #5c6672;
+  --cu-cold-700: #454e58;
+  --cu-cold-800: #333b44;
+  --cu-cold-900: #252b32;
+  --cu-cold-950: #15191e;
 
   /* Hueso — bone / cream ink */
   --cu-hueso: #f3ede2;
@@ -116,7 +138,13 @@
      cherry, not the roast: the fruit is what the mountain grows. */
   --cu-scene-monte: color-mix(in srgb, var(--cu-monte-800) 62%, var(--cu-bg));
   --cu-scene-cafe: color-mix(in srgb, #87281b 58%, var(--cu-bg));
-  --cu-scene-bruma: color-mix(in srgb, var(--cu-monte-700) 52%, var(--cu-bg));
+  /* The sole exception to the shape above, and for a reason: `--cu-bg` is
+     Monte, the green of the cordillera, so mixing the fog chapter's field
+     down through it drags the cold straight back to green — which is what
+     the field was doing before. This one is mixed out of the cold ramp
+     alone, so the chapter's temperature actually holds. Same darkness as the
+     old mix (luma ≈ 28 against ≈ 27); the cast is what moved. */
+  --cu-scene-bruma: color-mix(in srgb, var(--cu-cold-900) 20%, var(--cu-cold-950));
   --cu-scene-close: color-mix(in srgb, var(--cu-cafe-950) 46%, var(--cu-bg));
 
   --cu-text: var(--cu-hueso);

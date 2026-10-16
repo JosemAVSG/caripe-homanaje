@@ -28,6 +28,7 @@ interface FogItem {
   canvas: HTMLCanvasElement;
   scene: HTMLElement | null;
   ctx: CanvasRenderingContext2D;
+  colour: string;
   w: number;
   h: number;
   blobs: Blob[];
@@ -40,7 +41,23 @@ const SETTINGS: Record<Exclude<Density, 'none'>, { count: number; alpha: number;
 };
 
 const MAX_DPR = 2;
-const FOG_COLOUR = '214, 222, 214';
+
+/**
+ * The haze's colour is its temperature, and the temperature follows the
+ * chapter's own tone rather than a table here: a chapter written in `bruma`
+ * gets cold fog, everything else gets the page's neutral green-white.
+ *
+ * `neutral` is the long-standing value — a green-cast white, which is what
+ * mist over vegetation looks like. `cold` keeps the same lightness (luma 219
+ * against 219) and moves the cast from green to blue, so the mountain's fog
+ * reads as weather rather than as damp ground cover.
+ */
+const FOG_TONE: Record<string, string> = {
+  neutral: '214, 222, 214',
+  cold: '210, 220, 234',
+};
+
+const fogColour = (canvas: HTMLCanvasElement) => FOG_TONE[canvas.dataset.fogTone ?? 'neutral'] ?? FOG_TONE.neutral;
 
 export function initFog(): () => void {
   if (typeof window === 'undefined') return () => {};
@@ -63,6 +80,7 @@ export function initFog(): () => void {
       canvas,
       scene: canvas.closest<HTMLElement>('[data-scene], [data-chapter]'),
       ctx,
+      colour: fogColour(canvas),
       w: 0,
       h: 0,
       blobs: [],
@@ -122,7 +140,7 @@ export function initFog(): () => void {
   let raf = 0;
 
   const draw = (item: FogItem, dt: number) => {
-    const { ctx, w, h, blobs } = item;
+    const { ctx, w, h, blobs, colour } = item;
     ctx.clearRect(0, 0, w, h);
     ctx.globalCompositeOperation = 'screen';
     const t = performance.now() / 1000;
@@ -131,9 +149,9 @@ export function initFog(): () => void {
       if (blob.x - blob.r > w) blob.x = -blob.r;
       blob.y = blob.baseY + Math.sin(t * 0.08 + blob.phase) * (h * 0.03);
       const g = ctx.createRadialGradient(blob.x, blob.y, 0, blob.x, blob.y, blob.r);
-      g.addColorStop(0, `rgba(${FOG_COLOUR}, ${blob.a})`);
-      g.addColorStop(0.6, `rgba(${FOG_COLOUR}, ${blob.a * 0.4})`);
-      g.addColorStop(1, `rgba(${FOG_COLOUR}, 0)`);
+      g.addColorStop(0, `rgba(${colour}, ${blob.a})`);
+      g.addColorStop(0.6, `rgba(${colour}, ${blob.a * 0.4})`);
+      g.addColorStop(1, `rgba(${colour}, 0)`);
       ctx.fillStyle = g;
       ctx.beginPath();
       ctx.arc(blob.x, blob.y, blob.r, 0, Math.PI * 2);
