@@ -1,24 +1,39 @@
 ---
+import { Image } from 'astro:assets';
 import { schools } from '../content/colegios';
 import { levels } from '../content/evidence';
+import { getPhoto } from '../content/photos';
+import PhotoCreditLine from './PhotoCreditLine.astro';
 
 /**
- * Colegios — the town's schools, set as a register and not as a gallery.
+ * Colegios — the town's schools, stacked as layers of time.
  *
  * The families beside this section are cards that open a chronology. Repeating
  * that shape here would say the two subjects are the same thing, and they are
- * not: a family is a line through time, a school is an institution you can
- * point at. So this is a register — ruled rows, name and standing on the left,
- * the documented facts on the right, each one carrying the weight of its own
- * evidence.
+ * not: a family is a line you follow, a school is an institution you can point
+ * at. So this is a register — but a register read downwards through time, with
+ * the founding year standing in the margin as each layer's marker.
  *
- * The point of the section is not that Caripe has schools. It is that the town
- * can name them instantly and the paper trail behind them is thin, and this
- * register says so in public rather than dressing a date up as a fact. Three
- * of the entries below are (b) or (c), and they are labelled that way.
+ * The year is deliberately the largest thing in an entry, and deliberately the
+ * most heavily labelled: every one of them rests on a single source, so the
+ * marker that reads as authoritative is exactly the claim that needs its level
+ * shown beside it. The section's whole argument is that the town can name its
+ * schools instantly and the paper trail behind them is thin.
  *
  * Interface copy is Spanish; code, comments and filenames are English.
  */
+
+/**
+ * The register is read as a chronology, so the order is derived rather than
+ * left to whoever edits the data file. Undated planteles sort last — and one
+ * does, which is itself part of what the section has to say.
+ */
+const layers = [...schools].sort(
+  (a, b) =>
+    (a.founded?.value ?? Number.POSITIVE_INFINITY) -
+    (b.founded?.value ?? Number.POSITIVE_INFINITY),
+);
+
 const levelKeys = Object.keys(levels) as Array<keyof typeof levels>;
 
 /** Facts that could not be sourced, counted for the honesty note. */
@@ -27,6 +42,9 @@ const unsourced = schools.reduce(
   0,
 );
 const total = schools.reduce((count, school) => count + school.facts.length, 0);
+
+/** How many layers carry a photograph. One does, and the note says why. */
+const withPhoto = layers.filter((school) => school.photo).length;
 ---
 
 <section class="colegios" id="colegios" data-scene data-time="Colegios">
@@ -34,47 +52,86 @@ const total = schools.reduce((count, school) => count + school.facts.length, 0);
     <header class="colegios__header" data-reveal-group>
       <h2 class="colegios__title" data-reveal>Colegios</h2>
       <p class="colegios__lede" data-reveal>
-        Los colegios principales de Caripe, con lo que está documentado de cada
-        uno y con la indicación de lo que no lo está.
+        Los colegios de Caripe leídos como capas de tiempo: lo que el pueblo se
+        fue poniendo, década por década, y la fecha de cada uno con la fuerza
+        que esa fecha realmente tiene.
       </p>
       <p class="colegios__note" data-reveal>
-        De {total} datos, {unsourced} no alcanzan el nivel (a). La existencia y
-        el nombre de los tres planteles están registrados; su historia, en
-        cambio, casi no lo está. No se ha hallado acta de fundación ni fuente
-        que diga quiénes fueron las personas cuyos nombres llevan.
+        De {total} datos, {unsourced} no alcanzan el nivel (a). Las fechas son
+        lo más frágil del registro: ninguna se apoya en acta ni decreto. Y de
+        los {layers.length} planteles, solo {withPhoto} tiene fotografía en el
+        archivo libre, que es la razón de que una capa lleve imagen y las demás
+        no.
       </p>
     </header>
 
-    <ol class="colegios__register">
+    <ol class="colegios__layers">
       {
-        schools.map((school) => (
-          <li class="school" data-reveal>
-            <h3 class="school__name">{school.name}</h3>
+        layers.map((school) => {
+          const photo = school.photo ? getPhoto(school.photo.photo) : null;
 
-            <div class="school__id">
-              {school.aka ? <p class="school__aka">En el pueblo: {school.aka}</p> : null}
-              <p class="school__kind">{school.kind}</p>
-              {school.place ? <p class="school__place">{school.place}</p> : null}
-            </div>
+          return (
+            <li class="layer" data-reveal>
+              <p class="layer__when" data-level={school.founded?.level}>
+                {school.founded ? (
+                  <>
+                    <span class="layer__year">{school.founded.label}</span>
+                    <span class="layer__mark">({school.founded.level})</span>
+                  </>
+                ) : (
+                  <span class="layer__year layer__year--none">Sin fecha</span>
+                )}
+              </p>
 
-            <dl class="school__facts">
-              {school.facts.map((fact) => (
-                <div class="fact" data-level={fact.level}>
-                  <dt class="fact__mark">({fact.level})</dt>
-                  <dd class="fact__body">
-                    <p class="fact__text">{fact.text}</p>
-                    {fact.source ? (
-                      <p class="fact__source">Fuente: {fact.source}</p>
-                    ) : null}
-                    {fact.uncertainty ? (
-                      <p class="fact__uncertainty">Advertencia: {fact.uncertainty}</p>
-                    ) : null}
-                  </dd>
-                </div>
-              ))}
-            </dl>
-          </li>
-        ))
+              <h3 class="layer__name">{school.name}</h3>
+
+              <div class="layer__id">
+                {school.aka ? <p class="layer__aka">En el pueblo: {school.aka}</p> : null}
+                <p class="layer__kind">{school.kind}</p>
+                {school.place ? <p class="layer__place">{school.place}</p> : null}
+              </div>
+
+              <div class="layer__doc">
+                {photo && school.photo ? (
+                  <figure class="layer__figure">
+                    <Image
+                      class="layer__image"
+                      src={photo.src}
+                      alt={school.photo.alt}
+                      widths={[420, 640, 900]}
+                      sizes="(min-width: 64rem) 46vw, 100vw"
+                      format="webp"
+                      quality={74}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                    <figcaption class="layer__caption">
+                      <span class="layer__caption-text">{school.photo.caption}</span>
+                      <PhotoCreditLine credit={photo.credit} />
+                    </figcaption>
+                  </figure>
+                ) : null}
+
+                <dl class="layer__facts">
+                  {school.facts.map((fact) => (
+                    <div class="fact" data-level={fact.level}>
+                      <dt class="fact__mark">({fact.level})</dt>
+                      <dd class="fact__body">
+                        <p class="fact__text">{fact.text}</p>
+                        {fact.source ? (
+                          <p class="fact__source">Fuente: {fact.source}</p>
+                        ) : null}
+                        {fact.uncertainty ? (
+                          <p class="fact__uncertainty">Advertencia: {fact.uncertainty}</p>
+                        ) : null}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
+            </li>
+          );
+        })
       }
     </ol>
 
@@ -128,12 +185,12 @@ const total = schools.reduce((count, school) => count + school.facts.length, 0);
     color: var(--cu-text-muted);
   }
 
-  /* -- The register -------------------------------------------------------
-     Rows separated by space and scale, not by rules: the name's size and the
-     air between entries do the dividing. A hairline here would make a list of
-     institutions look like a form. */
+  /* -- The layers ---------------------------------------------------------
+     Separated by space and scale, never by rules: the year's size and the air
+     between entries do the dividing. A hairline stack of rows would turn four
+     institutions into a form. */
 
-  .colegios__register {
+  .colegios__layers {
     list-style: none;
     padding: 0;
     margin: 0;
@@ -142,38 +199,106 @@ const total = schools.reduce((count, school) => count + school.facts.length, 0);
     gap: var(--cu-space-3xl);
   }
 
-  .school {
+  .layer {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    gap: var(--cu-space-md);
+    gap: var(--cu-space-sm);
   }
 
-  .school__name {
+  /* -- The marker: the year, and the level of THAT claim ------------------ */
+
+  .layer__when {
+    display: flex;
+    align-items: baseline;
+    gap: var(--cu-space-2xs);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .layer__year {
+    font-family: var(--cu-font-display);
+    font-size: var(--cu-step-4);
+    line-height: 1;
+    letter-spacing: var(--cu-tracking-display);
+    color: var(--cu-text);
+  }
+
+  /* An undated plantel must not look like a dated one. Smaller, muted, and
+     set in the display italic voice, so the absence reads as an absence. */
+  .layer__year--none {
+    font-size: var(--cu-step-2);
+    font-style: italic;
+    color: var(--cu-text-faint);
+  }
+
+  .layer__mark {
+    font-size: var(--cu-step--1);
+    color: var(--cu-text-faint);
+  }
+
+  /* Same rule the facts obey: the level is carried by the mark, never by
+     colouring the claim. Only the unsourced takes the accent. */
+  .layer__when[data-level='c'] .layer__mark {
+    color: var(--cu-accent);
+  }
+
+  /* -- What the plantel is ------------------------------------------------ */
+
+  .layer__name {
     font-family: var(--cu-font-display);
     font-size: var(--cu-step-2);
     line-height: var(--cu-leading-snug);
     letter-spacing: var(--cu-tracking-display);
     color: var(--cu-text);
+    text-wrap: balance;
   }
 
-  .school__aka {
+  .layer__aka {
     margin-top: var(--cu-space-3xs);
     font-size: var(--cu-step-0);
     font-style: italic;
     color: var(--cu-accent);
   }
 
-  .school__kind,
-  .school__place {
+  .layer__kind,
+  .layer__place {
     margin-top: var(--cu-space-2xs);
     font-size: var(--cu-step--1);
     line-height: var(--cu-leading-body);
     color: var(--cu-text-muted);
   }
 
-  /* -- The facts ---------------------------------------------------------- */
+  /* -- What is documented about it ---------------------------------------- */
 
-  .school__facts {
+  .layer__doc {
+    display: flex;
+    flex-direction: column;
+    gap: var(--cu-space-md);
+  }
+
+  .layer__figure {
+    margin: 0;
+  }
+
+  .layer__image {
+    display: block;
+    width: 100%;
+    height: auto;
+    background-color: var(--cu-monte-900);
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+  }
+
+  .layer__caption {
+    display: grid;
+    gap: var(--cu-space-3xs);
+    margin-top: var(--cu-space-2xs);
+    font-size: var(--cu-step--1);
+    line-height: 1.5;
+    color: var(--cu-text-muted);
+    text-wrap: pretty;
+  }
+
+  .layer__facts {
     margin: 0;
     display: flex;
     flex-direction: column;
@@ -210,7 +335,7 @@ const total = schools.reduce((count, school) => count + school.facts.length, 0);
   .fact__source,
   .fact__uncertainty {
     margin-top: var(--cu-space-3xs);
-    font-size: var(--cu-step--2);
+    font-size: var(--cu-step--1);
     line-height: var(--cu-leading-body);
     color: var(--cu-text-muted);
   }
@@ -237,29 +362,38 @@ const total = schools.reduce((count, school) => count + school.facts.length, 0);
     font-variant-numeric: tabular-nums;
   }
 
-  /* -- Wide: the name takes the full measure, the standing and the facts
-        sit beside each other underneath it. A full-width name is the whole
-        point: an official denomination is long, and it is a title, so it must
-        not be folded into three lines by a narrow column. ------------------ */
+  /* -- Wide: the marker stands in the margin, the name takes the full
+        measure, and what is documented sits beside what the plantel is. The
+        full-width name is the whole point: an official denomination is long,
+        and it is a title, so it must not be folded into three lines by a
+        narrow column. ----------------------------------------------------- */
 
   @media (min-width: 64rem) {
-    .school {
-      grid-template-columns: minmax(0, 0.6fr) minmax(0, 1.4fr);
+    .layer {
+      grid-template-columns: minmax(0, 0.62fr) minmax(0, 1.38fr);
       column-gap: var(--cu-space-2xl);
-      row-gap: var(--cu-space-md);
+      row-gap: var(--cu-space-sm);
     }
 
-    .school__name {
+    .layer__name {
       grid-column: 1 / -1;
+      grid-row: 1;
       font-size: var(--cu-step-3);
     }
 
-    .school__id {
+    .layer__when {
       grid-column: 1;
+      grid-row: 2;
     }
 
-    .school__facts {
+    .layer__id {
+      grid-column: 1;
+      grid-row: 3;
+    }
+
+    .layer__doc {
       grid-column: 2;
+      grid-row: 2 / span 2;
     }
   }
 </style>

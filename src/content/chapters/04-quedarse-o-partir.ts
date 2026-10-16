@@ -7,9 +7,10 @@ import type { Chapter } from '../types';
  * `pendingNote` describes the territory it is reserved for, as a plan rather
  * than a claim. Replace with real beats once research and sources exist.
  *
- * The gallery is the village itself — public space, buildings and the square —
- * documented without narration, since the voices this chapter needs have not
- * been recorded yet.
+ * The gallery is the village itself — public space and buildings — documented
+ * without narration, since the voices this chapter needs have not been recorded
+ * yet. The Abraham Lincoln photograph is not here: it belongs to the schools
+ * register, where the one school the archive can show stands in its own year.
  */
 export const chapter: Chapter = {
   slug: 'chapter-4-partir',
@@ -47,11 +48,6 @@ export const chapter: Chapter = {
         photo: 'iglesia-santo-angel',
         caption: 'La iglesia del Santo Ángel Custodio.',
         alt: 'Iglesia del Santo Ángel Custodio, en Caripe, Venezuela.',
-      },
-      {
-        photo: 'grupo-escolar',
-        caption: 'El Grupo Escolar Abraham Lincoln.',
-        alt: 'Edificio del Grupo Escolar Abraham Lincoln, en Caripe, Venezuela.',
       },
     ],
   },
