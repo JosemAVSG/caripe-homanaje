@@ -75,9 +75,22 @@ const maps = collageMaps.map((credit) => ({
       </ul>
     </section>
 
-    <p class="colophon__year" data-reveal>
+    <p class="colophon__sign" data-reveal>
       <span aria-hidden="true">{year}</span>
       <span class="u-visually-hidden">Sitio publicado en {year}.</span>
+      <span class="colophon__sign-by">Hecho por José Miguel González</span>
+      <span class="colophon__sign-links">
+        <a
+          class="colophon__link"
+          href="https://www.linkedin.com/in/josemavsg"
+          rel="me noopener"
+          target="_blank">LinkedIn</a
+        >
+        <span class="colophon__sep" aria-hidden="true">·</span>
+        <a class="colophon__link" href="https://jglabs.tech/" rel="me noopener" target="_blank"
+          >jglabs.tech</a
+        >
+      </span>
     </p>
   </div>
 </footer>
@@ -201,10 +214,43 @@ const maps = collageMaps.map((credit) => ({
     color: var(--cu-text-faint);
   }
 
-  .colophon__year {
+  /*
+    The signing line. It carries the same two things a printed colophon ends
+    with: the year and who made it. It is also the only place on the page that
+    points anywhere other than the sources, because it is the only place that
+    points at the person who did the work.
+  */
+  .colophon__sign {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--cu-space-3xs) var(--cu-space-sm);
     margin-top: var(--cu-space-xl);
     font-size: var(--cu-step--2);
     color: var(--cu-text-faint);
     font-variant-numeric: lining-nums;
+  }
+
+  .colophon__sign-links {
+    display: flex;
+    align-items: baseline;
+    gap: 0.45em;
+  }
+
+  /* Same link treatment as an image credit: muted ink, an accent-tinted
+     underline, and the accent on hover. Two weights of link, one language. */
+  .colophon__link {
+    color: var(--cu-text-muted);
+    text-decoration-color: color-mix(in srgb, var(--cu-accent) 55%, transparent);
+    text-underline-offset: 0.25em;
+    transition: color var(--cu-dur-fast) var(--cu-ease);
+  }
+
+  .colophon__link:hover {
+    color: var(--cu-accent-soft);
+  }
+
+  .colophon__sep {
+    color: color-mix(in srgb, var(--cu-accent) 70%, transparent);
   }
 </style>
