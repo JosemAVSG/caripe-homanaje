@@ -7,6 +7,7 @@ import ChapterTimeline from './ChapterTimeline.astro';
 import CloudBanks from './CloudBanks.astro';
 import CoffeeBranches from './CoffeeBranches.astro';
 import EvidencePlates from './EvidencePlates.astro';
+import ForkedRoad from './ForkedRoad.astro';
 import FormingText from './FormingText.astro';
 import LexiconPlate from './LexiconPlate.astro';
 import PhotoSlot from './PhotoSlot.astro';
@@ -110,6 +111,7 @@ const fog = FOG[slug] ?? 'light';
 >
   {decor === 'coffee-branches' ? <CoffeeBranches /> : null}
   {decor === 'cloud-banks' ? <CloudBanks /> : null}
+  {decor === 'forked-road' ? <ForkedRoad /> : null}
 
   <div class="scene__inner u-container">
     {

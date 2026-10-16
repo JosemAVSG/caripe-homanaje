@@ -141,16 +141,24 @@ function trackBeats(): void {
  * scrubbed trigger on the plate's own box writes its property (0 → 1) and the
  * drawing reads it.
  *
- * Two plates obey this, and they are different weather: `CoffeeBranches.astro`
- * writes `--grow` and draws a plant upward as the chapter on the café is read;
- * `CloudBanks.astro` writes `--desc` and brings cloud down into the valley of
- * the neblina. Neither is a substitute for the other, and both declare their
- * property at 1 in the markup, so with no script, or when this never runs, the
- * plate ships already finished rather than invisible.
+ * Three plates obey this, and each is a different kind of document:
+ * `CoffeeBranches.astro` writes `--grow` and draws a plant upward as the café
+ * is read; `CloudBanks.astro` writes `--desc` and brings cloud down into the
+ * valley of the neblina; `ForkedRoad.astro` writes `--route` and draws a road
+ * that forks, one branch leaving the screen and one stopping. None is a
+ * substitute for another, and all three declare their property at 1 in the
+ * markup, so with no script, or when this never runs, the plate ships already
+ * finished rather than invisible.
+ *
+ * This is the single list. `revealAll()` reads it too rather than repeating
+ * the selectors: with two plates a second copy was harmless, with three it is
+ * a plate that can be left half-drawn by a failure nobody would trace back
+ * here.
  */
 const PLATE_TRIGGERS: Array<[selector: string, property: string]> = [
   ['[data-branches]', '--grow'],
   ['[data-neblina]', '--desc'],
+  ['[data-fork]', '--route'],
 ];
 
 function trackPlates(): void {
@@ -377,12 +385,12 @@ function revealAll(): void {
       beat.style.setProperty('--beat-o', '1');
     }
     // The drawn plates grow from their own scroll variables; a failure here
-    // must leave a finished plate, never a half-drawn one.
-    for (const plate of document.querySelectorAll<HTMLElement>('[data-branches]')) {
-      plate.style.setProperty('--grow', '1');
-    }
-    for (const plate of document.querySelectorAll<HTMLElement>('[data-neblina]')) {
-      plate.style.setProperty('--desc', '1');
+    // must leave a finished plate, never a half-drawn one. Driven from
+    // PLATE_TRIGGERS so adding a plate cannot add a way to leave it hidden.
+    for (const [selector, property] of PLATE_TRIGGERS) {
+      for (const plate of document.querySelectorAll<HTMLElement>(selector)) {
+        plate.style.setProperty(property, '1');
+      }
     }
     // A run of forming text must be readable even if its script never ran:
     // cancel every instance's guard and let its letters settle, still and

@@ -19,6 +19,7 @@ export const chapter: Chapter = {
   kicker: 'En preparación',
   tone: 'monte',
   layout: 'fork',
+  decor: 'forked-road',
   pending: true,
   pendingNote:
     'Territorio reservado para la migración: la memoria de quienes se fueron y de quienes se quedaron. Pendiente de voces y registro.',

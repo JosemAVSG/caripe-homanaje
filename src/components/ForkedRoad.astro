@@ -1,0 +1,217 @@
+---
+/**
+ * ForkedRoad — the road that forks, drawn by the scroll.
+ *
+ * Chapter 4 is *quedarse o partir*, and the document that records a migration
+ * is a route: a line somebody travelled. So this plate is a map, the way the
+ * café's plate is a herbarium sheet and the neblina's is a weather chart. Same
+ * house, three different documents.
+ *
+ * The drawing is the chapter's argument, and it is built out of exactly two
+ * facts:
+ *
+ *   - One road enters from off the left edge. It is not from here and it does
+ *     not end here; it passes through.
+ *   - At the junction it forks. One branch keeps climbing and runs off the
+ *     RIGHT EDGE OF THE SCREEN, so it has no ending anywhere the reader can
+ *     see. The other flattens out and stops, inside the frame, at a small ring.
+ *
+ * A branch with no visible end and a branch that ends at a marked point: that
+ * is *partir* and *quedarse*, and nothing had to be invented to say it. The
+ * screen's own edge does the work of the edge that does not exist — which is
+ * why the branch is drawn past the viewBox rather than stopping just short of
+ * it, and why `overflow: hidden` is safe here rather than a crop to hide.
+ *
+ * Line work only: a stroke that forks, and one closed ring. No fills, no
+ * gradients — the same discipline as the other two plates.
+ *
+ * Same contract as `CoffeeBranches.astro` and `CloudBanks.astro`: one custom
+ * property (`--route`, 0 → 1) drives everything, written from the plate's OWN
+ * box and never from the parent scene's progress. The markup declares
+ * `--route: 1`, so with no JavaScript, or under reduced motion, the plate
+ * ships as a finished drawing rather than half-drawn.
+ *
+ * Decorative by construction: `aria-hidden`, no text, `pointer-events: none`,
+ * and it sits at `z-index: 0` under the narration's measure.
+ */
+
+interface Point {
+  x: number;
+  y: number;
+}
+
+/**
+ * Drawing units. The viewBox is wider than it is tall because the movement in
+ * this drawing is horizontal: the whole meaning lives between the left edge
+ * and the right edge.
+ */
+const VIEW_W = 900;
+const VIEW_H = 360;
+
+/**
+ * The trunk. Its first waypoint is off the left edge on purpose (x = -60), so
+ * the road is already travelling when it enters and the reader never sees it
+ * begin — it comes from somewhere else.
+ */
+const TRUNK: Point[] = [
+  { x: -220, y: 352 },
+  { x: -60, y: 344 },
+  { x: 60, y: 336 },
+  { x: 210, y: 300 },
+  { x: 340, y: 262 },
+  { x: 430, y: 240 },
+];
+
+/** Where the two lives separate. Both branches start here, or it is not a fork. */
+const JUNCTION: Point = { x: 430, y: 240 };
+
+/**
+ * Partir. Keeps climbing the whole way and is drawn out to x = 940, past the
+ * right edge of the viewBox — which is the right edge of the screen. It gets
+ * cropped there, and that crop is the point: the line has no end to show.
+ */
+const PARTIR: Point[] = [
+  JUNCTION,
+  { x: 570, y: 196 },
+  { x: 710, y: 148 },
+  { x: 830, y: 116 },
+  { x: 940, y: 94 },
+  // Past the corner, and off the edge of the drawing entirely: without a
+  // point beyond the frame the spline is clamped at its last waypoint and
+  // levels out, so the branch would flatten exactly where it has to still be
+  // climbing. Off-screen geometry is what keeps the exit rising.
+  { x: 1060, y: 36 },
+];
+
+/**
+ * Quedarse. Turns down away from the junction and flattens as it goes, so the
+ * last stretch is nearly level — a line that has stopped travelling. It ends
+ * well inside the frame and is the only thing in the drawing that does.
+ */
+const QUEDARSE: Point[] = [
+  JUNCTION,
+  { x: 520, y: 286 },
+  { x: 580, y: 312 },
+  { x: 650, y: 324 },
+];
+
+/** The ring where a life came to rest. Radius in drawing units. */
+const RING_R = 7;
+const RING = QUEDARSE[QUEDARSE.length - 1];
+
+/**
+ * A Catmull-Rom spline through the waypoints, emitted as cubic béziers.
+ *
+ * Hand-written `d` strings kink wherever two curves meet and the tangents do
+ * not agree, and a kink in a road is instantly legible as a mistake. This
+ * passes a smooth curve through every waypoint instead, so the shape can be
+ * retuned by moving a number rather than by rewriting control points.
+ */
+function smooth(points: Point[]): string {
+  const p = [points[0], ...points, points[points.length - 1]];
+  const f = (n: number) => n.toFixed(1);
+  let d = `M${f(points[0].x)} ${f(points[0].y)}`;
+  for (let i = 0; i < points.length - 1; i += 1) {
+    const p0 = p[i];
+    const p1 = p[i + 1];
+    const p2 = p[i + 2];
+    const p3 = p[i + 3];
+    const c1 = { x: p1.x + (p2.x - p0.x) / 6, y: p1.y + (p2.y - p0.y) / 6 };
+    const c2 = { x: p2.x - (p3.x - p1.x) / 6, y: p2.y - (p3.y - p1.y) / 6 };
+    d += ` C${f(c1.x)} ${f(c1.y)} ${f(c2.x)} ${f(c2.y)} ${f(p2.x)} ${f(p2.y)}`;
+  }
+  return d;
+}
+
+/** A closed ring, as a path, so it can be drawn by the same dash trick. */
+function ring(cx: number, cy: number, r: number): string {
+  const f = (n: number) => n.toFixed(1);
+  return `M${f(cx - r)} ${f(cy)} A${f(r)} ${f(r)} 0 1 0 ${f(cx + r)} ${f(cy)} A${f(r)} ${f(r)} 0 1 0 ${f(cx - r)} ${f(cy)}`;
+}
+
+/**
+ * Each stroke's slice of the reader's travel. The trunk is drawn first; the
+ * two branches start together, because they leave the same point at the same
+ * moment — that simultaneity IS the fork. The ring closes the staying branch
+ * only once it has arrived.
+ */
+const STROKES = [
+  { d: smooth(TRUNK), s: 0.0, e: 0.42 },
+  { d: smooth(PARTIR), s: 0.36, e: 1.0 },
+  { d: smooth(QUEDARSE), s: 0.36, e: 0.88 },
+  { d: ring(RING.x, RING.y, RING_R), s: 0.84, e: 1.0 },
+];
+---
+
+<div class="fork" aria-hidden="true" data-fork style="--route:1">
+  <svg
+    class="fork__map"
+    viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
+    fill="none"
+    focusable="false"
+    preserveAspectRatio="xMidYMid meet"
+  >
+    {
+      STROKES.map((stroke) => (
+        <path
+          class="fork__line"
+          d={stroke.d}
+          pathLength="1"
+          style={`--s:${stroke.s};--e:${stroke.e}`}
+        />
+      ))
+    }
+  </svg>
+</div>
+
+<style>
+  /* ------------------------------------------------------------------
+     The field. A band at the floor of the section, full bleed, so the
+     drawing's right edge IS the right edge of the screen: that is what
+     lets a branch run off it and read as gone rather than as cut.
+     ------------------------------------------------------------------ */
+
+  .fork {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .fork__map {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .fork__line {
+    stroke: var(--cu-hueso);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+    opacity: 0.3;
+    stroke-dasharray: 1px;
+    /*
+      Same formula as the other two plates, and for the same reason: every path
+      carries `pathLength="1"`, so an offset of 0 lays the dash over the path
+      and shows it while an offset of 1px pushes the dash off the end and hides
+      it. Offset in `px`, never a percentage — Chrome serialises the computed
+      value of a percentage as `0%`, which reads as zero and silently inverts
+      the whole drawing.
+    */
+    stroke-dashoffset: calc(
+      1px * (1 - clamp(0, (var(--route) - var(--s)) / (var(--e) - var(--s)), 1))
+    );
+  }
+
+  /*
+    The ring is the one mark in the drawing, so it carries a little more ink
+    than the roads do: it is the only place in the plate where something stops.
+  */
+  .fork__line:last-of-type {
+    opacity: 0.42;
+  }
+</style>

@@ -137,11 +137,13 @@ export interface Chapter {
   layout?: ChapterLayout;
   /**
    * A drawn layer that belongs to this chapter's subject and is grown by the
-   * reader's own scroll. Today there is one: the coffee plate, drawn in line
-   * and grown branch by branch. It is ornament with a subject — the plant the
-   * chapter is about — never a decoration borrowed from elsewhere.
+   * reader's own scroll. Each one is a different kind of document, which is
+   * what keeps the chapters from repeating each other: a herbarium sheet for
+   * the café, a weather chart for the neblina, a route map for the fork. All
+   * three are line work and all three are ornament with a subject — never a
+   * decoration borrowed from elsewhere.
    */
-  decor?: 'coffee-branches' | 'cloud-banks';
+  decor?: 'coffee-branches' | 'cloud-banks' | 'forked-road';
   beats: Beat[];
   /** The chapter's own quotation, set large. Omitted when there is none. */
   statement?: Statement;
