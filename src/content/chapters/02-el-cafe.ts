@@ -125,6 +125,27 @@ export const chapter: Chapter = {
     },
   ],
 
+  aside: [
+    {
+      photo: 'cafe-cerezas-colombia',
+      caption:
+        'Cerezas de café maduras entre las hojas, en Zapatoca, Santander, Colombia. No es Caripe: es un cafetal de montaña, como los del valle.',
+      alt: 'Racimo de cerezas rojas de café sobre la rama, rodeado de hojas verdes y brillantes.',
+    },
+    {
+      photo: 'cafe-recolector-tolima',
+      caption:
+        'Un recolector entre cafetos y plátanos, en Rioblanco, Tolima, Colombia. No es Caripe: es café de sombra en ladera.',
+      alt: 'Un hombre agachado recoge café entre cafetos, con plataneras y una ladera de montaña al fondo.',
+    },
+    {
+      photo: 'cafe-sombra-cachipay',
+      caption:
+        'Cafetos bajo el dosel del bosque, en Cachipay, Cundinamarca, Colombia. No es Caripe: es el café de sombra que aún domina el valle.',
+      alt: 'Cafetos bajos creciendo bajo árboles altos cubiertos de musgo, en una finca de Cachipay.',
+    },
+  ],
+
   gallery: {
     label: 'Documentación visual · el valle cultivado',
     images: [

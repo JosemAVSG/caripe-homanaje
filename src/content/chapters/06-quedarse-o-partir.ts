@@ -1,7 +1,7 @@
 import type { Chapter } from '../types';
 
 /**
- * Chapter 04 — structural stub.
+ * Chapter 06 — structural stub.
  *
  * `beats` is intentionally empty: this chapter carries NO verified content yet.
  * `pendingNote` describes the territory it is reserved for, as a plan rather
@@ -13,8 +13,8 @@ import type { Chapter } from '../types';
  * register, where the one school the archive can show stands in its own year.
  */
 export const chapter: Chapter = {
-  slug: 'chapter-4-partir',
-  order: 4,
+  slug: 'chapter-6-partir',
+  order: 6,
   title: 'Quedarse o partir',
   kicker: 'En preparación',
   tone: 'monte',

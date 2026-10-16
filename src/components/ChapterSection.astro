@@ -55,6 +55,7 @@ const {
   timeline,
   plates,
   gallery,
+  aside,
   photo,
   sources,
   pending,
@@ -86,6 +87,7 @@ const stageImage = allImages.find((image) => image.layout === 'feature') ?? allI
 const restImages = stageImage ? allImages.filter((image) => image !== stageImage) : allImages;
 const hasGallery = restImages.length > 0;
 const stagePhoto = stageImage ? getPhoto(stageImage.photo) : null;
+const asideFigures = (aside ?? []).map((image) => ({ image, photo: getPhoto(image.photo) }));
 
 // Fog density is a design decision about this chapter's weather, not a claim
 // about Caripe: the cave chapter is nearly fogless, the mountain chapters are
@@ -94,7 +96,9 @@ const FOG: Record<string, 'none' | 'light' | 'dense'> = {
   'chapter-1-1799': 'none',
   'chapter-2-cafe': 'dense',
   'chapter-3-neblina': 'dense',
-  'chapter-4-partir': 'light',
+  'chapter-4-turismo': 'light',
+  'chapter-5-cuadros-vivos': 'light',
+  'chapter-6-partir': 'light',
 };
 const fog = FOG[slug] ?? 'light';
 ---
@@ -244,6 +248,33 @@ const fog = FOG[slug] ?? 'light';
 
       <SourceNote sources={sources} note={site.sourceFootnote} />
     </div>
+
+    {
+      asideFigures.length > 0 ? (
+        <div class="scene__aside" data-reveal-group>
+          {asideFigures.map(({ image, photo: asidePhoto }) => (
+            <figure class="scene__aside-figure">
+              <Image
+                class="scene__aside-image"
+                src={asidePhoto.src}
+                alt={image.alt}
+                widths={[360, 540, 720]}
+                sizes="(min-width: 64rem) 14rem, 100vw"
+                format="webp"
+                quality={74}
+                loading="lazy"
+                decoding="async"
+                data-reveal
+              />
+              <figcaption class="scene__aside-caption">
+                <span>{image.caption}</span>
+                <PhotoCreditLine credit={asidePhoto.credit} />
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+      ) : null
+    }
 
     {/* In the composed layouts the chronology is not one more block inside the
         body: it is a seam that crosses the section on its own. `band` places it
@@ -443,6 +474,37 @@ const fog = FOG[slug] ?? 'light';
     min-width: 0;
   }
 
+  /* -- Aside: one tall photograph beside the narration -------------------- */
+
+  .scene__aside {
+    display: grid;
+    gap: var(--cu-space-md);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+    align-items: start;
+  }
+
+  .scene__aside-figure {
+    display: grid;
+    gap: var(--cu-space-2xs);
+    margin: 0;
+    min-width: 0;
+  }
+
+  .scene__aside-image {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+  }
+
+  .scene__aside-caption {
+    display: grid;
+    gap: var(--cu-space-3xs);
+    font-size: var(--cu-step--1);
+    line-height: 1.5;
+    color: var(--cu-text-muted);
+  }
+
   /* -- Pending stub ------------------------------------------------------- */
 
   .scene__pending {
@@ -606,6 +668,19 @@ const fog = FOG[slug] ?? 'light';
     .scene--layout-band .scene__body {
       grid-column: 1;
       grid-row: 4;
+    }
+
+    /* The narration holds a narrow measure on the left; the photograph takes
+       the empty right of the same row, level with the opening of the body. */
+    .scene--layout-band .scene__aside {
+      grid-column: 1;
+      grid-row: 4;
+      justify-self: end;
+      align-self: start;
+      /* One column of tall frames down the empty right; the narration keeps
+         its own narrow measure on the left. */
+      width: min(calc(100% - var(--cu-measure-narrow) - var(--cu-space-lg)), 18rem);
+      grid-template-columns: minmax(0, 1fr);
     }
 
     /* mist: content hangs off-centre in the wide column; the right column is

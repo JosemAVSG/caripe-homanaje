@@ -153,6 +153,12 @@ export interface Chapter {
   plates?: EvidencePlate[];
   /** Photographs from the verified archive, staged as a figure grid. */
   gallery?: ChapterGallery;
+  /**
+   * Tall photographs set beside the narration in the wide `band` layout, where
+   * the narration's narrow measure leaves the right of the row empty. They sit
+   * side by side there and stack after the body on a phone.
+   */
+  aside?: ChapterImage[];
   /** Reserved frame for a chapter whose photography does not exist yet. */
   photo?: PhotoSlot;
   /** Chapter-level provenance, rendered as the source note. */

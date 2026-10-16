@@ -302,28 +302,48 @@ function trackProgress(): void {
   fill('[data-rail-fill]', 'y');
 }
 
-/** Marks the rail entry that matches the chapter currently on screen. */
+/**
+ * Marks the rail entry that matches the chapter currently on screen.
+ *
+ * Reads each chapter's live box on every scroll tick instead of caching trigger
+ * offsets: lazy images, fonts and reveals move the chapters after the offsets
+ * were measured, and a stale offset leaves the wrong dot lit (or none) as the
+ * reader crosses into a later chapter. Between chapters, where the full-bleed
+ * band sits, nothing is lit — the same behaviour the cached triggers had.
+ */
 function markActiveChapter(): void {
-  for (const chapter of gsap.utils.toArray<HTMLElement>('[data-chapter]')) {
-    const slug = chapter.dataset.chapter;
-    if (!slug) continue;
+  const entries = gsap.utils
+    .toArray<HTMLElement>('[data-chapter]')
+    .map((chapter) => ({
+      chapter,
+      link: document.querySelector<HTMLElement>(`[data-rail-link="${chapter.dataset.chapter}"]`),
+    }))
+    .filter((entry): entry is { chapter: HTMLElement; link: HTMLElement } => entry.link !== null);
 
-    const link = document.querySelector<HTMLElement>(`[data-rail-link="${slug}"]`);
-    if (!link) continue;
+  if (!entries.length) return;
 
-    ScrollTrigger.create({
-      trigger: chapter,
-      start: 'top 45%',
-      end: 'bottom 45%',
-      onToggle: (self) => {
-        if (self.isActive) {
-          link.setAttribute('aria-current', 'true');
-        } else {
-          link.removeAttribute('aria-current');
-        }
-      },
-    });
-  }
+  let active: HTMLElement | null = null;
+
+  const update = () => {
+    const line = window.innerHeight * 0.45;
+    let next: HTMLElement | null = null;
+
+    for (const { chapter, link } of entries) {
+      const box = chapter.getBoundingClientRect();
+      if (box.top <= line && box.bottom > line) {
+        next = link;
+        break;
+      }
+    }
+
+    if (next === active) return;
+    active?.removeAttribute('aria-current');
+    next?.setAttribute('aria-current', 'true');
+    active = next;
+  };
+
+  ScrollTrigger.create({ start: 0, end: 'max', onUpdate: update, onRefresh: update });
+  update();
 }
 
 /**

@@ -199,6 +199,28 @@ const FILES = [
     maxWidth: 1800,
   },
   {
+    // Not Caripe: Zapatoca, Santander, Colombia (Commons category). Used by the
+    // café chapter with a caption that says so; same species, grown in mountains.
+    id: 'cafe-cerezas-colombia',
+    title: 'File:Café sin consechar.jpg',
+    local: 'cafe-cerezas-colombia.jpg',
+    maxWidth: 1200,
+  },
+  {
+    // Not Caripe: Rioblanco, Tolima, Colombia. Shade-grown mountain coffee.
+    id: 'cafe-recolector-tolima',
+    title: 'File:Cultivo de café Tolima.jpg',
+    local: 'cafe-recolector-tolima.jpg',
+    maxWidth: 1200,
+  },
+  {
+    // Not Caripe: Cachipay, Cundinamarca, Colombia. Coffee under forest shade.
+    id: 'cafe-sombra-cachipay',
+    title: 'File:Coffee plantation in Cachipay, Colombia.jpg',
+    local: 'cafe-sombra-cachipay.jpg',
+    maxWidth: 1200,
+  },
+  {
     id: 'caballito-volador',
     title: 'File:Caballito volador en Caripe, Monagas.jpg',
     local: 'caballito-volador-caripe.jpg',
