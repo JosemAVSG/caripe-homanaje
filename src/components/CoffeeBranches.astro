@@ -1,0 +1,290 @@
+---
+/**
+ * CoffeeBranches — a botanical line drawing that grows as the chapter scrolls.
+ *
+ * The branches are not an illustration pasted on top of the chapter: they are
+ * drawn by the reader's own scroll. Every path carries `pathLength="1"`, so a
+ * single unitless custom property (`--t`, 0 → 1) draws it from one end to the
+ * other regardless of how long the path really is. Nothing is a GIF, nothing
+ * is a sprite, and with no JavaScript `--p` sits at its declared 1, so the
+ * plate ships already grown.
+ *
+ * The drawing is a plate of *Coffea arabica*: a woody stem, opposite leaf
+ * pairs with a midrib, and berry clusters in the lower leaf axils — the way a
+ * herbarium sheet shows the plant. White line, no fill, no gradient: the
+ * plant is drawn, not photographed, because the chapter's subject is the
+ * cultivation itself and the reader should see the organism, not a stock
+ * coffee cup.
+ *
+ * Growth is staggered by `--s` / `--e`, the slice of the scene's scroll
+ * progress in which each element draws. The stem leads, then the leaf pairs
+ * open outward at the height the stem has already reached, then the berries
+ * swell in the axils behind them.
+ *
+ * Decorative by construction: `aria-hidden`, no text, no link, and it never
+ * sits above the narration's measure.
+ */
+interface Props {
+  /** How many branch plates to place across the field. */
+  count?: number;
+}
+
+const { count = 3 } = Astro.props;
+
+/** Where a stem point sits horizontally, by normalised height (0 floor → 1 tip). */
+const stemX = (h: number) => 210 + Math.sin(h * Math.PI * 1.15) * 11 - h * 4;
+
+/** Total stem travel, in the same units the node fractions are measured against. */
+const STEM_END = 0.4;
+
+/** A leaf lens: two curves that leave the petiole and meet at the tip. */
+function leafPath(bx: number, by: number, tx: number, ty: number, width: number) {
+  const dx = tx - bx;
+  const dy = ty - by;
+  const len = Math.hypot(dx, dy) || 1;
+  // Perpendicular, pointing "up" relative to the leaf's own axis.
+  const nx = (-dy / len) * width;
+  const ny = (dx / len) * width;
+  // Flipped when the leaf points left, so the belly of the leaf always faces
+  // the sky rather than the ground.
+  const flip = dy > 0 ? -1 : 1;
+  const ux = nx * flip;
+  const uy = ny * flip;
+
+  const at = (t: number, ox: number, oy: number) =>
+    `${(bx + dx * t + ox).toFixed(1)} ${(by + dy * t + oy).toFixed(1)}`;
+
+  return [
+    `M${bx.toFixed(1)} ${by.toFixed(1)}`,
+    `C${at(0.3, ux, uy)} ${at(0.72, ux * 0.62, uy * 0.62)} ${tx.toFixed(1)} ${ty.toFixed(1)}`,
+    `C${at(0.72, -ux * 0.62, -uy * 0.62)} ${at(0.3, -ux, -uy)} ${bx.toFixed(1)} ${by.toFixed(1)}`,
+    'Z',
+  ].join(' ');
+}
+
+/** The midrib, a hair inside the leaf so it reads as a vein, not a seam. */
+function ribPath(bx: number, by: number, tx: number, ty: number) {
+  const dx = tx - bx;
+  const dy = ty - by;
+  return `M${bx.toFixed(1)} ${by.toFixed(1)} C${(bx + dx * 0.38).toFixed(1)} ${(by + dy * 0.34).toFixed(1)} ${(bx + dx * 0.76).toFixed(1)} ${(by + dy * 0.72).toFixed(1)} ${tx.toFixed(1)} ${ty.toFixed(1)}`;
+}
+
+interface Node {
+  h: number;
+  span: number;
+  drop: number;
+  width: number;
+  berries: number;
+}
+
+/** Nodes from the floor upward. Leaves shorten toward the tip, as they do. */
+const nodes: Node[] = [
+  { h: 0.1, span: 152, drop: 26, width: 21, berries: 5 },
+  { h: 0.28, span: 142, drop: 22, width: 20, berries: 4 },
+  { h: 0.46, span: 128, drop: 18, width: 18, berries: 3 },
+  { h: 0.63, span: 110, drop: 15, width: 16, berries: 0 },
+  { h: 0.79, span: 90, drop: 12, width: 14, berries: 0 },
+  { h: 0.92, span: 66, drop: 9, width: 11, berries: 0 },
+];
+
+/** Floor of the drawing, and how tall it is, in viewBox units. */
+const FLOOR = 660;
+const HEIGHT = 620;
+
+type Leaf = {
+  d: string;
+  rib: string;
+  s: number;
+  e: number;
+};
+
+type Berry = { cx: number; cy: number; r: number; s: number; e: number };
+
+function buildPlate(seed: number) {
+  // A small deterministic wobble, so three plates on one page are recognisably
+  // the same plant and never the same silhouette twice.
+  const wob = (i: number) => Math.sin(seed * 12.9898 + i * 78.233) * 0.5 + 0.5;
+
+  const yAt = (h: number) => FLOOR - h * HEIGHT;
+
+  const stem = `M${stemX(0).toFixed(1)} ${FLOOR} C${stemX(0.18).toFixed(1)} ${(yAt(0.3) + 60).toFixed(1)} ${stemX(0.5).toFixed(1)} ${(yAt(0.62) + 40).toFixed(1)} ${stemX(0.72).toFixed(1)} ${yAt(0.72).toFixed(1)} C${stemX(0.9).toFixed(1)} ${(yAt(0.92) - 30).toFixed(1)} ${stemX(1).toFixed(1)} ${yAt(1)} ${stemX(1).toFixed(1)} ${yAt(1)}`;
+
+  const leaves: Leaf[] = [];
+  const berries: Berry[] = [];
+
+  for (const [i, node] of nodes.entries()) {
+    const by = yAt(node.h);
+    const bx = stemX(node.h);
+    // The stem reaches this node at `STEM_END * h`; the leaf opens after it.
+    const s = STEM_END * node.h;
+    const e = s + 0.16;
+
+    for (const side of [-1, 1] as const) {
+      const jitter = wob(i * 2 + (side + 1)) * 12 - 6;
+      const tx = bx + side * (node.span + jitter);
+      const ty = by + node.drop + jitter * 0.4;
+      leaves.push({
+        d: leafPath(bx, by, tx, ty, node.width),
+        rib: ribPath(bx, by, tx, ty),
+        s: Number((s + (side === -1 ? 0 : 0.03)).toFixed(3)),
+        e: Number((e + (side === -1 ? 0 : 0.03)).toFixed(3)),
+      });
+    }
+
+    // Berries cluster in the axil, hugging the stem, on the lower nodes only.
+    for (let b = 0; b < node.berries; b += 1) {
+      const t = b / Math.max(1, node.berries - 1);
+      const side = b % 2 === 0 ? -1 : 1;
+      const bs = e;
+      berries.push({
+        cx: Number((bx + side * (11 + t * 13) + wob(b + i) * 5).toFixed(1)),
+        cy: Number((by + 4 + t * 15).toFixed(1)),
+        r: Number((5.5 + wob(b * 3 + i) * 2.2).toFixed(1)),
+        s: Number((bs + t * 0.04).toFixed(3)),
+        e: Number((bs + 0.14 + t * 0.04).toFixed(3)),
+      });
+    }
+  }
+
+  return { stem, leaves, berries };
+}
+
+/** Three plates, each with its own wobble, placed across the field. */
+const plates = Array.from({ length: count }, (_, i) => ({
+  seed: i + 1,
+  ...buildPlate(i + 1),
+}));
+
+/**
+ * Placement. The chapter's narration is a narrow measure on the left, so the
+ * plates stand to the right of it and at the far edges; the one that drifts
+ * under the words is the faintest, and every stroke sits behind the text.
+ */
+const place = [
+  { right: '-5%', bottom: '-14%', width: '34rem', rotate: '-6deg', opacity: 0.9 },
+  { right: '24%', bottom: '-22%', width: '24rem', rotate: '5deg', opacity: 0.5 },
+  { left: '-7%', bottom: '-18%', width: '28rem', rotate: '-4deg', opacity: 0.32 },
+];
+---
+
+<div class="branches" aria-hidden="true" data-branches style="--grow:1">
+  {
+    plates.map((plate, i) => (
+      <svg
+        class="branches__plate"
+        viewBox="0 0 420 660"
+        fill="none"
+        style={`left:${place[i % place.length].left ?? 'auto'};right:${place[i % place.length].right ?? 'auto'};bottom:${place[i % place.length].bottom};width:${place[i % place.length].width};--rot:${place[i % place.length].rotate};--op:${place[i % place.length].opacity}`}
+        focusable="false"
+      >
+        <path
+          class="branches__stem"
+          d={plate.stem}
+          pathLength="1"
+          style="--s:0;--e:0.4"
+        />
+        {plate.leaves.map((leaf) => (
+          <g>
+            <path class="branches__leaf" d={leaf.d} pathLength="1" style={`--s:${leaf.s};--e:${leaf.e}`} />
+            <path class="branches__rib" d={leaf.rib} pathLength="1" style={`--s:${leaf.s + 0.04};--e:${leaf.e + 0.06}`} />
+          </g>
+        ))}
+        {plate.berries.map((berry) => (
+          <circle
+            class="branches__berry"
+            cx={berry.cx}
+            cy={berry.cy}
+            r={berry.r}
+            style={`--s:${berry.s};--e:${berry.e}`}
+          />
+        ))}
+      </svg>
+    ))
+  }
+</div>
+
+<style>
+  /* ------------------------------------------------------------------
+     The field. A shallow band across the floor of the section, not the
+     whole height of it: the plate has to have its own place in the
+     viewport, because that is what grows it. Anchored to the floor, the
+     plant reads as the plant, and with `overflow: hidden` it is cropped
+     by the ground it grows out of.
+     ------------------------------------------------------------------ */
+
+  .branches {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    height: clamp(28rem, 72svh, 48rem);
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .branches__plate {
+    position: absolute;
+    height: auto;
+    rotate: var(--rot);
+    opacity: var(--op);
+    transform-origin: 50% 100%;
+  }
+
+  /* Strokes only. The plant is a line drawing — a herbarium plate, not a
+     photograph and not a filled silhouette. White, as asked. */
+  .branches :global(.branches__stem),
+  .branches :global(.branches__leaf),
+  .branches :global(.branches__rib) {
+    stroke: var(--cu-hueso);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+    stroke-dasharray: 1px;
+    /*
+      One formula draws every path: `t` is the slice of the plate's own growth
+      in which this element exists. `1 - t` is the point, and it is the whole
+      trick: a dash offset of 0 lays the dash over the path and shows it, an
+      offset of 1px (a full path length, because every path carries
+      `pathLength="1"`) pushes the dash off the end and hides it. So the plant
+      starts hidden and is drawn, rather than starting whole and being erased.
+    */
+    stroke-dashoffset: calc(
+      1px * (1 - clamp(0, (var(--grow) - var(--s)) / (var(--e) - var(--s)), 1))
+    );
+  }
+
+  .branches :global(.branches__stem) {
+    stroke-width: 3;
+  }
+
+  .branches :global(.branches__leaf) {
+    stroke-width: 2;
+    fill: none;
+  }
+
+  .branches :global(.branches__rib) {
+    stroke-width: 1.1;
+    opacity: 0.66;
+  }
+
+  /* Berries swell rather than draw: a dot has no end to begin from. */
+  .branches :global(.branches__berry) {
+    fill: var(--cu-hueso);
+    stroke: none;
+    transform-box: fill-box;
+    transform-origin: 50% 50%;
+    transform: scale(clamp(0, (var(--grow) - var(--s)) / (var(--e) - var(--s)), 1));
+  }
+
+  /* On a phone the plate is cropped by the section's own height; two plates
+     are enough and the third would only crowd the measure. */
+  @media (max-width: 48rem) {
+    .branches__plate:nth-child(3) {
+      display: none;
+    }
+  }
+
+  /* A reader who asked for no motion gets the finished plate: `motion.ts`
+     returns before wiring any trigger, so `--grow` keeps its declared 1 and
+     the plant simply stands there, whole and still. Nothing is hidden. */
+</style>

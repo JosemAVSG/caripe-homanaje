@@ -114,6 +114,10 @@ export interface ChapterGallery {
 /** Visual temperature of a chapter. */
 export type Tone = 'monte' | 'cafe' | 'bruma';
 
+/** The chapter's composition. Each one is a different geometry, not a
+ *  reordering of the same blocks. See ChapterSection.astro. */
+export type ChapterLayout = 'stage' | 'band' | 'mist' | 'fork';
+
 export interface Chapter {
   /** Stable id; doubles as the DOM id and the rail anchor. */
   slug: string;
@@ -124,6 +128,20 @@ export interface Chapter {
   /** Opening line, set larger than the body. */
   lede?: string;
   tone?: Tone;
+  /**
+   * The composition this chapter is staged in. Defaults to `stage`, the
+   * original two-column geometry: the photograph held on the left while the
+   * text scrolls past it. The other three are genuinely different geometries,
+   * not a reordering of the same blocks — see `ChapterSection.astro`.
+   */
+  layout?: ChapterLayout;
+  /**
+   * A drawn layer that belongs to this chapter's subject and is grown by the
+   * reader's own scroll. Today there is one: the coffee plate, drawn in line
+   * and grown branch by branch. It is ornament with a subject — the plant the
+   * chapter is about — never a decoration borrowed from elsewhere.
+   */
+  decor?: 'coffee-branches';
   beats: Beat[];
   /** The chapter's own quotation, set large. Omitted when there is none. */
   statement?: Statement;

@@ -19,6 +19,7 @@ export const chapter: Chapter = {
   title: '1799',
   kicker: 'La cueva y el nombre',
   tone: 'monte',
+  layout: 'stage',
   lede: 'Un naturalista alemán entró en una cueva del oriente de Venezuela, y el nombre del pueblo quedó escrito en la taxonomía del mundo.',
 
   // The chapter's opening voice, set large and alone before the narration. It

@@ -1,6 +1,6 @@
 {
  "url": "http://localhost:4321",
- "at": "2026-10-15T20:55:51.920Z",
+ "at": "2026-10-16T03:47:27.881Z",
  "allow": [],
  "viewports": [
   {
@@ -9,7 +9,7 @@
    "load": "load",
    "screens": 12,
    "filled": [
-    0.65,
+    0.67,
     0.34,
     0.98,
     0.99,
@@ -18,15 +18,15 @@
     0.98,
     0.98,
     1,
-    0.98,
     1,
-    0.99
+    0.99,
+    1
    ],
    "motion": {
-    "elements": 34,
+    "elements": 28,
     "css": 8,
-    "transitions": 3,
-    "scripted": 23,
+    "transitions": 2,
+    "scripted": 18,
     "videos": 0,
     "playingVideos": 0
    },
@@ -36,19 +36,19 @@
      "h": 900
     },
     "page": {
-     "height": 16807,
-     "screens": 18.7,
-     "words": 2114,
+     "height": 21968,
+     "screens": 24.4,
+     "words": 2431,
      "img": 35,
      "video": 0,
      "canvas": 4,
-     "svg": 0,
-     "sections": 14,
+     "svg": 3,
+     "sections": 15,
      "horizontalOverflow": 0,
      "overflowCulprits": [],
      "uiFragments": 0,
      "uiAbuse": false,
-     "realPictures": 31,
+     "realPictures": 28,
      "videoCount": 0,
      "uiPictures": 0,
      "pictureSamples": [
@@ -194,30 +194,9 @@
       "italic": false,
       "mono": false,
       "align": "left",
-      "position": "right",
-      "widthRatio": 0.38,
+      "position": "center",
+      "widthRatio": 0.79,
       "top": 7516,
-      "tag": "h2",
-      "kind": "heading"
-     },
-     {
-      "text": "La neblina",
-      "words": 2,
-      "chars": 10,
-      "lines": 1,
-      "size": 73.6,
-      "vw": 5.1,
-      "font": "Fraunces Variable",
-      "weight": 400,
-      "tracking": -0.02,
-      "leading": 0.96,
-      "upper": false,
-      "italic": false,
-      "mono": false,
-      "align": "left",
-      "position": "right",
-      "widthRatio": 0.38,
-      "top": 9954,
       "tag": "h2",
       "kind": "heading"
      },
@@ -238,9 +217,72 @@
       "align": "left",
       "position": "center",
       "widthRatio": 0.74,
-      "top": 13510,
+      "top": 15584,
       "tag": "span",
       "kind": "statement"
+     },
+     {
+      "text": "Liceo Nacional Bolivariano «Miguel Vecchio Marsiglia»",
+      "words": 6,
+      "chars": 53,
+      "lines": 1,
+      "size": 41.6,
+      "vw": 2.9,
+      "font": "Fraunces Variable",
+      "weight": 400,
+      "tracking": -0.02,
+      "leading": 1.24,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.79,
+      "top": 16646,
+      "tag": "h3",
+      "kind": "heading"
+     },
+     {
+      "text": "U. E. «Martha Vecchio»",
+      "words": 4,
+      "chars": 22,
+      "lines": 1,
+      "size": 41.6,
+      "vw": 2.9,
+      "font": "Fraunces Variable",
+      "weight": 400,
+      "tracking": -0.02,
+      "leading": 1.24,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.79,
+      "top": 17645,
+      "tag": "h3",
+      "kind": "heading"
+     },
+     {
+      "text": "Liceo «Dr. Julián Padrón»",
+      "words": 4,
+      "chars": 25,
+      "lines": 1,
+      "size": 41.6,
+      "vw": 2.9,
+      "font": "Fraunces Variable",
+      "weight": 400,
+      "tracking": -0.02,
+      "leading": 1.24,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.79,
+      "top": 18331,
+      "tag": "h3",
+      "kind": "heading"
      },
      {
       "text": "Gracias a Caripe.",
@@ -259,7 +301,7 @@
       "align": "left",
       "position": "left",
       "widthRatio": 0.38,
-      "top": 14095,
+      "top": 19256,
       "tag": "h2",
       "kind": "heading"
      },
@@ -280,7 +322,7 @@
       "align": "left",
       "position": "center",
       "widthRatio": 0.79,
-      "top": 14674,
+      "top": 19835,
       "tag": "h3",
       "kind": "heading"
      },
@@ -301,13 +343,13 @@
       "align": "left",
       "position": "center",
       "widthRatio": 0.79,
-      "top": 16044,
+      "top": 21205,
       "tag": "h3",
       "kind": "heading"
      }
     ],
     "headingSummary": {
-     "count": 10,
+     "count": 12,
      "maxLines": 1,
      "over2Lines": 0,
      "statements": 3,
@@ -335,11 +377,12 @@
       19,
       22,
       28,
+      42,
       58,
       74,
       144
      ],
-     "sizeCount": 8,
+     "sizeCount": 9,
      "notLoaded": [],
      "body": {
       "font": "Spectral",
@@ -363,7 +406,7 @@
      "microLabels": 0,
      "microLabelShare": 0,
      "microSamples": [],
-     "upperShare": 0.05,
+     "upperShare": 0.04,
      "centerShare": 0,
      "smallText": 0
     },
@@ -406,17 +449,17 @@
        }
       },
       {
-       "color": "#130f08",
+       "color": "#511d13",
        "top": 7354,
        "hsl": {
-        "h": 38,
-        "s": 0.41,
-        "l": 0.05
+        "h": 10,
+        "s": 0.62,
+        "l": 0.2
        }
       },
       {
        "color": "#0e2216",
-       "top": 9792,
+       "top": 10526,
        "hsl": {
         "h": 144,
         "s": 0.42,
@@ -425,7 +468,7 @@
       },
       {
        "color": "#0c0c07",
-       "top": 13903,
+       "top": 15978,
        "hsl": {
         "h": 60,
         "s": 0.26,
@@ -436,31 +479,31 @@
      "textColors": [
       {
        "color": "#b8beb7",
-       "share": 0.44
+       "share": 0.38
       },
       {
        "color": "#f3ede2",
-       "share": 0.17
-      },
-      {
-       "color": "#ded6c7",
-       "share": 0.17
+       "share": 0.22
       },
       {
        "color": "#9ba29b",
-       "share": 0.11
+       "share": 0.16
+      },
+      {
+       "color": "#ded6c7",
+       "share": 0.14
       },
       {
        "color": "#d3d8d2",
-       "share": 0.06
+       "share": 0.05
       }
      ],
      "button": {
-      "bg": "#c2a35f",
+      "bg": "#eab728",
       "hsl": {
-       "h": 41,
-       "s": 0.45,
-       "l": 0.57
+       "h": 44,
+       "s": 0.82,
+       "l": 0.54
       },
       "fg": "#060d08"
      },
@@ -495,7 +538,7 @@
      "blurred": 0,
      "roundedBoxes": 0,
      "boxRadius": 0,
-     "squareMedia": 16,
+     "squareMedia": 21,
      "roundedMedia": 0,
      "mediaRadius": 0,
      "textShadow": 0,
@@ -562,19 +605,19 @@
      "h": 1024
     },
     "page": {
-     "height": 23238,
-     "screens": 22.7,
-     "words": 1939,
+     "height": 25790,
+     "screens": 25.2,
+     "words": 2346,
      "img": 35,
      "video": 0,
      "canvas": 4,
-     "svg": 0,
-     "sections": 14,
+     "svg": 3,
+     "sections": 15,
      "horizontalOverflow": 0,
      "overflowCulprits": [],
      "uiFragments": 0,
      "uiAbuse": false,
-     "realPictures": 22,
+     "realPictures": 23,
      "videoCount": 0,
      "uiPictures": 0,
      "pictureSamples": [
@@ -701,7 +744,7 @@
       "align": "left",
       "position": "left",
       "widthRatio": 0.71,
-      "top": 19989,
+      "top": 22541,
       "tag": "h2",
       "kind": "heading"
      }
@@ -763,7 +806,7 @@
      "microLabels": 0,
      "microLabelShare": 0,
      "microSamples": [],
-     "upperShare": 0.05,
+     "upperShare": 0.04,
      "centerShare": 0,
      "smallText": 0
     },
@@ -806,17 +849,17 @@
        }
       },
       {
-       "color": "#130f08",
+       "color": "#511d13",
        "top": 9532,
        "hsl": {
-        "h": 38,
-        "s": 0.41,
-        "l": 0.05
+        "h": 10,
+        "s": 0.62,
+        "l": 0.2
        }
       },
       {
        "color": "#0e2216",
-       "top": 13320,
+       "top": 12981,
        "hsl": {
         "h": 144,
         "s": 0.42,
@@ -825,7 +868,7 @@
       },
       {
        "color": "#0c0c07",
-       "top": 19797,
+       "top": 18911,
        "hsl": {
         "h": 60,
         "s": 0.26,
@@ -836,31 +879,31 @@
      "textColors": [
       {
        "color": "#b8beb7",
-       "share": 0.44
-      },
-      {
-       "color": "#ded6c7",
-       "share": 0.18
+       "share": 0.39
       },
       {
        "color": "#f3ede2",
-       "share": 0.17
+       "share": 0.21
       },
       {
        "color": "#9ba29b",
-       "share": 0.11
+       "share": 0.16
+      },
+      {
+       "color": "#ded6c7",
+       "share": 0.15
       },
       {
        "color": "#d3d8d2",
-       "share": 0.04
+       "share": 0.03
       }
      ],
      "button": {
-      "bg": "#c2a35f",
+      "bg": "#eab728",
       "hsl": {
-       "h": 41,
-       "s": 0.45,
-       "l": 0.57
+       "h": 44,
+       "s": 0.82,
+       "l": 0.54
       },
       "fg": "#060d08"
      },
@@ -962,14 +1005,14 @@
      "h": 844
     },
     "page": {
-     "height": 28664,
-     "screens": 34,
-     "words": 1800,
+     "height": 32346,
+     "screens": 38.3,
+     "words": 2207,
      "img": 35,
      "video": 0,
      "canvas": 4,
-     "svg": 0,
-     "sections": 14,
+     "svg": 3,
+     "sections": 15,
      "horizontalOverflow": 0,
      "overflowCulprits": [],
      "uiFragments": 0,
@@ -1122,9 +1165,72 @@
       "align": "left",
       "position": "center",
       "widthRatio": 0.71,
-      "top": 23149,
+      "top": 22542,
       "tag": "span",
       "kind": "statement"
+     },
+     {
+      "text": "Liceo Nacional Bolivariano «Miguel Vecchio Marsiglia»",
+      "words": 6,
+      "chars": 53,
+      "lines": 2,
+      "size": 22.7,
+      "vw": 5.8,
+      "font": "Fraunces Variable",
+      "weight": 400,
+      "tracking": -0.02,
+      "leading": 1.24,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.9,
+      "top": 23616,
+      "tag": "h3",
+      "kind": "heading"
+     },
+     {
+      "text": "U. E. «Martha Vecchio»",
+      "words": 4,
+      "chars": 22,
+      "lines": 1,
+      "size": 22.7,
+      "vw": 5.8,
+      "font": "Fraunces Variable",
+      "weight": 400,
+      "tracking": -0.02,
+      "leading": 1.24,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.9,
+      "top": 25100,
+      "tag": "h3",
+      "kind": "heading"
+     },
+     {
+      "text": "Liceo «Dr. Julián Padrón»",
+      "words": 4,
+      "chars": 25,
+      "lines": 1,
+      "size": 22.7,
+      "vw": 5.8,
+      "font": "Fraunces Variable",
+      "weight": 400,
+      "tracking": -0.02,
+      "leading": 1.24,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.9,
+      "top": 26096,
+      "tag": "h3",
+      "kind": "heading"
      },
      {
       "text": "Gracias a Caripe.",
@@ -1143,7 +1249,7 @@
       "align": "left",
       "position": "center",
       "widthRatio": 0.9,
-      "top": 23783,
+      "top": 27464,
       "tag": "h2",
       "kind": "heading"
      },
@@ -1164,7 +1270,7 @@
       "align": "left",
       "position": "center",
       "widthRatio": 0.9,
-      "top": 24489,
+      "top": 28170,
       "tag": "h3",
       "kind": "heading"
      },
@@ -1185,18 +1291,18 @@
       "align": "left",
       "position": "center",
       "widthRatio": 0.9,
-      "top": 27385,
+      "top": 31066,
       "tag": "h3",
       "kind": "heading"
      }
     ],
     "headingSummary": {
-     "count": 8,
-     "maxLines": 1,
+     "count": 11,
+     "maxLines": 2,
      "over2Lines": 0,
      "statements": 3,
      "centered": 0,
-     "medianWords": 2,
+     "medianWords": 3,
      "mixedFontHeadings": 0
     },
     "type": {
@@ -1247,7 +1353,7 @@
      "microLabels": 0,
      "microLabelShare": 0,
      "microSamples": [],
-     "upperShare": 0.05,
+     "upperShare": 0.04,
      "centerShare": 0,
      "smallText": 0
     },
@@ -1299,17 +1405,17 @@
        }
       },
       {
-       "color": "#130f08",
+       "color": "#511d13",
        "top": 11895,
        "hsl": {
-        "h": 38,
-        "s": 0.41,
-        "l": 0.05
+        "h": 10,
+        "s": 0.62,
+        "l": 0.2
        }
       },
       {
        "color": "#0e2216",
-       "top": 16193,
+       "top": 15923,
        "hsl": {
         "h": 144,
         "s": 0.42,
@@ -1318,7 +1424,7 @@
       },
       {
        "color": "#102518",
-       "top": 23113,
+       "top": 22506,
        "hsl": {
         "h": 143,
         "s": 0.4,
@@ -1327,7 +1433,7 @@
       },
       {
        "color": "#0c0c07",
-       "top": 23591,
+       "top": 22983,
        "hsl": {
         "h": 60,
         "s": 0.26,
@@ -1338,31 +1444,31 @@
      "textColors": [
       {
        "color": "#b8beb7",
-       "share": 0.41
-      },
-      {
-       "color": "#ded6c7",
-       "share": 0.2
+       "share": 0.36
       },
       {
        "color": "#f3ede2",
-       "share": 0.18
+       "share": 0.23
       },
       {
        "color": "#9ba29b",
-       "share": 0.11
+       "share": 0.17
+      },
+      {
+       "color": "#ded6c7",
+       "share": 0.16
       },
       {
        "color": "#d3d8d2",
-       "share": 0.04
+       "share": 0.03
       }
      ],
      "button": {
-      "bg": "#c2a35f",
+      "bg": "#eab728",
       "hsl": {
-       "h": 41,
-       "s": 0.45,
-       "l": 0.57
+       "h": 44,
+       "s": 0.82,
+       "l": 0.54
       },
       "fg": "#060d08"
      },

@@ -6,14 +6,23 @@
 
 :root {
   /* -- Palette ------------------------------------------------------------
-     The identity of Caripe: deep mountain green, roasted coffee brown,
-     fog grey, bone white and a single warm note.
+     The identity of Caripe, taken from the place itself rather than from a
+     dealt palette. Four things give this cordillera its colour, and every
+     family below is one of them:
 
-     The warm note is a brass/amber rather than the old rust orange. Two
-     reasons: it reads as "light catching the fog" (the documentary's own
-     image) and it sits outside the terracotta window the house style bans,
-     so the accent can carry the actions without dragging the palette into a
-     colour family that is not ours.                                  */
+       monte      the mountain, deep green;
+       cafe       the ROAST, the brown of the roasted bean;
+       vinotinto  the FRUIT, the wine red of the ripe coffee cherry;
+       araguaney  the national tree, Tabebuia chrysantha, in bloom;
+       apamate    Tabebuia rosea, its blossom pink;
+       bruma      the fog; hueso, the bone ink.
+
+     The one accent is the araguaney. Caripe's old brass/amber note was a
+     dull stand-in for it: the araguaney is where that colour actually comes
+     from, so the accent is refined into the tree's own gold rather than
+     joined by a fourth competing accent. The blossoms' apamate pink is not
+     an accent and is not scattered: it is named once, below, where the
+     subject earns it.                                                */
 
   /* Monte — the green of the cordillera */
   --cu-monte-950: #060d08;
@@ -33,6 +42,39 @@
   --cu-cafe-500: #6c4424;
   --cu-cafe-400: #8d5c33;
 
+  /* Vinotinto — the RIPE coffee cherry, cafe maduro. A different colour from
+     the roasted brown above: this is the fruit on the branch, not the bean in
+     the pan. It owns the coffee chapter's field.                     */
+  --cu-vinotinto-950: #170308;
+  --cu-vinotinto-900: #290712;
+  --cu-vinotinto-800: #4a1224;
+  --cu-vinotinto-700: #6d1c35;
+  --cu-vinotinto-600: #95294a;
+  --cu-vinotinto-500: #bf3d63;
+  --cu-vinotinto-400: #d95a72;
+
+  /* Araguaney — Venezuela's national tree, Tabebuia chrysantha, the tree that
+     turns entirely gold in bloom. The light end of this ramp is the site's
+     accent; the ramp exists so the accent has a family behind it.    */
+  --cu-araguaney-950: #171104;
+  --cu-araguaney-900: #251b06;
+  --cu-araguaney-800: #38290a;
+  --cu-araguaney-700: #513c0e;
+  --cu-araguaney-600: #735413;
+  --cu-araguaney-500: #a87c1e;
+  --cu-araguaney-400: #eab728;
+
+  /* Apamate — Tabebuia rosea: blossom pink, pale through magenta. A reserved
+     family: it has exactly one appearance on the page (see --cu-blossom-ink),
+     so it stays a colour of the place and never becomes a second accent. */
+  --cu-apamate-950: #190510;
+  --cu-apamate-900: #2a0819;
+  --cu-apamate-800: #3f0d26;
+  --cu-apamate-700: #591339;
+  --cu-apamate-600: #7c1c52;
+  --cu-apamate-500: #a72b70;
+  --cu-apamate-400: #f0aecb;
+
   /* Bruma — the fog (cool greys with a green cast) */
   --cu-bruma-050: #f5f6f4;
   --cu-bruma-100: #e7eae6;
@@ -48,10 +90,18 @@
   --cu-hueso-soft: #ded6c7;
   --cu-hueso-dim: #b6ae9f;
 
-  /* Accent — a warm brass, used for actions and the interview voice */
-  --cu-accent: #c2a35f;
-  --cu-accent-soft: #e2c88b;
-  --cu-accent-deep: #8b7038;
+  /* Accent — the araguaney in bloom: the one warm note, for actions and the
+     interview voice. `soft` is the same gold raised toward the bone ink so it
+     can carry small text on the dark fields; `deep` is a step down for rules
+     and rails. One accent, three weights, no fourth note. */
+  --cu-accent: var(--cu-araguaney-400);
+  --cu-accent-soft: color-mix(in srgb, var(--cu-araguaney-400) 68%, var(--cu-hueso));
+  --cu-accent-deep: var(--cu-araguaney-600);
+
+  /* The apamate family is held in reserve: it colours nothing yet. The hero
+     epithet «el Jardín del Oriente» once wore it as its single appearance and
+     now wears the accent, as it did before. Nothing actionable is pink. */
+  --cu-blossom-ink: var(--cu-accent);
 
   /* -- Semantic surfaces -------------------------------------------------- */
   --cu-bg: var(--cu-monte-950);
@@ -62,9 +112,10 @@
   /* Scene fields. Each chapter sits on a flat colour one step from the page
      background, so the page never falls through to bare ground and no screen
      reads as empty. Separating surfaces by tone, never by a rule or a shadow,
-     is the house rule this encodes. */
+     is the house rule this encodes. The coffee chapter's field is the ripe
+     cherry, not the roast: the fruit is what the mountain grows. */
   --cu-scene-monte: color-mix(in srgb, var(--cu-monte-800) 62%, var(--cu-bg));
-  --cu-scene-cafe: color-mix(in srgb, var(--cu-cafe-900) 58%, var(--cu-bg));
+  --cu-scene-cafe: color-mix(in srgb, #87281b 58%, var(--cu-bg));
   --cu-scene-bruma: color-mix(in srgb, var(--cu-monte-700) 52%, var(--cu-bg));
   --cu-scene-close: color-mix(in srgb, var(--cu-cafe-950) 46%, var(--cu-bg));
 

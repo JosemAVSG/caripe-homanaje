@@ -1,0 +1,265 @@
+---
+import { schools } from '../content/colegios';
+import { levels } from '../content/evidence';
+
+/**
+ * Colegios — the town's schools, set as a register and not as a gallery.
+ *
+ * The families beside this section are cards that open a chronology. Repeating
+ * that shape here would say the two subjects are the same thing, and they are
+ * not: a family is a line through time, a school is an institution you can
+ * point at. So this is a register — ruled rows, name and standing on the left,
+ * the documented facts on the right, each one carrying the weight of its own
+ * evidence.
+ *
+ * The point of the section is not that Caripe has schools. It is that the town
+ * can name them instantly and the paper trail behind them is thin, and this
+ * register says so in public rather than dressing a date up as a fact. Three
+ * of the entries below are (b) or (c), and they are labelled that way.
+ *
+ * Interface copy is Spanish; code, comments and filenames are English.
+ */
+const levelKeys = Object.keys(levels) as Array<keyof typeof levels>;
+
+/** Facts that could not be sourced, counted for the honesty note. */
+const unsourced = schools.reduce(
+  (total, school) => total + school.facts.filter((fact) => fact.level !== 'a').length,
+  0,
+);
+const total = schools.reduce((count, school) => count + school.facts.length, 0);
+---
+
+<section class="colegios" id="colegios" data-scene data-time="Colegios">
+  <div class="colegios__inner u-container">
+    <header class="colegios__header" data-reveal-group>
+      <h2 class="colegios__title" data-reveal>Colegios</h2>
+      <p class="colegios__lede" data-reveal>
+        Los colegios principales de Caripe, con lo que está documentado de cada
+        uno y con la indicación de lo que no lo está.
+      </p>
+      <p class="colegios__note" data-reveal>
+        De {total} datos, {unsourced} no alcanzan el nivel (a). La existencia y
+        el nombre de los tres planteles están registrados; su historia, en
+        cambio, casi no lo está. No se ha hallado acta de fundación ni fuente
+        que diga quiénes fueron las personas cuyos nombres llevan.
+      </p>
+    </header>
+
+    <ol class="colegios__register">
+      {
+        schools.map((school) => (
+          <li class="school" data-reveal>
+            <h3 class="school__name">{school.name}</h3>
+
+            <div class="school__id">
+              {school.aka ? <p class="school__aka">En el pueblo: {school.aka}</p> : null}
+              <p class="school__kind">{school.kind}</p>
+              {school.place ? <p class="school__place">{school.place}</p> : null}
+            </div>
+
+            <dl class="school__facts">
+              {school.facts.map((fact) => (
+                <div class="fact" data-level={fact.level}>
+                  <dt class="fact__mark">({fact.level})</dt>
+                  <dd class="fact__body">
+                    <p class="fact__text">{fact.text}</p>
+                    {fact.source ? (
+                      <p class="fact__source">Fuente: {fact.source}</p>
+                    ) : null}
+                    {fact.uncertainty ? (
+                      <p class="fact__uncertainty">Advertencia: {fact.uncertainty}</p>
+                    ) : null}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </li>
+        ))
+      }
+    </ol>
+
+    <ul class="colegios__legend">
+      {
+        levelKeys.map((key) => (
+          <li class="legend__item">
+            <span class="legend__key">({key})</span> {levels[key]}
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .colegios {
+    position: relative;
+    padding-block: var(--cu-chapter-gap);
+    /* One step from the page ground, and a different step from the families
+       beside it: the two interludes must not read as one long block. */
+    background-color: var(--cu-scene-close);
+    scroll-margin-top: 2rem;
+  }
+
+  .colegios__header {
+    margin-bottom: var(--cu-space-2xl);
+  }
+
+  .colegios__title {
+    margin-bottom: var(--cu-space-sm);
+    font-family: var(--cu-font-display);
+    font-size: var(--cu-step-5);
+    line-height: var(--cu-leading-tight);
+    letter-spacing: var(--cu-tracking-display);
+    color: var(--cu-text);
+  }
+
+  .colegios__lede {
+    max-width: var(--cu-measure-narrow);
+    font-size: var(--cu-step-1);
+    line-height: var(--cu-leading-body);
+    color: var(--cu-text);
+  }
+
+  .colegios__note {
+    max-width: var(--cu-measure-narrow);
+    margin-top: var(--cu-space-sm);
+    font-size: var(--cu-step--1);
+    line-height: var(--cu-leading-body);
+    color: var(--cu-text-muted);
+  }
+
+  /* -- The register -------------------------------------------------------
+     Rows separated by space and scale, not by rules: the name's size and the
+     air between entries do the dividing. A hairline here would make a list of
+     institutions look like a form. */
+
+  .colegios__register {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--cu-space-3xl);
+  }
+
+  .school {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--cu-space-md);
+  }
+
+  .school__name {
+    font-family: var(--cu-font-display);
+    font-size: var(--cu-step-2);
+    line-height: var(--cu-leading-snug);
+    letter-spacing: var(--cu-tracking-display);
+    color: var(--cu-text);
+  }
+
+  .school__aka {
+    margin-top: var(--cu-space-3xs);
+    font-size: var(--cu-step-0);
+    font-style: italic;
+    color: var(--cu-accent);
+  }
+
+  .school__kind,
+  .school__place {
+    margin-top: var(--cu-space-2xs);
+    font-size: var(--cu-step--1);
+    line-height: var(--cu-leading-body);
+    color: var(--cu-text-muted);
+  }
+
+  /* -- The facts ---------------------------------------------------------- */
+
+  .school__facts {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--cu-space-md);
+  }
+
+  .fact {
+    display: grid;
+    grid-template-columns: 2.4rem minmax(0, 1fr);
+    gap: var(--cu-space-xs);
+    align-items: start;
+  }
+
+  .fact__mark {
+    font-size: var(--cu-step--1);
+    line-height: var(--cu-leading-body);
+    color: var(--cu-text-faint);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* The level is carried by a mark in the margin, never by colouring the
+     claim itself: a fact is not more or less true for being painted. Only the
+     unsourced ones take the accent, and only on their bracket. */
+  .fact[data-level='c'] .fact__mark {
+    color: var(--cu-accent);
+  }
+
+  .fact__text {
+    font-size: var(--cu-step-0);
+    line-height: var(--cu-leading-body);
+    color: var(--cu-text);
+  }
+
+  .fact__source,
+  .fact__uncertainty {
+    margin-top: var(--cu-space-3xs);
+    font-size: var(--cu-step--2);
+    line-height: var(--cu-leading-body);
+    color: var(--cu-text-muted);
+  }
+
+  .fact__uncertainty {
+    color: var(--cu-text-faint);
+  }
+
+  /* -- The legend --------------------------------------------------------- */
+
+  .colegios__legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--cu-space-xs) var(--cu-space-lg);
+    list-style: none;
+    padding: 0;
+    margin-top: var(--cu-space-lg);
+    font-size: var(--cu-step--1);
+    color: var(--cu-text-muted);
+  }
+
+  .legend__key {
+    color: var(--cu-text-faint);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* -- Wide: the name takes the full measure, the standing and the facts
+        sit beside each other underneath it. A full-width name is the whole
+        point: an official denomination is long, and it is a title, so it must
+        not be folded into three lines by a narrow column. ------------------ */
+
+  @media (min-width: 64rem) {
+    .school {
+      grid-template-columns: minmax(0, 0.6fr) minmax(0, 1.4fr);
+      column-gap: var(--cu-space-2xl);
+      row-gap: var(--cu-space-md);
+    }
+
+    .school__name {
+      grid-column: 1 / -1;
+      font-size: var(--cu-step-3);
+    }
+
+    .school__id {
+      grid-column: 1;
+    }
+
+    .school__facts {
+      grid-column: 2;
+    }
+  }
+</style>

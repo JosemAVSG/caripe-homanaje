@@ -14,7 +14,10 @@
  * thing that could reach level (a), and no family date qualifies.
  */
 
-export type Level = 'a' | 'b' | 'c';
+import { levels, type Level } from './evidence';
+
+export { levels };
+export type { Level };
 
 export interface FamilyMilestone {
   /** Year as written by the report; `null` when the report gives no date. */
@@ -35,13 +38,6 @@ export interface Family {
   notes?: string;
   milestones: FamilyMilestone[];
 }
-
-/** What each confidence level means, spelled out for the reader. */
-export const levels = {
-  a: 'corroborado',
-  b: 'tradición oral o indicio',
-  c: 'sin fuente',
-} as const;
 
 export const families: Family[] = [
   {

@@ -16,6 +16,7 @@ export const chapter: Chapter = {
   title: 'La neblina',
   kicker: 'En preparación',
   tone: 'bruma',
+  layout: 'mist',
   pending: true,
   pendingNote:
     'Territorio reservado para el clima de montaña, el paisaje y el apelativo «el Jardín del Oriente». Pendiente de investigación, fuentes y voces.',

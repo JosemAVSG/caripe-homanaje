@@ -17,6 +17,7 @@ export const chapter: Chapter = {
   title: 'Quedarse o partir',
   kicker: 'En preparación',
   tone: 'monte',
+  layout: 'fork',
   pending: true,
   pendingNote:
     'Territorio reservado para la migración: la memoria de quienes se fueron y de quienes se quedaron. Pendiente de voces y registro.',

@@ -1,9 +1,10 @@
 ---
 import { Image } from 'astro:assets';
-import type { Chapter } from '../content/types';
+import type { Chapter, ChapterLayout } from '../content/types';
 import Beat from './Beat.astro';
 import ChapterGallery from './ChapterGallery.astro';
 import ChapterTimeline from './ChapterTimeline.astro';
+import CoffeeBranches from './CoffeeBranches.astro';
 import EvidencePlates from './EvidencePlates.astro';
 import FormingText from './FormingText.astro';
 import LexiconPlate from './LexiconPlate.astro';
@@ -44,6 +45,8 @@ const {
   kicker,
   lede,
   tone = 'monte',
+  layout: chapterLayout,
+  decor,
   beats,
   statement,
   lexicon,
@@ -55,6 +58,14 @@ const {
   pending,
   pendingNote,
 } = chapter;
+
+/**
+ * The composition. `stage` is the original geometry and the default, so a
+ * chapter that names no layout is unchanged; `band`, `mist` and `fork` are
+ * three other geometries, selected below by class and grid.
+ */
+const layout: ChapterLayout = chapterLayout ?? 'stage';
+const isStage = layout === 'stage';
 
 const titleId = `${slug}-title`;
 const hasBeats = beats.length > 0;
@@ -87,7 +98,8 @@ const fog = FOG[slug] ?? 'light';
 ---
 
 <section
-  class:list={['scene', `scene--${tone}`, pending && 'scene--pending']}
+  class:list={['scene', `scene--${tone}`, pending && 'scene--pending', !isStage && `scene--layout-${layout}`]}
+  {...(!isStage ? { 'data-layout': layout } : {})}
   id={slug}
   data-scene
   data-chapter={slug}
@@ -95,7 +107,38 @@ const fog = FOG[slug] ?? 'light';
   style="--p:1"
   aria-labelledby={titleId}
 >
+  {decor === 'coffee-branches' ? <CoffeeBranches /> : null}
+
   <div class="scene__inner u-container">
+    {
+      /*
+        The fog composition lets the words condense first: the chapter's cita
+        opens the section, full width and alone, before the header. It is the
+        same gesture as the hero. In every other layout the cita stays with the
+        narration, inside the body.
+      */
+      layout === 'mist' && statement ? (
+        <figure class="scene__statement">
+          <blockquote class="scene__statement-quote">
+            <FormingText
+              as="p"
+              class="scene__statement-text"
+              text={statement.text}
+              start={0.06}
+              spread={0.68}
+              dur={0.28}
+            />
+          </blockquote>
+          {statement.attribution || statement.placeholder ? (
+            <figcaption class="scene__statement-caption">
+              {statement.attribution ? <span>{statement.attribution}</span> : null}
+              {statement.placeholder ? <span>voz preliminar</span> : null}
+            </figcaption>
+          ) : null}
+        </figure>
+      ) : null
+    }
+
     <header class="scene__header" data-reveal-group>
       <h2 class="scene__title" id={titleId} data-reveal>{title}</h2>
       {kicker ? <p class="scene__subtitle" data-reveal>{kicker}</p> : null}
@@ -130,7 +173,7 @@ const fog = FOG[slug] ?? 'light';
 
     <div class="scene__body" data-reveal-group>
       {
-        statement ? (
+        layout !== 'mist' && statement ? (
           <figure class="scene__statement">
             <blockquote class="scene__statement-quote">
               <FormingText
@@ -186,12 +229,23 @@ const fog = FOG[slug] ?? 'light';
         ) : null
       }
 
-      {hasTimeline ? <ChapterTimeline milestones={timeline!} /> : null}
+      {isStage && hasTimeline ? <ChapterTimeline milestones={timeline!} /> : null}
 
       {photo ? <PhotoSlot slot={photo} /> : null}
 
       <SourceNote sources={sources} note={site.sourceFootnote} />
     </div>
+
+    {/* In the composed layouts the chronology is not one more block inside the
+        body: it is a seam that crosses the section on its own. `band` places it
+        above the narration, `fork` between the two halves; see the CSS. */}
+    {
+      !isStage && hasTimeline ? (
+        <div class="scene__seam">
+          <ChapterTimeline milestones={timeline!} />
+        </div>
+      ) : null
+    }
   </div>
 </section>
 
@@ -219,6 +273,10 @@ const fog = FOG[slug] ?? 'light';
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     gap: var(--cu-space-lg);
+    /* Above the chapter's drawn layer. The plate grows behind the words and
+       never crosses the measure. */
+    position: relative;
+    z-index: 1;
   }
 
   .scene__header,
@@ -438,6 +496,171 @@ const fog = FOG[slug] ?? 'light';
 
     .scene__stage-frame {
       height: 72svh;
+    }
+  }
+
+  /* =======================================================================
+     Composed layouts.
+     `stage` (above) is the original geometry and the default. Each of the
+     three below is a different geometry - a different grid, a different place
+     for the photograph, a different block leading the section - not a
+     reordering of the same blocks.
+     ===================================================================== */
+
+  /* -- The seam: a chronology that crosses the section on its own ---------- */
+
+  .scene__seam {
+    min-width: 0;
+  }
+
+  /* -- band: the photograph runs as a wide horizontal strip; the chronology
+        crosses the section; the narration sits in a narrow measure below it.
+        The idea: the coffee is a calendar, a line in time. ----------------- */
+
+  .scene--layout-band .scene__stage {
+    position: relative;
+    height: clamp(15rem, 40svh, 23rem);
+  }
+
+  .scene--layout-band .scene__stage-frame {
+    height: 100%;
+  }
+
+  /* The narration drops to a narrow column, so the eye reads the wide band
+     above it and the line across as one horizontal gesture. */
+  .scene--layout-band .scene__narration,
+  .scene--layout-band .scene__pending {
+    max-width: var(--cu-measure-narrow);
+  }
+
+  /* The chronology crosses the whole section, edges to edge. */
+  .scene--layout-band .scene__seam {
+    margin-inline: calc(var(--cu-gutter) * -1);
+  }
+
+  /* -- mist: the statement opens the section over the fog, before the
+        heading, and the photographs enter afterwards in a strip. The words
+        condense out of the weather, the same gesture the hero uses. ------- */
+
+  .scene--layout-mist .scene__stage {
+    position: relative;
+    height: clamp(17rem, 48svh, 26rem);
+  }
+
+  .scene--layout-mist .scene__stage-frame {
+    height: 100%;
+  }
+
+  /* -- fork: two halves that face each other, with the chronology as the
+        seam between them. Staying or leaving has two sides. ---------------- */
+
+  .scene--layout-fork .scene__stage {
+    position: relative;
+    /* Each half reads as a panel, so the photograph is held inside the
+       measure instead of running to both edges. */
+    margin-inline: 0;
+    height: clamp(20rem, 56svh, 32rem);
+  }
+
+  .scene--layout-fork .scene__stage-frame {
+    height: 100%;
+  }
+
+  /* -- Wide: the composed grids ------------------------------------------- */
+
+  @media (min-width: 64rem) {
+    /* band: one full-width run; the band, the chronology seam, then the
+       narration in a narrow measure below it. */
+    .scene--layout-band .scene__inner {
+      grid-template-columns: minmax(0, 1fr);
+      row-gap: var(--cu-space-lg);
+    }
+
+    .scene--layout-band .scene__header {
+      grid-column: 1;
+      grid-row: 1;
+    }
+
+    .scene--layout-band .scene__stage {
+      grid-column: 1;
+      grid-row: 2;
+      position: relative;
+      height: clamp(20rem, 52svh, 38rem);
+      margin-inline: calc(var(--cu-gutter) * -1);
+    }
+
+    .scene--layout-band .scene__seam {
+      grid-column: 1;
+      grid-row: 3;
+    }
+
+    .scene--layout-band .scene__body {
+      grid-column: 1;
+      grid-row: 4;
+    }
+
+    /* mist: content hangs off-centre in the wide column; the right column is
+       a deliberate void where the fog sits. The statement spans the lot. */
+    .scene--layout-mist .scene__inner {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 0.28fr);
+      column-gap: var(--cu-space-2xl);
+      align-items: start;
+    }
+
+    /* The block below returns the section to one stack, so the base rows
+       (`stage` pins itself across rows 1-2) must not leak in: every child
+       takes its own row in DOM order — statement, title, strip, narration —
+       and nothing is laid over anything. */
+    .scene--layout-mist .scene__statement,
+    .scene--layout-mist .scene__stage,
+    .scene--layout-mist .scene__seam {
+      grid-column: 1 / -1;
+      grid-row: auto;
+    }
+
+    .scene--layout-mist .scene__header,
+    .scene--layout-mist .scene__body {
+      grid-column: 1;
+      grid-row: auto;
+    }
+
+    .scene--layout-mist .scene__stage {
+      position: static;
+      grid-row: auto;
+      height: clamp(18rem, 46svh, 32rem);
+      margin-inline: calc(var(--cu-gutter) * -1);
+    }
+
+    /* fork: two equal halves that face each other, the seam crossing below
+       them, the rest of the chapter running full width underneath. */
+    .scene--layout-fork .scene__inner {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: var(--cu-space-2xl);
+      row-gap: var(--cu-space-xl);
+      align-items: center;
+    }
+
+    .scene--layout-fork .scene__header {
+      grid-column: 1;
+      grid-row: 1;
+    }
+
+    .scene--layout-fork .scene__stage {
+      grid-column: 2;
+      grid-row: 1;
+      position: relative;
+      margin-inline: 0;
+      height: clamp(24rem, 62svh, 44rem);
+    }
+
+    .scene--layout-fork .scene__seam {
+      grid-column: 1 / -1;
+      grid-row: 2;
+    }
+
+    .scene--layout-fork .scene__body {
+      grid-column: 1 / -1;
+      grid-row: 3;
     }
   }
 </style>

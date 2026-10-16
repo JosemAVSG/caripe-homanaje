@@ -7,6 +7,7 @@ import DocumentaryMode from '../components/DocumentaryMode.astro';
 import ProgressRail from '../components/ProgressRail.astro';
 import Colophon from '../components/Colophon.astro';
 import Familias from '../components/Familias.astro';
+import Colegios from '../components/Colegios.astro';
 import { chapters } from '../content';
 import { site } from '../content/site';
 
@@ -38,6 +39,7 @@ const bandAfterIndex = Math.floor(chapters.length / 2) - 1;
     }
 
     <Familias />
+    <Colegios />
   </main>
 
   <Colophon />

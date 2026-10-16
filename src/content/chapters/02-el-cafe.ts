@@ -17,6 +17,8 @@ export const chapter: Chapter = {
   title: 'El café',
   kicker: 'En preparación',
   tone: 'cafe',
+  layout: 'band',
+  decor: 'coffee-branches',
   pending: true,
   pendingNote:
     'Territorio reservado para la montaña cultivada: el café, el trabajo de la cordillera y la vida cotidiana del pueblo. Pendiente de investigación, fuentes y voces.',
