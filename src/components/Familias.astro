@@ -335,7 +335,7 @@ const levelKeys = Object.keys(levels) as Array<keyof typeof levels>;
   .familia__notes {
     padding: 0 var(--cu-space-md) var(--cu-space-md);
     font-family: var(--cu-font-serif);
-    font-size: var(--cu-step--2);
+    font-size: var(--cu-step--1);
     line-height: var(--cu-leading-body);
     color: var(--cu-bruma-400);
   }
@@ -488,18 +488,34 @@ const levelKeys = Object.keys(levels) as Array<keyof typeof levels>;
 
   .event__text {
     font-family: var(--cu-font-serif);
-    font-size: var(--cu-step--1);
+    font-size: var(--cu-step-0);
     line-height: 1.6;
     color: var(--cu-hueso);
   }
 
+  /*
+   * The level mark is a label. The source and the warning are sentences the
+   * reader is meant to read, so they sit one step below the claim, not two.
+   * In a site whose whole argument is that no fact travels without its
+   * evidence, the doubt must not be the smallest type on the page: what was
+   * once fine print is now the same size as what it qualifies, told apart by
+   * tone and a rule instead of by shrinking it.
+   */
   .event__level,
   .event__source,
   .event__uncertainty {
     margin-top: var(--cu-space-2xs);
     font-family: var(--cu-font-serif);
-    font-size: var(--cu-step--2);
     line-height: 1.55;
+  }
+
+  .event__level {
+    font-size: var(--cu-step--2);
+  }
+
+  .event__source,
+  .event__uncertainty {
+    font-size: var(--cu-step--1);
   }
 
   .event__level {
@@ -543,7 +559,7 @@ const levelKeys = Object.keys(levels) as Array<keyof typeof levels>;
   .timeline__note {
     max-width: 60ch;
     font-family: var(--cu-font-serif);
-    font-size: var(--cu-step--2);
+    font-size: var(--cu-step--1);
     line-height: 1.6;
     color: var(--cu-bruma-400);
   }

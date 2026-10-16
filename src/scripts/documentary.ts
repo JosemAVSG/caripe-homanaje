@@ -6,11 +6,16 @@
  *   playing → "Pausa"                (aria-pressed=true)
  *   ended   → "Volver a ver"         (aria-pressed=false)
  *
- * It advances the page at 0.4 viewport-heights per second at 1×, and offers
- * 2× and 0.5×. Any manual scroll — wheel, touch or keyboard — stops playback
- * immediately: the reader is always the one in charge. Playback never runs for
- * a reader who asked for reduced motion (see the guard below), and the elapsed
- * time is clamped on every frame so a hidden tab cannot leap down the page.
+ * It walks the page at a reader's pace, not a trailer's. 1× is deliberately
+ * unhurried — this is a recorrido, and the reader should be able to watch a
+ * chapter arrive, read it and let it go before the next one comes. The speed
+ * button then offers slower before it offers faster: the first press slows the
+ * page down, because the complaint this control answers is never "too slow".
+ *
+ * Any manual scroll — wheel, touch or keyboard — stops playback immediately:
+ * the reader is always the one in charge. Playback never runs for a reader who
+ * asked for reduced motion (see the guard below), and the elapsed time is
+ * clamped on every frame so a hidden tab cannot leap down the page.
  *
  * Scrolling itself is delegated to the caller through `hooks`: when Lenis owns
  * the scroller the two must not fight, so this module never touches `window`
@@ -28,11 +33,23 @@ export interface DocumentaryHooks {
   onPause: () => void;
 }
 
-/** Viewport-heights scrolled per second at 1×. */
-const VIEWPORTS_PER_SECOND = 0.4;
+/**
+ * Viewport-heights scrolled per second at 1×.
+ *
+ * At 0.18 the page takes a little over two minutes to walk from top to bottom,
+ * roughly five seconds per screen: long enough for a beat to rise, a timeline to
+ * form and a drawn plate to grow before the page moves on. It was 0.4, which
+ * crossed a screen every two and a half seconds and read as a slideshow.
+ */
+const VIEWPORTS_PER_SECOND = 0.18;
 
-/** The speed cycle offered by the speed button. */
-const SPEEDS = [1, 2, 0.5] as const;
+/**
+ * The speed cycle offered by the speed button.
+ *
+ * Slower first, faster last. The page ships at 1×, so the first press must go
+ * down, not up.
+ */
+const SPEEDS = [1, 0.5, 0.25, 2] as const;
 
 /** Longest frame we will ever honour, in seconds: a hidden tab cannot leap. */
 const MAX_STEP_SECONDS = 0.05;
