@@ -17,6 +17,7 @@ export const chapter: Chapter = {
   kicker: 'En preparación',
   tone: 'bruma',
   layout: 'mist',
+  decor: 'cloud-banks',
   pending: true,
   pendingNote:
     'Territorio reservado para el clima de montaña, el paisaje y el apelativo «el Jardín del Oriente». Pendiente de investigación, fuentes y voces.',

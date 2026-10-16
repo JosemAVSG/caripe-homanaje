@@ -136,35 +136,47 @@ function trackBeats(): void {
 /**
  * Grows the chapters' drawn plates.
  *
- * Same contract as `trackBeats()`: the plate is grown by where the plate is,
+ * Same contract as `trackBeats()`: a plate is grown by where the plate is,
  * never by how far the reader has travelled through the scene it sits in. A
- * scrubbed trigger on the plate's own box writes `--grow` (0 → 1), and the
- * drawing's `stroke-dashoffset` and berry scale read it. `CoffeeBranches.astro`
- * declares `--grow: 1` in the markup, so with no script, or when this never
- * runs, the plate ships already grown rather than invisible.
+ * scrubbed trigger on the plate's own box writes its property (0 → 1) and the
+ * drawing reads it.
+ *
+ * Two plates obey this, and they are different weather: `CoffeeBranches.astro`
+ * writes `--grow` and draws a plant upward as the chapter on the café is read;
+ * `CloudBanks.astro` writes `--desc` and brings cloud down into the valley of
+ * the neblina. Neither is a substitute for the other, and both declare their
+ * property at 1 in the markup, so with no script, or when this never runs, the
+ * plate ships already finished rather than invisible.
  */
-function trackBranches(): void {
-  for (const plate of gsap.utils.toArray<HTMLElement>('[data-branches]')) {
-    const state = { g: 0 };
-    const apply = () => plate.style.setProperty('--grow', state.g.toFixed(4));
+const PLATE_TRIGGERS: Array<[selector: string, property: string]> = [
+  ['[data-branches]', '--grow'],
+  ['[data-neblina]', '--desc'],
+];
 
-    gsap.to(state, {
-      g: 1,
-      ease: 'none',
-      onUpdate: apply,
-      scrollTrigger: {
-        trigger: plate,
-        // Begins the moment the plate's box enters from below, and is drawing
-        // while the plate is on screen, not long before it arrives.
-        start: 'top bottom',
-        end: 'bottom 62%',
-        scrub: 0.4,
-        invalidateOnRefresh: true,
-        onRefresh: apply,
-      },
-    });
+function trackPlates(): void {
+  for (const [selector, property] of PLATE_TRIGGERS) {
+    for (const plate of gsap.utils.toArray<HTMLElement>(selector)) {
+      const state = { p: 0 };
+      const apply = () => plate.style.setProperty(property, state.p.toFixed(4));
 
-    apply();
+      gsap.to(state, {
+        p: 1,
+        ease: 'none',
+        onUpdate: apply,
+        scrollTrigger: {
+          trigger: plate,
+          // Begins the moment the plate's box enters from below, and is drawing
+          // while the plate is on screen, not long before it arrives.
+          start: 'top bottom',
+          end: 'bottom 62%',
+          scrub: 0.4,
+          invalidateOnRefresh: true,
+          onRefresh: apply,
+        },
+      });
+
+      apply();
+    }
   }
 }
 
@@ -364,10 +376,13 @@ function revealAll(): void {
     for (const beat of document.querySelectorAll<HTMLElement>('.beat')) {
       beat.style.setProperty('--beat-o', '1');
     }
-    // The drawn plate grows from its own scroll variable; a failure here must
-    // leave a finished plate, never a half-drawn one.
+    // The drawn plates grow from their own scroll variables; a failure here
+    // must leave a finished plate, never a half-drawn one.
     for (const plate of document.querySelectorAll<HTMLElement>('[data-branches]')) {
       plate.style.setProperty('--grow', '1');
+    }
+    for (const plate of document.querySelectorAll<HTMLElement>('[data-neblina]')) {
+      plate.style.setProperty('--desc', '1');
     }
     // A run of forming text must be readable even if its script never ran:
     // cancel every instance's guard and let its letters settle, still and
@@ -452,7 +467,7 @@ export function initMotion(): void {
 
     trackScenes();
     trackBeats();
-    trackBranches();
+    trackPlates();
     revealGroups();
     driftHero();
     drawTimelines();

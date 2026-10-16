@@ -4,6 +4,7 @@ import type { Chapter, ChapterLayout } from '../content/types';
 import Beat from './Beat.astro';
 import ChapterGallery from './ChapterGallery.astro';
 import ChapterTimeline from './ChapterTimeline.astro';
+import CloudBanks from './CloudBanks.astro';
 import CoffeeBranches from './CoffeeBranches.astro';
 import EvidencePlates from './EvidencePlates.astro';
 import FormingText from './FormingText.astro';
@@ -108,6 +109,7 @@ const fog = FOG[slug] ?? 'light';
   aria-labelledby={titleId}
 >
   {decor === 'coffee-branches' ? <CoffeeBranches /> : null}
+  {decor === 'cloud-banks' ? <CloudBanks /> : null}
 
   <div class="scene__inner u-container">
     {

@@ -1,0 +1,273 @@
+---
+/**
+ * CloudBanks — the cloud that comes down into the valley, drawn by the scroll.
+ *
+ * The chapter's own testimony is the brief: *si baja hasta el valle va a
+ * llover; si se queda arriba, todavía hay tiempo.* That sentence is a
+ * description of a weather movement, so the decoration is a weather movement:
+ * banks of cloud that descend as the reader scrolls, arriving by different
+ * routes. The highest bank barely moves and stays up top; the lowest travels
+ * furthest and ends near the floor of the section. Both readings in the
+ * sentence are on screen at once.
+ *
+ * The clouds are contour drawings, not photographs and not silhouettes: a
+ * cumulus outline, then the same outline scaled inward, the way a weather
+ * chart draws a cloud. Line work, no fills, no gradients — the counterpart to
+ * the coffee plate, which is a herbarium sheet. This one is a chart.
+ *
+ * Cold is carried by colour, not by an extra ornament: the strokes are the
+ * cool `bruma` ramp while the café plate is warm `hueso`, so the two chapters
+ * are drawn in two different temperatures. The descent does the rest.
+ *
+ * This is a second layer, not a replacement for the fog canvas in
+ * `scripts/fog.ts`. That one is an ambient drifting haze over the photograph;
+ * this one is structure — banks the reader can see arrive. They never fight:
+ * the canvas drifts on its own clock, the banks move on the reader's.
+ *
+ * Same contract as `CoffeeBranches.astro`: one custom property (`--desc`,
+ * 0 → 1) drives everything, written from the plate's OWN box and never from
+ * the parent scene's progress. With no JavaScript the declared `--desc: 1`
+ * stands, so the plate ships finished and legible, never half-formed.
+ *
+ * Decorative by construction: `aria-hidden`, no text, `pointer-events: none`,
+ * and every stroke sits behind the narration's measure.
+ */
+
+interface Props {
+  /** How many cloud banks to place across the field. */
+  count?: number;
+}
+
+const { count = 3 } = Astro.props;
+
+/** Drawing units. The cloud is drawn once here and scaled for every contour. */
+const W = 440;
+const H = 210;
+const BASE = 268;
+
+/** Samples along the upper profile; smoothed below, so it renders as a curve. */
+const SAMPLES = 96;
+
+/**
+ * The upper profile of a cumulus: a sum of rounded lobes. Uneven on purpose —
+ * a cloud with evenly spaced lobes reads as a diagram of a cloud rather than
+ * as one.
+ */
+const LOBES = [
+  { cx: 0.12, w: 0.15, h: 0.38 },
+  { cx: 0.31, w: 0.19, h: 0.71 },
+  { cx: 0.5, w: 0.16, h: 0.53 },
+  { cx: 0.68, w: 0.2, h: 1.0 },
+  { cx: 0.87, w: 0.14, h: 0.33 },
+];
+
+function profile(x: number): number {
+  let y = 0;
+  for (const lobe of LOBES) {
+    const d = (x - lobe.cx) / lobe.w;
+    y += lobe.h * Math.exp(-d * d);
+  }
+  return y;
+}
+
+/** The tallest point of the profile, so every bank is drawn to the same height. */
+const PEAK = Math.max(
+  ...Array.from({ length: SAMPLES + 1 }, (_, i) => profile(i / SAMPLES)),
+);
+
+/**
+ * One cumulus outline, closed along a level base.
+ *
+ * The base is what makes the shape read as a cloud and not as a hill: a hill
+ * meets the ground, a cloud floats on a flat bottom. The samples are joined
+ * with quadratic segments through their midpoints, which is enough smoothing
+ * that no faceting shows at any scale.
+ */
+function cumulus(seed: number): string {
+  const points: Array<[number, number]> = [];
+  for (let i = 0; i <= SAMPLES; i += 1) {
+    const x = i / SAMPLES;
+    // A small deterministic wobble, so three banks are recognisably the same
+    // weather and never the same silhouette twice.
+    const wobble = 1 + Math.sin(x * 6.6 + seed * 2.13) * 0.05;
+    points.push([x * W, BASE - (profile(x) / PEAK) * H * wobble]);
+  }
+
+  const f = (n: number) => n.toFixed(1);
+  const d: string[] = [`M${f(points[0][0])} ${f(points[0][1])}`];
+  for (let i = 0; i < points.length - 1; i += 1) {
+    const mid = [(points[i][0] + points[i + 1][0]) / 2, (points[i][1] + points[i + 1][1]) / 2];
+    d.push(`Q${f(points[i][0])} ${f(points[i][1])} ${f(mid[0])} ${f(mid[1])}`);
+  }
+  const last = points[points.length - 1];
+  d.push(`L${f(last[0])} ${f(last[1])}`);
+  d.push(`L${W} ${BASE}`);
+  d.push(`L0 ${BASE}`);
+  d.push('Z');
+  return d.join(' ');
+}
+
+/** How many times the outline is repeated inward, and how much of it each is. */
+const CONTOURS = [1, 0.84, 0.68, 0.52, 0.37];
+
+/** The centre every contour shrinks toward. Above the base, so they nest. */
+const CX = W / 2;
+const CY = BASE - H * 0.44;
+
+interface Bank {
+  seed: number;
+  left?: string;
+  right?: string;
+  top: string;
+  width: string;
+  /**
+   * How far above its resting place the bank starts, and therefore how far it
+   * travels. The three values are the argument of the chapter: one cloud
+   * hardly moves, the last one crosses most of the field to reach the valley.
+   */
+  rise: string;
+  /** Final opacity. Kept low: these strokes pass behind the narration. */
+  op: number;
+  /** The bank's own slice of the descent, against `--desc`. */
+  s: number;
+  e: number;
+}
+
+/**
+ * Placement. Heights descend as the reader scrolls, and lefts and rights are
+ * mixed so the field never reads as a column. The third bank is dropped on a
+ * phone: three over a narrow measure would crowd it.
+ */
+const banks: Bank[] = [
+  {
+    seed: 1,
+    left: '-7%',
+    top: '2%',
+    width: '34rem',
+    rise: '3rem',
+    op: 0.44,
+    s: 0.02,
+    e: 0.44,
+  },
+  {
+    seed: 2,
+    right: '-9%',
+    top: '32%',
+    width: '30rem',
+    rise: '19rem',
+    op: 0.38,
+    s: 0.16,
+    e: 0.68,
+  },
+  {
+    seed: 3,
+    left: '10%',
+    top: '62%',
+    width: '26rem',
+    rise: '34rem',
+    op: 0.32,
+    s: 0.34,
+    e: 0.96,
+  },
+];
+
+const plates = banks.slice(0, count).map((bank, i) => ({ ...bank, i, outline: cumulus(bank.seed) }));
+---
+
+<div class="clouds" aria-hidden="true" data-neblina style="--desc:1">
+  {
+    plates.map((bank) => (
+      <svg
+        class="clouds__bank"
+        viewBox={`0 0 ${W} 288`}
+        fill="none"
+        style={`--bs:${bank.s};--be:${bank.e};--rise:${bank.rise};--op:${bank.op};top:${bank.top};left:${bank.left ?? 'auto'};right:${bank.right ?? 'auto'};width:${bank.width}`}
+        focusable="false"
+      >
+        {CONTOURS.map((k, c) => (
+          <path
+            class="clouds__contour"
+            d={bank.outline}
+            pathLength="1"
+            transform={`translate(${CX} ${CY}) scale(${k}) translate(${-CX} ${-CY})`}
+            style={`--s:${(bank.s + c * 0.02).toFixed(3)};--e:${(bank.e + c * 0.02).toFixed(3)};--k:${(1 - c * 0.13).toFixed(2)}`}
+          />
+        ))}
+      </svg>
+    ))
+  }
+</div>
+
+<style>
+  /* ------------------------------------------------------------------
+     The field. A tall band at the floor of the section, because this is
+     where the valley is: the banks descend INTO it, and `overflow: hidden`
+     crops whatever has not arrived yet.
+     ------------------------------------------------------------------ */
+
+  .clouds {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    height: clamp(46rem, 130svh, 96rem);
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .clouds__bank {
+    position: absolute;
+    height: auto;
+    /*
+      The descent, and the whole idea in one line. `t` is this bank's slice of
+      the reader's travel; `1 - t` is how much of its fall is still ahead. At
+      t = 0 the bank sits `--rise` above where it belongs and is invisible; at
+      t = 1 it is at rest and fully present. A bank with a small `--rise`
+      barely moves — that is the cloud that stays up top.
+    */
+    transform: translateY(
+      calc((1 - clamp(0, (var(--desc) - var(--bs)) / (var(--be) - var(--bs)), 1)) * var(--rise))
+    );
+    opacity: calc(clamp(0, (var(--desc) - var(--bs)) / (var(--be) - var(--bs)), 1) * var(--op));
+  }
+
+  /*
+    Strokes only. A contour chart of a cloud: the same outline repeated inward,
+    so the drawing has shading without ever using a fill or a gradient.
+  */
+  .clouds :global(.clouds__contour) {
+    stroke: var(--cu-bruma-100);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+    opacity: var(--k);
+    stroke-dasharray: 1px;
+    /*
+      Same formula as the coffee plate, and for the same reason: every path
+      carries `pathLength="1"`, so an offset of 0 lays the dash over the path
+      and shows it while an offset of 1px pushes the dash off the end and hides
+      it. The cloud is drawn into existence rather than erased into it.
+    */
+    stroke-dashoffset: calc(
+      1px * (1 - clamp(0, (var(--desc) - var(--s)) / (var(--e) - var(--s)), 1))
+    );
+  }
+
+  /* On a phone the global `svg { max-width: 100% }` reset clamps every bank to
+     the measure, so nothing is cropped and nothing overflows; the third bank is
+     dropped anyway, because three over a narrow measure would crowd the
+     narration behind them. On a wide screen the field is the section itself, so
+     a bank placed off the edge is cropped by `overflow: hidden` — which is what
+     a bank of cloud should do at the edge of a valley. */
+  @media (max-width: 48rem) {
+    .clouds__bank:nth-child(3) {
+      display: none;
+    }
+  }
+
+  /* A reader who asked for no motion gets the weather already arrived:
+     `motion.ts` returns before wiring any trigger, so `--desc` keeps its
+     declared 1 and the banks simply stand where they belong. Nothing is
+     hidden, and nothing needs to move to be understood. */
+</style>

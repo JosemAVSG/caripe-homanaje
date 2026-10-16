@@ -141,7 +141,7 @@ export interface Chapter {
    * and grown branch by branch. It is ornament with a subject — the plant the
    * chapter is about — never a decoration borrowed from elsewhere.
    */
-  decor?: 'coffee-branches';
+  decor?: 'coffee-branches' | 'cloud-banks';
   beats: Beat[];
   /** The chapter's own quotation, set large. Omitted when there is none. */
   statement?: Statement;
