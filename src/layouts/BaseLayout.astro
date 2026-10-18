@@ -22,6 +22,8 @@ interface Props {
 
 const { title, description } = Astro.props;
 const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : undefined;
+// Social crawlers need an absolute URL, so the card only exists once `site` is set.
+const ogImage = Astro.site ? new URL('/og.jpg', Astro.site).href : undefined;
 ---
 
 <!doctype html>
@@ -40,6 +42,10 @@ const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : un
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     {canonical ? <meta property="og:url" content={canonical} /> : null}
+    {ogImage ? <meta property="og:image" content={ogImage} /> : null}
+    {ogImage ? <meta property="og:image:width" content="1200" /> : null}
+    {ogImage ? <meta property="og:image:height" content="630" /> : null}
+    {ogImage ? <meta name="twitter:image" content={ogImage} /> : null}
     <meta name="twitter:card" content="summary_large_image" />
 
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
