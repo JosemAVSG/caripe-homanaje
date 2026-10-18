@@ -8,6 +8,11 @@ import ProgressRail from '../components/ProgressRail.astro';
 import Colophon from '../components/Colophon.astro';
 import Familias from '../components/Familias.astro';
 import Colegios from '../components/Colegios.astro';
+import CuevaLinterna from '../components/CuevaLinterna.astro';
+import MapaSala from '../components/MapaSala.astro';
+import RetoCafe from '../components/RetoCafe.astro';
+import AntesDespues from '../components/AntesDespues.astro';
+import Pasaporte from '../components/Pasaporte.astro';
 import { chapters } from '../content';
 import { site } from '../content/site';
 
@@ -25,14 +30,19 @@ const bandAfterIndex = Math.floor(chapters.length / 2) - 1;
 
   <ProgressRail chapters={chapters} />
   <DocumentaryMode />
+  <Pasaporte />
 
   <main id="main">
     <Hero />
+    <MapaSala />
 
     {
       chapters.map((chapter, index) => (
         <Fragment>
           <ChapterSection chapter={chapter} />
+          {index === 0 ? <CuevaLinterna /> : null}
+          {index === 1 ? <RetoCafe /> : null}
+          {index === 3 ? <AntesDespues /> : null}
           {index === bandAfterIndex ? <PhotoBand /> : null}
         </Fragment>
       ))

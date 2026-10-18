@@ -1,0 +1,239 @@
+---
+import { Image } from 'astro:assets';
+import { getPhoto } from '../content/photos';
+import PhotoCreditLine from './PhotoCreditLine.astro';
+
+/**
+ * The descent: a dark room where the pointer is a lantern.
+ *
+ * Five things the cave keeps (photographs and short facts, all taken from the
+ * first chapter and the tourism chapter) wait under a veil of darkness. The
+ * script (`../scripts/linterna.ts`) moves a circle of light across the veil.
+ *
+ * The veil only exists once the script has run and the reader has not asked
+ * for less motion. Until then, and always for a screen reader or a keyboard,
+ * the five pieces are an ordinary gallery: every one is real content in the
+ * markup, focusable, and focusing it lights it.
+ */
+interface Item {
+  photo: string;
+  alt: string;
+  fact: string;
+}
+
+const items: Item[] = [
+  {
+    photo: 'cueva-interior-profundo',
+    alt: 'Galería profunda del interior de la cueva, iluminada artificialmente.',
+    fact: 'Muy adentro de la cueva ya no llega ninguna luz.',
+  },
+  {
+    photo: 'guacharo-caripe',
+    alt: 'Guácharo (Steatornis caripensis) fotografiado en Caripe, Venezuela.',
+    fact: 'En su interior habita una colonia de aproximadamente 10.000 guácharos.',
+  },
+  {
+    photo: 'cueva-interior-2014-01',
+    alt: 'Interior iluminado de la cueva, con formaciones de calcita en el techo y columnas.',
+    fact: 'Estalactitas, cortinas y columnas de calcita cuelgan y suben en los salones interiores.',
+  },
+  {
+    photo: 'cueva-interior-2014-03',
+    alt: 'Formaciones laminares de calcita sobre una pared del interior de la cueva.',
+    fact: 'Dentro de la cueva la temperatura ronda los 19 grados.',
+  },
+  {
+    photo: 'humboldt-plate-1811',
+    alt: 'Lámina zoológica del siglo XIX con dibujos anatómicos numerados del guácharo.',
+    fact: 'Steatornis caripensis significa «ave grasa de Caripe»: el pueblo y el pájaro comparten nombre.',
+  },
+];
+
+const entries = items.map((item) => ({ ...item, data: getPhoto(item.photo) }));
+---
+
+<section class="lint" id="descenso" aria-labelledby="lint-title" data-linterna>
+  <div class="lint__inner u-container">
+    <header class="lint__header">
+      <p class="u-label">El descenso</p>
+      <h2 class="lint__title" id="lint-title">Lo que guarda la cueva</h2>
+      <p class="lint__lede">
+        Alumbra con el puntero, o arrastrando el dedo, lo que hay dentro.
+      </p>
+      <p class="lint__count" aria-hidden="true" data-count hidden>
+        Iluminado: <span data-found>0</span> de {entries.length}
+      </p>
+    </header>
+
+    <div class="lint__stage" data-stage>
+      <ul class="lint__items" role="list">
+        {
+          entries.map((e) => (
+            <li class="item" data-item tabindex="0">
+              <figure class="item__fig">
+                <Image
+                  class="item__img"
+                  src={e.data.src}
+                  alt={e.alt}
+                  width={520}
+                  sizes="(max-width: 40rem) 45vw, (max-width: 70rem) 30vw, 20rem"
+                  format="webp"
+                  quality={66}
+                  loading="lazy"
+                  decoding="async"
+                />
+                <figcaption class="item__cap">
+                  <span class="item__fact">{e.fact}</span>
+                  <PhotoCreditLine credit={e.data.credit} />
+                </figcaption>
+              </figure>
+            </li>
+          ))
+        }
+      </ul>
+      <div class="lint__veil" aria-hidden="true"></div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .lint {
+    position: relative;
+    padding-block: var(--cu-space-xl);
+    background-color: var(--cu-monte-950);
+  }
+
+  .lint__header {
+    max-width: var(--cu-measure);
+    margin-block-end: var(--cu-space-md);
+  }
+
+  .lint__title {
+    margin-block: var(--cu-space-3xs) var(--cu-space-2xs);
+    font-family: var(--cu-font-display);
+    font-size: var(--cu-step-4);
+    font-weight: 400;
+    line-height: 1.05;
+    color: var(--cu-text);
+  }
+
+  .lint__lede {
+    font-size: var(--cu-step-0);
+    font-weight: 300;
+    line-height: 1.6;
+    color: var(--cu-text-muted);
+  }
+
+  .lint__count {
+    margin-block-start: var(--cu-space-2xs);
+    font-size: var(--cu-step--2);
+    font-variant-numeric: tabular-nums;
+    color: var(--cu-accent-soft);
+  }
+
+  .lint__stage {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+  }
+
+  .lint__items {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--cu-space-sm);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @media (min-width: 48rem) {
+    .lint__items {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--cu-space-md);
+    }
+  }
+
+  .item {
+    position: relative;
+    min-width: 0;
+    outline-offset: 4px;
+  }
+
+  .item:focus-visible {
+    outline: 2px solid var(--cu-focus);
+  }
+
+  .item__fig {
+    margin: 0;
+  }
+
+  .item__img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    filter: saturate(0.84) contrast(1.04) brightness(0.97);
+  }
+
+  .item__cap {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    margin-block-start: var(--cu-space-2xs);
+  }
+
+  .item__fact {
+    font-size: var(--cu-step--1);
+    font-weight: 300;
+    line-height: 1.55;
+    color: var(--cu-text);
+    text-wrap: pretty;
+  }
+
+  /* -- The veil: only when the script has armed it ---------------------- */
+
+  .lint__veil {
+    display: none;
+  }
+
+  [data-linterna][data-dark] .lint__veil {
+    display: block;
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    /* The one lantern: a hard-ish pool of light moved by --lx / --ly. */
+    background-image: radial-gradient(
+      circle var(--lr, 12rem) at var(--lx, 50%) var(--ly, 20%),
+      transparent 0%,
+      color-mix(in srgb, var(--cu-monte-950) 45%, transparent) 45%,
+      color-mix(in srgb, var(--cu-monte-950) 88%, transparent) 100%
+    ); /* taste-skill-ignore: functional light mask, the flashlight itself */
+  }
+
+  [data-linterna][data-dark] .lint__stage {
+    /* Vertical drags still scroll the page; sideways drags move the light. */
+    touch-action: pan-y;
+    cursor: none;
+  }
+
+  [data-linterna][data-dark] .lint__count {
+    display: block;
+  }
+
+  /* A lit item rises above the veil so a keyboard reader sees it whole. */
+  [data-linterna][data-dark] .item:focus-within {
+    z-index: 3;
+    background-color: var(--cu-monte-950);
+  }
+
+  [data-linterna][data-dark] .item.is-found .item__fact {
+    color: var(--cu-accent-soft);
+  }
+</style>
+
+<script>
+  import { initLinterna } from '../scripts/linterna';
+  initLinterna();
+</script>

@@ -1,0 +1,428 @@
+---
+import { Image } from 'astro:assets';
+import { chapters } from '../content';
+import { getPhoto } from '../content/photos';
+import PhotoCreditLine from './PhotoCreditLine.astro';
+
+/**
+ * The entry room: a plan of the places the walk will visit.
+ *
+ * It is a drawn plan, not a survey. The pins are laid out for reading, not for
+ * distance, and the plate says so. Each pin opens one museum label (title, a
+ * short text taken from the chapters, a photograph with its credit) and points
+ * at the chapter that tells the story in full.
+ *
+ * Without JavaScript every label is printed under the plan, so nothing is
+ * hidden behind the interaction; the script (`../scripts/mapa.ts`) only turns
+ * the list into one label at a time.
+ */
+interface Place {
+  id: string;
+  name: string;
+  /** Pin position on the plan, in percent. */
+  x: number;
+  y: number;
+  text: string;
+  photo: string;
+  alt: string;
+  /** Chapter slug the label links to. */
+  chapter: string;
+}
+
+const places: Place[] = [
+  {
+    id: 'cueva',
+    name: 'Cueva del Guácharo',
+    x: 68,
+    y: 52,
+    text: 'A unos doce kilómetros del pueblo. Fue declarada Monumento Natural Alejandro de Humboldt el 15 de julio de 1949, el primero del país.',
+    photo: 'cueva-entrada-2013',
+    alt: 'Boca de la Cueva del Guácharo abierta en la roca, con vegetación en los bordes.',
+    chapter: 'chapter-1-1799',
+  },
+  {
+    id: 'haciendas',
+    name: 'Haciendas de café',
+    x: 17,
+    y: 34,
+    text: 'A finales del siglo XIX, familias italianas y corsas se establecieron en el valle. Con ellas nacieron las grandes haciendas cafetaleras.',
+    photo: 'finca-montana-01',
+    alt: 'Finca de montaña en Caripe, cerca del Fangal, en el estado Monagas.',
+    chapter: 'chapter-2-cafe',
+  },
+  {
+    id: 'cerro-negro',
+    name: 'Cerro Negro',
+    x: 62,
+    y: 15,
+    text: 'En Sabana de Piedra, de unos 2.280 metros: uno de los puntos más altos de Monagas.',
+    photo: 'cerro-negro',
+    alt: 'El Cerro Negro, en el estado Monagas.',
+    chapter: 'chapter-4-turismo',
+  },
+  {
+    id: 'mirador',
+    name: 'Mirador de Caripe',
+    x: 52,
+    y: 40,
+    text: 'Reabierto sobre el valle desde finales de 2025.',
+    photo: 'mirador-de-caripe',
+    alt: 'El Mirador de Caripe, sobre el valle.',
+    chapter: 'chapter-5-cuadros-vivos',
+  },
+  {
+    id: 'plaza',
+    name: 'Plaza Bolívar',
+    x: 38,
+    y: 62,
+    text: 'Cada Semana Santa, miles de fieles se reúnen aquí para ver los cuadros vivos.',
+    photo: 'plaza-bolivar',
+    alt: 'La plaza Bolívar de Caripe.',
+    chapter: 'chapter-5-cuadros-vivos',
+  },
+  {
+    id: 'iglesia',
+    name: 'Iglesia Santo Ángel Custodio',
+    x: 20,
+    y: 76,
+    text: 'Parte del recorrido por el casco, con sus casas antiguas y los monumentos al guácharo.',
+    photo: 'iglesia-santo-angel',
+    alt: 'La iglesia Santo Ángel Custodio de Caripe.',
+    chapter: 'chapter-4-turismo',
+  },
+];
+
+const entries = places.map((place, index) => {
+  const chapter = chapters.find((c) => c.slug === place.chapter);
+  if (!chapter) throw new Error(`[caripe] MapaSala: unknown chapter "${place.chapter}".`);
+  return { ...place, n: index + 1, chapter, photoData: getPhoto(place.photo) };
+});
+---
+
+<section class="sala" id="mapa-sala" aria-labelledby="sala-title" data-mapa>
+  <div class="sala__inner u-container">
+    <header class="sala__header">
+      <p class="u-label">Sala de entrada</p>
+      <h2 class="sala__title" id="sala-title">El plano de la visita</h2>
+      <p class="sala__lede">
+        Seis lugares de Caripe, antes de empezar. Toca uno para leer su ficha y saltar al capítulo que lo cuenta.
+      </p>
+    </header>
+
+    <div class="sala__body">
+      <div class="plan">
+        <svg class="plan__lines" viewBox="0 0 600 450" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+          <path d="M0 120 C90 70 170 110 260 70 C350 30 450 90 600 40"></path>
+          <path d="M0 190 C100 140 190 190 280 140 C370 95 470 160 600 110"></path>
+          <path d="M0 270 C110 220 200 275 300 215 C390 165 490 235 600 185"></path>
+          <path d="M0 350 C120 305 210 360 310 300 C400 250 500 320 600 265"></path>
+          <path d="M0 420 C130 385 220 430 320 375 C420 330 510 395 600 345"></path>
+        </svg>
+
+        <ul class="plan__pins" role="list">
+          {
+            entries.map((e) => (
+              <li class="pin" style={`--x:${e.x}%;--y:${e.y}%`}>
+                <button
+                  type="button"
+                  class="pin__btn"
+                  data-pin={e.id}
+                  aria-controls={`ficha-${e.id}`}
+                  aria-expanded="false"
+                >
+                  <span class="pin__dot" aria-hidden="true">{e.n}</span>
+                  <span class="pin__name">{e.name}</span>
+                </button>
+              </li>
+            ))
+          }
+        </ul>
+        <p class="plan__note">Disposición esquemática, sin escala.</p>
+      </div>
+
+      <div class="fichas" aria-live="polite">
+        {
+          entries.map((e) => (
+            <article class="ficha" id={`ficha-${e.id}`} data-ficha={e.id} aria-labelledby={`ficha-${e.id}-t`}>
+              <figure class="ficha__photo">
+                <Image
+                  class="ficha__img"
+                  src={e.photoData.src}
+                  alt={e.alt}
+                  width={640}
+                  sizes="(max-width: 60rem) 90vw, 34rem"
+                  format="webp"
+                  quality={68}
+                  loading="lazy"
+                  decoding="async"
+                />
+                <figcaption><PhotoCreditLine credit={e.photoData.credit} /></figcaption>
+              </figure>
+              <div class="ficha__text">
+                <p class="ficha__n">Ficha {e.n} de {entries.length}</p>
+                <h3 class="ficha__title" id={`ficha-${e.id}-t`}>{e.name}</h3>
+                <p class="ficha__desc">{e.text}</p>
+                <a class="ficha__link" href={`#${e.chapter.slug}`}>
+                  Ir al capítulo «{e.chapter.title}»
+                </a>
+              </div>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .sala {
+    position: relative;
+    padding-block: var(--cu-space-xl);
+    background-color: var(--cu-bg);
+    border-block-end: 1px solid color-mix(in srgb, var(--cu-bruma-600) 35%, transparent);
+  }
+
+  .sala__header {
+    max-width: var(--cu-measure);
+    margin-block-end: var(--cu-space-md);
+  }
+
+  .sala__title {
+    margin-block: var(--cu-space-3xs) var(--cu-space-2xs);
+    font-family: var(--cu-font-display);
+    font-size: var(--cu-step-4);
+    font-weight: 400;
+    line-height: 1.05;
+    color: var(--cu-text);
+  }
+
+  .sala__lede {
+    font-size: var(--cu-step-0);
+    font-weight: 300;
+    line-height: 1.6;
+    color: var(--cu-text-muted);
+    text-wrap: pretty;
+  }
+
+  .sala__body {
+    display: grid;
+    gap: var(--cu-space-md);
+    align-items: start;
+  }
+
+  @media (min-width: 60rem) {
+    .sala__body {
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+      gap: var(--cu-space-lg);
+    }
+  }
+
+  /* -- The plan -------------------------------------------------------- */
+
+  .plan {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    min-width: 0;
+    background-color: var(--cu-monte-900);
+    border: 1px solid color-mix(in srgb, var(--cu-bruma-600) 45%, transparent);
+  }
+
+  .plan__lines {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    fill: none;
+    stroke: var(--cu-bruma-600);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+    opacity: 0.55;
+  }
+
+  .plan__lines path {
+    vector-effect: non-scaling-stroke;
+  }
+
+  .plan__pins {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .pin {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    transform: translate(-0.9rem, -0.9rem);
+  }
+
+  .pin__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--cu-text);
+    font: inherit;
+    cursor: pointer;
+  }
+
+  .pin__dot {
+    display: grid;
+    place-items: center;
+    /* 44px is the touch target; the drawn dot is smaller inside it. */
+    width: 2.75rem;
+    height: 2.75rem;
+    margin: -0.4rem;
+    border-radius: 50%;
+    font-size: var(--cu-step--2);
+    font-variant-numeric: tabular-nums;
+    color: var(--cu-accent-soft);
+    background:
+      radial-gradient(circle, var(--cu-monte-950) 0 0.85rem, transparent 0.9rem),
+      radial-gradient(circle, transparent 0 0.85rem, var(--cu-accent) 0.9rem 0.97rem, transparent 1rem); /* taste-skill-ignore: ring drawn with a hard-edged radial stop, not a decorative gradient */
+    transition: color var(--cu-dur-fast) var(--cu-ease);
+  }
+
+  .pin__name {
+    display: none;
+    padding-inline-end: 0.25rem;
+    font-size: var(--cu-step--2);
+    line-height: 1.2;
+    text-shadow: 0 0 0.5rem var(--cu-monte-950);
+    white-space: nowrap;
+  }
+
+  @media (min-width: 40rem) {
+    .pin__name {
+      display: inline;
+    }
+  }
+
+  .pin__btn:hover .pin__dot,
+  .pin__btn[aria-expanded='true'] .pin__dot {
+    color: var(--cu-monte-950);
+    background:
+      radial-gradient(circle, var(--cu-accent) 0 0.9rem, transparent 0.95rem); /* taste-skill-ignore: filled disc for the active pin */
+  }
+
+  .pin__btn:focus-visible {
+    outline: 2px solid var(--cu-focus);
+    outline-offset: 2px;
+    border-radius: 999px;
+  }
+
+  .plan__note {
+    position: absolute;
+    inset: auto 0.75rem 0.5rem auto;
+    font-size: var(--cu-step--2);
+    color: var(--cu-text-faint);
+  }
+
+  /* -- The labels ------------------------------------------------------ */
+
+  .fichas {
+    display: grid;
+    gap: var(--cu-space-md);
+    min-width: 0;
+  }
+
+  .ficha {
+    display: grid;
+    gap: var(--cu-space-xs);
+    padding: var(--cu-space-sm);
+    background-color: var(--cu-bg-raise);
+    border-inline-start: 2px solid var(--cu-accent);
+  }
+
+  .ficha__photo {
+    margin: 0;
+    min-width: 0;
+  }
+
+  .ficha__img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+    filter: saturate(0.84) contrast(1.04) brightness(0.97);
+  }
+
+  .ficha__photo figcaption {
+    margin-block-start: 0.4rem;
+  }
+
+  .ficha__n {
+    font-size: var(--cu-step--2);
+    color: var(--cu-text-faint);
+  }
+
+  .ficha__title {
+    margin-block: 0.2rem 0.5rem;
+    font-family: var(--cu-font-display);
+    font-size: var(--cu-step-2);
+    font-weight: 400;
+    line-height: 1.15;
+    color: var(--cu-text);
+  }
+
+  .ficha__desc {
+    max-width: var(--cu-measure);
+    font-size: var(--cu-step--1);
+    font-weight: 300;
+    line-height: 1.65;
+    color: var(--cu-text-muted);
+    text-wrap: pretty;
+  }
+
+  .ficha__link {
+    display: inline-block;
+    margin-block-start: var(--cu-space-xs);
+    padding-block: 0.4rem;
+    color: var(--cu-accent-soft);
+    text-decoration-color: color-mix(in srgb, var(--cu-accent) 55%, transparent);
+    text-underline-offset: 0.25em;
+  }
+
+  .ficha__link:hover {
+    color: var(--cu-text);
+  }
+
+  /* With the script, one label at a time; without it, all of them. */
+  [data-mapa][data-ready] .ficha[hidden] {
+    display: none;
+  }
+
+  @media (min-width: 40rem) {
+    .ficha {
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1fr);
+      align-items: start;
+    }
+  }
+
+  @media (min-width: 60rem) {
+    .ficha {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    [data-mapa][data-ready] .ficha {
+      animation: ficha-in var(--cu-dur) var(--cu-ease);
+    }
+  }
+
+  @keyframes ficha-in {
+    from {
+      opacity: 0;
+      transform: translateY(0.5rem);
+    }
+  }
+</style>
+
+<script>
+  import { initMapa } from '../scripts/mapa';
+  initMapa();
+</script>
