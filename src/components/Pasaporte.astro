@@ -1,0 +1,241 @@
+---
+import { chapters } from '../content';
+
+/**
+ * The visit passport.
+ *
+ * Reading through a chapter to its end earns that chapter's stamp. The control
+ * sits fixed at the bottom-left: the progress rail owns the right edge from
+ * 1024px up and the documentary bar owns the top, so nothing shares a corner.
+ *
+ * Every stamp is in the markup, driven by the chapter list, so the panel is
+ * complete as soon as the script reveals it. Without JavaScript nothing can be
+ * earned, so the whole control stays hidden instead of showing an empty book.
+ * `../scripts/pasaporte.ts` earns, persists and announces the stamps.
+ */
+---
+
+<div class="pas" data-pasaporte hidden>
+  <p class="pas__toast" role="status" aria-live="polite" data-toast></p>
+
+  <section class="pas__panel" id="pasaporte-panel" aria-labelledby="pas-title" data-panel hidden>
+    <h2 class="pas__title" id="pas-title">Pasaporte de la visita</h2>
+    <p class="pas__lede">
+      Cada capítulo leído hasta el final deja su sello.
+    </p>
+    <ol class="pas__stamps" role="list">
+      {
+        chapters.map((chapter) => (
+          <li class="pas__item" data-stamp={chapter.slug}>
+            <span class="stamp" aria-hidden="true">
+              <span class="stamp__n">{chapter.order}</span>
+              <span class="stamp__t">{chapter.title}</span>
+            </span>
+            <span class="u-visually-hidden">
+              {chapter.title}: <span data-state>sello pendiente</span>
+            </span>
+          </li>
+        ))
+      }
+    </ol>
+  </section>
+
+  <button
+    class="pas__btn"
+    type="button"
+    aria-expanded="false"
+    aria-controls="pasaporte-panel"
+    data-toggle
+  >
+    <span>Pasaporte</span>
+    <span class="pas__count" data-count>0/{chapters.length}</span>
+  </button>
+</div>
+
+<style is:global>
+  .pas {
+    position: fixed;
+    inset-inline-start: var(--cu-gutter);
+    inset-block-end: calc(env(safe-area-inset-bottom, 0px) + var(--cu-space-xs));
+    z-index: 56;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--cu-space-2xs);
+    max-width: calc(100vw - var(--cu-gutter) * 2);
+  }
+
+  .pas[hidden] {
+    display: none;
+  }
+
+  .pas__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--cu-space-2xs);
+    min-height: 2.75rem;
+    padding: 0 var(--cu-space-xs);
+    border: 1px solid var(--cu-accent-deep);
+    border-radius: var(--cu-radius);
+    background-color: color-mix(in srgb, var(--cu-monte-950) 88%, transparent);
+    color: var(--cu-hueso);
+    font: inherit;
+    font-size: var(--cu-step--1);
+    cursor: pointer;
+    transition: border-color var(--cu-dur-fast) var(--cu-ease);
+  }
+
+  .pas__btn:hover,
+  .pas__btn[aria-expanded='true'] {
+    border-color: var(--cu-accent);
+  }
+
+  .pas__btn:focus-visible {
+    outline: 2px solid var(--cu-focus);
+    outline-offset: 2px;
+  }
+
+  .pas__count {
+    font-variant-numeric: tabular-nums;
+    color: var(--cu-accent-soft);
+  }
+
+  /* -- The toast: a live region that never moves anything else --------- */
+
+  .pas__toast {
+    order: -1;
+    max-width: 100%;
+    margin: 0;
+    padding: var(--cu-space-2xs) var(--cu-space-xs);
+    border-inline-start: 2px solid var(--cu-accent);
+    background-color: color-mix(in srgb, var(--cu-monte-950) 94%, transparent);
+    font-size: var(--cu-step--1);
+    color: var(--cu-hueso);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition:
+      opacity var(--cu-dur) var(--cu-ease),
+      visibility var(--cu-dur) var(--cu-ease);
+  }
+
+  .pas__toast.is-on {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* -- The panel -------------------------------------------------------- */
+
+  .pas__panel {
+    order: -2;
+    box-sizing: border-box;
+    width: min(23rem, 100%);
+    max-height: min(32rem, 70svh);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: var(--cu-space-sm);
+    border-inline-start: 2px solid var(--cu-accent);
+    background-color: color-mix(in srgb, var(--cu-monte-900) 96%, transparent);
+    color: var(--cu-text);
+  }
+
+  .pas__panel[hidden] {
+    display: none;
+  }
+
+  .pas__title {
+    margin: 0;
+    font-family: var(--cu-font-display);
+    font-size: var(--cu-step-1);
+    font-weight: 400;
+    line-height: 1.15;
+  }
+
+  .pas__lede {
+    margin-block: 0.25rem var(--cu-space-xs);
+    font-size: var(--cu-step--2);
+    color: var(--cu-text-muted);
+  }
+
+  .pas__stamps {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--cu-space-xs);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .pas__item {
+    display: grid;
+    place-items: center;
+  }
+
+  /* An ink stamp: a double ring and a short title, drawn with borders only.
+     Empty ones keep the same footprint, dashed and faint. */
+  .stamp {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 7.5rem;
+    aspect-ratio: 1;
+    padding: 0.9rem;
+    border: 2px dashed var(--cu-bruma-600);
+    border-radius: 50%;
+    color: var(--cu-text-faint);
+    text-align: center;
+    line-height: 1.15;
+    opacity: 0.7;
+  }
+
+  .stamp__n {
+    font-family: var(--cu-font-display);
+    font-size: var(--cu-step-1);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stamp__t {
+    overflow-wrap: anywhere;
+    font-size: var(--cu-step--2);
+  }
+
+  .pas__item.is-earned .stamp {
+    border: 3px double var(--cu-accent);
+    color: var(--cu-accent);
+    box-shadow: inset 0 0 0 0.3rem color-mix(in srgb, var(--cu-accent) 14%, transparent);
+    opacity: 0.95;
+    transform: rotate(-5deg);
+  }
+
+  .pas__item.is-earned:nth-child(even) .stamp {
+    transform: rotate(4deg);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .pas__item.is-new .stamp {
+      animation: stamp-press var(--cu-dur-slow) var(--cu-ease);
+    }
+  }
+
+  @keyframes stamp-press {
+    from {
+      opacity: 0;
+      scale: 1.35;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pas__btn,
+    .pas__toast {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  import { initPasaporte } from '../scripts/pasaporte';
+  initPasaporte();
+</script>
