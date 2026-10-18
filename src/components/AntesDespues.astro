@@ -1,0 +1,354 @@
+---
+import { Image } from 'astro:assets';
+import { getPhoto } from '../content/photos';
+import PhotoCreditLine from './PhotoCreditLine.astro';
+
+/**
+ * The comparison: one cave mouth, two eras.
+ *
+ * Both images are already in the archive and already used by chapter 1: the
+ * 1874 work by Bellermann, whose plate caption calls it "la misma boca de cueva
+ * que Humboldt y Bonpland recorrieron en 1799", and a 2013 photograph of the
+ * entrance. The museum label below says only what is plainly visible in them.
+ *
+ * Without JavaScript the two figures are stacked, each with its caption and
+ * credit. `../scripts/antes-despues.ts` marks the section `data-ready`, which
+ * lays them over each other and reveals the slider (a real range input).
+ */
+const before = getPhoto('bellermann-cueva-1874');
+const after = getPhoto('cueva-entrada-2013');
+---
+
+<section class="ad" id="antes-despues" aria-labelledby="ad-title" data-antes-despues>
+  <div class="ad__inner u-container">
+    <header class="ad__header">
+      <p class="u-label">Antes y después</p>
+      <h2 class="ad__title" id="ad-title">La boca de la cueva, en dos épocas</h2>
+      <p class="ad__lede">
+        Desliza la línea, o usa las flechas del teclado, para pasar de la obra de 1874 a la fotografía de 2013.
+      </p>
+    </header>
+
+    <div class="ad__stage" data-stage>
+      <figure class="ad__fig ad__fig--before">
+        <Image
+          class="ad__img ad__img--before"
+          src={before.src}
+          alt="Obra del siglo XIX que representa la boca de la Cueva del Guácharo entre paredes de roca y vegetación tropical."
+          width={1400}
+          sizes="(max-width: 48rem) 100vw, 70rem"
+          format="webp"
+          quality={72}
+          loading="lazy"
+          decoding="async"
+        />
+        <figcaption class="ad__cap ad__cap--before">
+          <span class="ad__year">1874 · Ferdinand Bellermann</span>
+          <PhotoCreditLine credit={before.credit} />
+        </figcaption>
+      </figure>
+
+      <figure class="ad__fig ad__fig--after">
+        <Image
+          class="ad__img ad__img--after"
+          src={after.src}
+          alt="Boca de la Cueva del Guácharo abierta en la roca, con vegetación en los bordes."
+          width={1400}
+          sizes="(max-width: 48rem) 100vw, 70rem"
+          format="webp"
+          quality={72}
+          loading="lazy"
+          decoding="async"
+        />
+        <figcaption class="ad__cap ad__cap--after">
+          <span class="ad__year">2013 · Cesar Pérez</span>
+          <PhotoCreditLine credit={after.credit} />
+        </figcaption>
+      </figure>
+
+      <div class="ad__ctrl" data-ctrl hidden>
+        <span class="ad__chip ad__chip--before" aria-hidden="true">1874</span>
+        <span class="ad__chip ad__chip--after" aria-hidden="true">2013</span>
+        <span class="ad__line" aria-hidden="true"></span>
+        <input
+          class="ad__range"
+          type="range"
+          min="0"
+          max="100"
+          step="1"
+          value="50"
+          aria-label="Comparar la obra de 1874 con la fotografía de 2013"
+          data-range
+        />
+      </div>
+    </div>
+
+    <article class="ad__label" aria-labelledby="ad-label-t">
+      <p class="ad__label-n">Ficha de la comparación</p>
+      <h3 class="ad__label-title" id="ad-label-t">Una misma boca, dos miradas</h3>
+      <p class="ad__label-desc">
+        La obra de Bellermann es, según la ficha del primer capítulo, «la misma boca de cueva que Humboldt y Bonpland recorrieron en 1799, dibujada tres cuartos de siglo después». La fotografía es de 2013.
+      </p>
+      <p class="ad__label-desc">
+        Qué mirar: en las dos imágenes la boca se abre en la roca, rodeada de vegetación, y hay personas al pie. No son dos tomas del mismo punto, y el encuadre de cada una es distinto: compara lo que cada autor decidió mostrar.
+      </p>
+    </article>
+  </div>
+</section>
+
+<style>
+  .ad {
+    position: relative;
+    padding-block: var(--cu-space-xl);
+    background-color: var(--cu-bg);
+    border-block-end: 1px solid var(--cu-line);
+  }
+
+  .ad__header {
+    max-width: var(--cu-measure);
+    margin-block-end: var(--cu-space-md);
+  }
+
+  .ad__title {
+    margin-block: var(--cu-space-3xs) var(--cu-space-2xs);
+    font-family: var(--cu-font-display);
+    font-size: var(--cu-step-4);
+    font-weight: 400;
+    line-height: 1.05;
+    color: var(--cu-text);
+  }
+
+  .ad__lede {
+    font-size: var(--cu-step-0);
+    font-weight: 300;
+    line-height: 1.6;
+    color: var(--cu-text-muted);
+    text-wrap: pretty;
+  }
+
+  /* -- Without script: two figures, one after the other ---------------- */
+
+  .ad__stage {
+    display: grid;
+    gap: var(--cu-space-md);
+    max-width: var(--cu-measure-wide);
+  }
+
+  .ad__fig {
+    margin: 0;
+  }
+
+  .ad__img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    filter: saturate(0.9);
+  }
+
+  .ad__img--before {
+    object-position: 20% 50%;
+  }
+
+  .ad__img--after {
+    object-position: 40% 38%;
+  }
+
+  .ad__cap {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    margin-block-start: var(--cu-space-2xs);
+  }
+
+  .ad__year {
+    font-size: var(--cu-step--1);
+    color: var(--cu-text);
+  }
+
+  .ad__ctrl {
+    display: none;
+  }
+
+  /* -- With script: both images in one frame, captions underneath ------- */
+
+  [data-antes-despues][data-ready] .ad__stage {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--cu-space-2xs) var(--cu-space-sm);
+    max-width: var(--cu-measure-wide);
+  }
+
+  [data-antes-despues][data-ready] .ad__fig {
+    display: contents;
+  }
+
+  [data-antes-despues][data-ready] .ad__img {
+    grid-area: 1 / 1 / 2 / 3;
+    height: 100%;
+    min-width: 0;
+  }
+
+  /* The modern photograph is cut from the left edge of the divider, so the
+     older work shows to its left. --p runs 0 (all photo) to 1 (all work). */
+  [data-antes-despues][data-ready] .ad__img--after {
+    clip-path: inset(0 0 0 calc(1.375rem + (100% - 2.75rem) * var(--p, 0.5)));
+  }
+
+  [data-antes-despues][data-ready] .ad__cap--before {
+    grid-area: 2 / 1 / 3 / 3;
+  }
+
+  [data-antes-despues][data-ready] .ad__cap--after {
+    grid-area: 3 / 1 / 4 / 3;
+  }
+
+  @media (min-width: 48rem) {
+    [data-antes-despues][data-ready] .ad__cap--before {
+      grid-area: 2 / 1;
+    }
+
+    [data-antes-despues][data-ready] .ad__cap--after {
+      grid-area: 2 / 2;
+    }
+  }
+
+  [data-antes-despues][data-ready] .ad__ctrl {
+    position: relative;
+    display: block;
+    grid-area: 1 / 1 / 2 / 3;
+    /* Vertical drags still scroll the page; sideways drags move the line. */
+    touch-action: pan-y;
+    cursor: ew-resize;
+  }
+
+  .ad__line {
+    position: absolute;
+    inset-block: 0;
+    left: calc(1.375rem + (100% - 2.75rem) * var(--p, 0.5));
+    width: 2px;
+    margin-inline-start: -1px;
+    background-color: var(--cu-accent);
+    pointer-events: none;
+  }
+
+  .ad__chip {
+    position: absolute;
+    inset-block-start: var(--cu-space-2xs);
+    padding: 0.1rem 0.6rem;
+    background-color: color-mix(in srgb, var(--cu-monte-950) 78%, transparent);
+    font-size: var(--cu-step--2);
+    font-variant-numeric: tabular-nums;
+    color: var(--cu-hueso);
+    pointer-events: none;
+  }
+
+  .ad__chip--before {
+    inset-inline-start: var(--cu-space-2xs);
+  }
+
+  .ad__chip--after {
+    inset-inline-end: var(--cu-space-2xs);
+  }
+
+  /* The range input is the handle: keyboard, screen reader and the visible
+     thumb in one. Pointer input is handled on the frame (see the script). */
+  .ad__range {
+    position: absolute;
+    inset-inline: 0;
+    top: 50%;
+    width: 100%;
+    height: 2.75rem;
+    margin: 0;
+    transform: translateY(-50%);
+    background: transparent;
+    -webkit-appearance: none;
+    appearance: none;
+    pointer-events: none;
+  }
+
+  .ad__range::-webkit-slider-runnable-track {
+    height: 2.75rem;
+    background: transparent;
+  }
+
+  .ad__range::-moz-range-track {
+    height: 2.75rem;
+    background: transparent;
+  }
+
+  .ad__range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 2px solid var(--cu-accent);
+    border-radius: 50%;
+    background-color: color-mix(in srgb, var(--cu-monte-950) 80%, transparent);
+    box-shadow: inset 0 0 0 0.9rem color-mix(in srgb, var(--cu-monte-950) 80%, transparent);
+  }
+
+  .ad__range::-moz-range-thumb {
+    box-sizing: border-box;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 2px solid var(--cu-accent);
+    border-radius: 50%;
+    background-color: color-mix(in srgb, var(--cu-monte-950) 80%, transparent);
+  }
+
+  .ad__range:focus-visible {
+    outline: none;
+  }
+
+  .ad__range:focus-visible::-webkit-slider-thumb {
+    outline: 2px solid var(--cu-focus);
+    outline-offset: 3px;
+  }
+
+  .ad__range:focus-visible::-moz-range-thumb {
+    outline: 2px solid var(--cu-focus);
+    outline-offset: 3px;
+  }
+
+  /* -- The museum label ------------------------------------------------- */
+
+  .ad__label {
+    max-width: var(--cu-measure-wide);
+    margin-block-start: var(--cu-space-md);
+    padding: var(--cu-space-sm);
+    background-color: var(--cu-bg-raise);
+    border-inline-start: 2px solid var(--cu-accent);
+  }
+
+  .ad__label-n {
+    font-size: var(--cu-step--2);
+    color: var(--cu-text-faint);
+  }
+
+  .ad__label-title {
+    margin-block: 0.2rem 0.5rem;
+    font-family: var(--cu-font-display);
+    font-size: var(--cu-step-2);
+    font-weight: 400;
+    line-height: 1.15;
+    color: var(--cu-text);
+  }
+
+  .ad__label-desc {
+    max-width: var(--cu-measure);
+    font-size: var(--cu-step--1);
+    font-weight: 300;
+    line-height: 1.65;
+    color: var(--cu-text-muted);
+    text-wrap: pretty;
+  }
+
+  .ad__label-desc + .ad__label-desc {
+    margin-block-start: var(--cu-space-2xs);
+  }
+</style>
+
+<script>
+  import { initAntesDespues } from '../scripts/antes-despues';
+  initAntesDespues();
+</script>
