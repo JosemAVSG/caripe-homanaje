@@ -1,72 +1,35 @@
 ---
+import engraving from '../assets/fotos/Figura-9-El-guacharo-o-pajaro-del-aceite-Steatornis-caripensis-Altringham-1996-removebg-preview.png';
+
 /**
- * Guacharo — an oilbird that flies in and lands on a branch.
+ * Guacharo — an oilbird perched on a branch, drawn from Altringham's 1996
+ * engraving (black ink turned bone-white, mirrored to face the title).
  *
- * The same white, fill-less line as the rest of the page's drawings. Two
- * poses share one frame: the bird in flight, whose wing flaps by flipping a
- * single wing path on its vertical axis, and the bird perched. The flier
- * glides in along a curve with its wings beating, raises them to brake, and
- * is replaced by the perched bird exactly where it lands.
- *
- * The bodies are filled with the page ground so the branch passes behind the
- * bird instead of through it. Decorative by construction: `aria-hidden`, no
- * text, and it only appears where there is empty room beside the title.
- *
- * With no motion, only the perched bird is drawn, at rest.
+ * The branch is the same white, fill-less line as the rest of the page's
+ * drawings. Decorative by construction: `aria-hidden`, no text, and it only
+ * appears where there is empty room beside the title. It fades in after the
+ * intro; with no motion it is simply there.
  */
 ---
 
 <div class="guacharo" aria-hidden="true">
   <svg viewBox="0 0 420 300" focusable="false">
-    <defs>
-      <path
-        id="guacharo-wing"
-        d="M200 150 C172 112 176 60 228 14 C228 30 226 40 236 46 C234 60 232 70 244 78 C242 92 240 102 252 110 C252 124 254 136 266 148"
-      ></path>
-    </defs>
-
     <!-- The branch, with two leaves. -->
     <path d="M10 240 C120 230 230 218 410 196"></path>
     <path d="M10 254 C130 246 240 234 410 214"></path>
     <path d="M70 236 C60 214 48 206 30 204 C36 220 50 232 70 238Z"></path>
     <path d="M120 232 C116 208 126 192 144 184 C150 202 142 222 124 232Z"></path>
 
-    <!-- Perched. -->
+    <!-- Perched: Altringham's 1996 engraving, mirrored to face the title. -->
     <g class="guacharo__perched">
-      <path
-        class="body"
-        d="M130 122 C134 98 160 86 184 93 C224 104 268 134 306 162 C338 188 356 222 366 262 C340 252 314 232 292 214 C274 203 252 206 228 203 C204 199 180 187 164 169 C154 157 150 149 146 141 C140 137 132 133 130 122Z"
-      ></path>
-      <path class="body" d="M130 122 C120 122 111 128 110 141 C119 135 129 137 138 142 C136 134 134 128 130 122Z"></path>
-      <circle cx="152" cy="113" r="7.5"></circle>
-      <circle class="dot" cx="152" cy="113" r="3"></circle>
-      <path d="M122 134 l-9 4 M126 139 l-8 7"></path>
-      <path d="M170 98 C176 102 180 108 182 116"></path>
-      <path
-        class="soft"
-        d="M184 112 C228 130 280 170 332 238 M206 126 C240 146 276 178 312 232 M196 140 C232 156 262 184 292 220"
-      ></path>
-      <path d="M206 202 v13 M224 204 v11 M199 215 h14 M217 215 h14"></path>
-      <circle class="dot" cx="196" cy="118" r="1.6"></circle>
-      <circle class="dot" cx="214" cy="110" r="1.6"></circle>
-      <circle class="dot" cx="238" cy="130" r="1.6"></circle>
-      <circle class="dot" cx="258" cy="148" r="1.6"></circle>
-      <circle class="dot" cx="172" cy="130" r="1.6"></circle>
-      <circle class="dot" cx="226" cy="150" r="1.6"></circle>
-      <circle class="dot" cx="270" cy="170" r="1.6"></circle>
-    </g>
-
-    <!-- In flight. -->
-    <g class="guacharo__flier">
-      <g class="guacharo__far-wing"><use href="#guacharo-wing" transform="translate(14 -4)"></use></g>
-      <path
-        class="body"
-        d="M116 154 C120 136 140 128 160 134 C200 140 250 144 296 154 C330 162 356 180 374 204 C340 198 312 192 288 190 C250 192 214 192 184 184 C160 184 142 180 134 172 C122 170 116 162 116 154Z"
-      ></path>
-      <path class="body" d="M116 154 C106 154 97 160 96 172 C105 166 114 167 123 172"></path>
-      <circle cx="138" cy="148" r="6.5"></circle>
-      <circle class="dot" cx="138" cy="148" r="2.6"></circle>
-      <g class="guacharo__wing"><use href="#guacharo-wing"></use></g>
+      <image
+        class="engraving"
+        href={engraving.src}
+        x="132"
+        y="56"
+        width="236"
+        height="258"
+        preserveAspectRatio="xMidYMid meet"></image>
     </g>
   </svg>
 </div>
@@ -100,96 +63,33 @@
     stroke-linejoin: round;
   }
 
-  .body {
-    fill: var(--cu-bg);
-  }
-  .dot {
-    fill: var(--cu-hueso);
-    stroke: none;
-  }
-  .soft {
-    opacity: 0.55;
+  /* Black ink on transparent, turned into bone-white ink; mirrored and tilted
+     so the bird faces the title and sits along the branch. */
+  .engraving {
+    filter: invert(1) brightness(0.96) sepia(0.12);
+    transform-box: fill-box;
+    transform-origin: 50% 50%;
+    transform: scaleX(-1) rotate(24deg);
   }
 
-  /* -- Motion: flight in ~6s, then the bird stays. ------------------------- */
-
-  .guacharo__flier {
-    opacity: 0;
-    animation: cu-guacharo-fly 6.2s cubic-bezier(0.45, 0.05, 0.4, 1) 1.6s both;
-  }
-
-  .guacharo__wing,
-  .guacharo__far-wing {
-    transform-box: view-box;
-    transform-origin: 200px 150px;
-    animation: cu-guacharo-flap 0.62s ease-in-out 1.6s 9 both;
-  }
-
-  .guacharo__far-wing {
-    opacity: 0.45;
-    animation-delay: 1.7s;
-  }
+  /* -- Motion: the bird fades in on its branch. ------------------------- */
 
   .guacharo__perched {
-    animation: cu-guacharo-perch 0.9s var(--cu-ease) 7.1s both;
+    animation: cu-guacharo-appear 1.6s var(--cu-ease) 1.6s both;
   }
 
-  @keyframes cu-guacharo-fly {
-    0% {
+  @keyframes cu-guacharo-appear {
+    from {
       opacity: 0;
-      transform: translate(250px, -120px);
+      transform: translateY(-6px);
     }
-    8% {
-      opacity: 1;
-    }
-    55% {
-      transform: translate(110px, -20px);
-    }
-    80% {
-      transform: translate(34px, -58px);
-    }
-    92% {
-      opacity: 1;
-      transform: translate(16px, -40px);
-    }
-    100% {
-      opacity: 0;
-      transform: translate(14px, -32px);
-    }
-  }
-
-  @keyframes cu-guacharo-flap {
-    0%,
-    100% {
-      transform: scaleY(1);
-    }
-    50% {
-      transform: scaleY(-0.85);
-    }
-  }
-
-  /* The landing settles: the bird drops a hair, then rises into its perch. */
-  @keyframes cu-guacharo-perch {
-    0% {
-      opacity: 0;
-      transform: translateY(-5px);
-    }
-    35% {
-      opacity: 1;
-    }
-    60% {
-      transform: translateY(2px);
-    }
-    100% {
+    to {
       opacity: 1;
       transform: none;
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .guacharo__flier {
-      display: none;
-    }
     .guacharo__perched {
       animation: none;
     }
