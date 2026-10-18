@@ -10,6 +10,7 @@ import Familias from '../components/Familias.astro';
 import Colegios from '../components/Colegios.astro';
 import CuevaLinterna from '../components/CuevaLinterna.astro';
 import MapaSala from '../components/MapaSala.astro';
+import RetoCafe from '../components/RetoCafe.astro';
 import { chapters } from '../content';
 import { site } from '../content/site';
 
@@ -37,6 +38,7 @@ const bandAfterIndex = Math.floor(chapters.length / 2) - 1;
         <Fragment>
           <ChapterSection chapter={chapter} />
           {index === 0 ? <CuevaLinterna /> : null}
+          {index === 1 ? <RetoCafe /> : null}
           {index === bandAfterIndex ? <PhotoBand /> : null}
         </Fragment>
       ))

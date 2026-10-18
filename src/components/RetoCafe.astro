@@ -1,0 +1,355 @@
+---
+import { chapters } from '../content';
+
+/**
+ * The challenge: "El camino del café".
+ *
+ * The visitor puts in order the four stops of the route coffee took out of the
+ * valley. Steps and museum label come from one documentary beat of chapter 2
+ * (the one that names the Muelle de Cariaco); nothing here is added to it.
+ *
+ * The four steps are printed in their true order as a plain list. Without
+ * JavaScript, or when the reader asks for less motion, that list is the whole
+ * section. `../scripts/reto-cafe.ts` hides it and builds the game from it.
+ */
+const chapter = chapters.find((c) => c.slug === 'chapter-2-cafe');
+const beat = chapter?.beats.find((b) => b.text.includes('Muelle de Cariaco'));
+if (!chapter || !beat) throw new Error('[caripe] RetoCafe: route beat not found in chapter 2.');
+
+// Short readings of the beat's own sequence, in true order.
+const steps = [
+  'Sale del valle a hombros de hombres y a lomo de mulas, por un camino de indios.',
+  'Llega al Muelle de Cariaco.',
+  'Allí se cambia por sal, pescado y kerosén.',
+  'Sigue por mar hacia Cumaná o La Guaira.',
+];
+---
+
+<section class="reto" id="reto-cafe" aria-labelledby="reto-title" data-reto>
+  <div class="reto__inner u-container">
+    <header class="reto__header">
+      <p class="u-label">Un reto</p>
+      <h2 class="reto__title" id="reto-title">El camino del café</h2>
+      <p class="reto__lede">
+        Antes de que existiera carretera, el café tenía que salir del valle. Pon en orden las cuatro paradas de su viaje.
+      </p>
+    </header>
+
+    <ol class="reto__static" role="list" data-static>
+      {steps.map((step) => <li>{step}</li>)}
+    </ol>
+
+    <div class="reto__play" data-play>
+      <p class="reto__how" id="reto-how">
+        Arrastra cada paso, o toca uno y luego otro para intercambiarlos. También puedes usar las flechas de cada tarjeta.
+      </p>
+      <ol class="rboard" role="list" data-board aria-describedby="reto-how"></ol>
+      <div class="reto__actions">
+        <button type="button" class="rbtn rbtn--main" data-check>Comprobar</button>
+        <button type="button" class="rbtn" data-reveal hidden>Ver la respuesta</button>
+      </div>
+      <p class="reto__feedback" role="status" aria-live="polite" data-feedback></p>
+    </div>
+
+    <article class="rlabel" aria-labelledby="reto-label-t" data-label>
+      <p class="rlabel__n">Ficha del recorrido</p>
+      <h3 class="rlabel__title" id="reto-label-t">Del valle al mar</h3>
+      <p class="rlabel__desc">{beat.text}</p>
+      <p class="rlabel__src">Fuente: {beat.source.rlabel}</p>
+    </article>
+  </div>
+</section>
+
+<style is:global>
+  .reto {
+    position: relative;
+    padding-block: var(--cu-space-xl);
+    background-color: var(--cu-surface-warm);
+    border-block-end: 1px solid color-mix(in srgb, var(--cu-bruma-600) 35%, transparent);
+  }
+
+  .reto__header {
+    max-width: var(--cu-measure);
+    margin-block-end: var(--cu-space-md);
+  }
+
+  .reto__title {
+    margin-block: var(--cu-space-3xs) var(--cu-space-2xs);
+    font-family: var(--cu-font-display);
+    font-size: var(--cu-step-4);
+    font-weight: 400;
+    line-height: 1.05;
+    color: var(--cu-text);
+  }
+
+  .reto__lede,
+  .reto__how {
+    font-size: var(--cu-step-0);
+    font-weight: 300;
+    line-height: 1.6;
+    color: var(--cu-text-muted);
+    text-wrap: pretty;
+  }
+
+  .reto__how {
+    max-width: var(--cu-measure);
+    font-size: var(--cu-step--1);
+  }
+
+  /* -- The static list: the whole section without the script ---------- */
+
+  .reto__static {
+    max-width: var(--cu-measure);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: paso;
+  }
+
+  .reto__static li,
+  .rcard {
+    counter-increment: paso;
+  }
+
+  .reto__static li {
+    display: flex;
+    gap: var(--cu-space-xs);
+    padding-block: var(--cu-space-2xs);
+    border-block-end: 1px solid color-mix(in srgb, var(--cu-bruma-600) 35%, transparent);
+    font-size: var(--cu-step--1);
+    line-height: 1.55;
+    color: var(--cu-text);
+  }
+
+  .reto__static li::before,
+  .rcard__n {
+    flex: none;
+    min-width: 1.5rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--cu-accent-soft);
+  }
+
+  .reto__static li::before {
+    content: counter(paso) '.';
+  }
+
+  /* -- The game: only once the script has armed it -------------------- */
+
+  .reto__play {
+    display: none;
+  }
+
+  [data-reto][data-ready] .reto__static {
+    display: none;
+  }
+
+  [data-reto][data-ready] .reto__play {
+    display: block;
+  }
+
+  .rboard {
+    display: grid;
+    gap: var(--cu-space-2xs);
+    max-width: var(--cu-measure-wide);
+    margin: var(--cu-space-sm) 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .rcard {
+    display: flex;
+    align-items: stretch;
+    background-color: var(--cu-bg-raise);
+    border-inline-start: 2px solid var(--cu-accent-deep);
+    transition:
+      background-color var(--cu-dur-fast) var(--cu-ease),
+      border-color var(--cu-dur-fast) var(--cu-ease);
+  }
+
+  .rcard[draggable='true'] {
+    cursor: grab;
+  }
+
+  .rcard.is-selected {
+    background-color: var(--cu-surface);
+    border-inline-start-color: var(--cu-accent);
+  }
+
+  .rcard.is-ok {
+    border-inline-start-color: var(--cu-monte-400);
+  }
+
+  .rcard.is-dragging {
+    opacity: 0.55;
+  }
+
+  .rcard.is-over {
+    background-color: var(--cu-surface);
+  }
+
+  .rcard__pick {
+    display: flex;
+    flex: 1;
+    gap: var(--cu-space-xs);
+    align-items: center;
+    min-width: 0;
+    min-height: 3.25rem;
+    padding: var(--cu-space-2xs) var(--cu-space-xs);
+    border: 0;
+    background: none;
+    color: var(--cu-text);
+    font: inherit;
+    font-size: var(--cu-step--1);
+    line-height: 1.45;
+    text-align: start;
+    cursor: inherit;
+  }
+
+  .rcard__txt {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .rcard__mark {
+    margin-inline-start: auto;
+    flex: none;
+    font-size: var(--cu-step--2);
+    color: var(--cu-accent-soft);
+  }
+
+  .rcard__move {
+    display: flex;
+    flex-direction: column;
+    flex: none;
+  }
+
+  .rcard__btn {
+    display: grid;
+    place-items: center;
+    flex: 1;
+    min-width: 2.75rem;
+    min-height: 1.625rem;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--cu-text-muted);
+    font: inherit;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .rcard__btn:hover:not(:disabled) {
+    color: var(--cu-accent-soft);
+  }
+
+  .rcard__btn:disabled {
+    opacity: 0.3;
+    cursor: default;
+  }
+
+  .rcard__pick:focus-visible,
+  .rcard__btn:focus-visible,
+  .rbtn:focus-visible {
+    outline: 2px solid var(--cu-focus);
+    outline-offset: -2px;
+  }
+
+  .reto__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--cu-space-xs);
+  }
+
+  .rbtn {
+    min-height: 2.75rem;
+    padding: 0.5rem var(--cu-space-sm);
+    border: 1px solid var(--cu-accent-deep);
+    border-radius: var(--cu-radius);
+    background: none;
+    color: var(--cu-accent-soft);
+    font: inherit;
+    font-size: var(--cu-step--1);
+    cursor: pointer;
+  }
+
+  .rbtn--main {
+    border-color: var(--cu-accent);
+    background-color: var(--cu-accent);
+    color: var(--cu-monte-950);
+  }
+
+  .rbtn:disabled {
+    opacity: 0.45;
+    cursor: default;
+  }
+
+  .reto__feedback {
+    max-width: var(--cu-measure);
+    min-height: 1.6em;
+    margin-block-start: var(--cu-space-xs);
+    font-size: var(--cu-step--1);
+    line-height: 1.55;
+    color: var(--cu-accent-soft);
+  }
+
+  /* -- The museum label ------------------------------------------------ */
+
+  .rlabel {
+    max-width: var(--cu-measure-wide);
+    margin-block-start: var(--cu-space-md);
+    padding: var(--cu-space-sm);
+    background-color: var(--cu-bg-raise);
+    border-inline-start: 2px solid var(--cu-accent);
+  }
+
+  [data-reto][data-ready]:not([data-solved]) .rlabel {
+    display: none;
+  }
+
+  .rlabel__n {
+    font-size: var(--cu-step--2);
+    color: var(--cu-text-faint);
+  }
+
+  .rlabel__title {
+    margin-block: 0.2rem 0.5rem;
+    font-family: var(--cu-font-display);
+    font-size: var(--cu-step-2);
+    font-weight: 400;
+    line-height: 1.15;
+    color: var(--cu-text);
+  }
+
+  .rlabel__desc {
+    max-width: var(--cu-measure);
+    font-size: var(--cu-step--1);
+    font-weight: 300;
+    line-height: 1.65;
+    color: var(--cu-text-muted);
+    text-wrap: pretty;
+  }
+
+  .rlabel__src {
+    margin-block-start: var(--cu-space-2xs);
+    font-size: var(--cu-step--2);
+    color: var(--cu-text-faint);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    [data-reto][data-solved] .rlabel {
+      animation: rlabel-in var(--cu-dur) var(--cu-ease);
+    }
+  }
+
+  @keyframes rlabel-in {
+    from {
+      opacity: 0;
+      transform: translateY(0.5rem);
+    }
+  }
+</style>
+
+<script>
+  import { initRetoCafe } from '../scripts/reto-cafe';
+  initRetoCafe();
+</script>
