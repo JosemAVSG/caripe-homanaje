@@ -177,6 +177,15 @@ What is animated:
 - **Progress** — the top bar on small screens, the vertical rail on large ones.
 - **Active chapter** — the rail entry matching the chapter on screen.
 
+**Full-screen scenes.** Each chapter opens on its photograph holding the whole
+screen (`scene__cover`, `position: sticky`) with the title over it; the text
+then rises over it like a curtain, and the chapter's other photographs follow
+as a stack of full-screen panels that each cover the one before
+(`ChapterGallery.astro`). Holding and covering are pure CSS; `trackCinema()` in
+`motion.ts` only adds depth (zoom, dim, parallax). Portrait images and the map
+are held whole over a blurred copy of themselves (`FullBleedImage.astro`). A
+chapter with no photograph yet opens on a full-height typographic panel.
+
 Generic hooks you can reuse from markup: `data-pin` +
 `data-pin-distance` (viewport-height multiplier), `data-reveal`, `data-timeline`,
 `data-depth` (fog parallax weight).

@@ -9,6 +9,7 @@ import CoffeeBranches from './CoffeeBranches.astro';
 import EvidencePlates from './EvidencePlates.astro';
 import ForkedRoad from './ForkedRoad.astro';
 import FormingText from './FormingText.astro';
+import FullBleedImage from './FullBleedImage.astro';
 import LexiconPlate from './LexiconPlate.astro';
 import PhotoSlot from './PhotoSlot.astro';
 import PhotoCreditLine from './PhotoCreditLine.astro';
@@ -18,23 +19,28 @@ import { site } from '../content/site';
 import { reservedPhotos } from '../content/layout';
 
 /**
- * One chapter, staged as a scene.
+ * One chapter, staged as a sequence of full-screen scenes.
  *
- * The engine is three parts inside one tall container:
- *   scene__header — the chapter title and its opening line, always in flow;
- *   scene__stage  — the photograph that holds the screen (sticky on desktop,
- *                   a full-bleed band on a phone), with the fog canvas over it;
- *   scene__body   — the narration, evidence, gallery and sources, scrolling
- *                   beside the stage.
+ *   scene__cover   — the chapter's photograph holding the WHOLE screen, with
+ *                    the title set over it. It is `position: sticky`, so it
+ *                    stays put (behind everything that follows) with the fog
+ *                    drifting over it;
+ *   scene__hold    — empty scroll distance: the cover is held while it breathes;
+ *   scene__content — the narration, evidence and sources on a solid field. It
+ *                    scrolls UP OVER the held cover like a curtain;
+ *   reel           — the rest of the chapter's photographs, one full screen
+ *                    each, every one covering the one before it
+ *                    (`ChapterGallery.astro`).
  *
- * Scroll progress through the scene is published as the CSS custom property
- * `--p` (0 → 1) by `src/scripts/motion.ts`. With no JavaScript, `--p` stays at
- * its declared 1, so every beat is legible at rest; nothing here depends on
- * script to be readable.
+ * The holding and the curtain are pure CSS; `src/scripts/motion.ts` only adds
+ * depth (zoom, dim, parallax) by scrubbing. With no script, or with reduced
+ * motion, every screen is simply a full-screen photograph followed by text.
  *
- * DOM order is header → stage → body, so on a phone the title comes first and
- * the photograph follows it full-bleed; on desktop CSS grid moves the stage to
- * its own column and holds it there with `position: sticky`.
+ * A chapter with no photograph yet opens on a full-height typographic panel
+ * instead, so the rhythm of full screens survives without a stand-in image.
+ *
+ * Scroll progress through the chapter is still published as `--p` (0 → 1);
+ * with no JavaScript it stays at its declared 1.
  */
 interface Props {
   chapter: Chapter;
@@ -87,6 +93,7 @@ const stageImage = allImages.find((image) => image.layout === 'feature') ?? allI
 const restImages = stageImage ? allImages.filter((image) => image !== stageImage) : allImages;
 const hasGallery = restImages.length > 0;
 const stagePhoto = stageImage ? getPhoto(stageImage.photo) : null;
+const hasCover = Boolean(stagePhoto && stageImage);
 const asideFigures = (aside ?? []).map((image) => ({ image, photo: getPhoto(image.photo) }));
 
 // Fog density is a design decision about this chapter's weather, not a claim
@@ -104,7 +111,7 @@ const fog = FOG[slug] ?? 'light';
 ---
 
 <section
-  class:list={['scene', `scene--${tone}`, pending && 'scene--pending', !isStage && `scene--layout-${layout}`]}
+  class:list={['scene', `scene--${tone}`, hasCover ? 'scene--cover' : 'scene--opener', pending && 'scene--pending', !isStage && `scene--layout-${layout}`]}
   {...(!isStage ? { 'data-layout': layout } : {})}
   id={slug}
   data-scene
@@ -113,80 +120,58 @@ const fog = FOG[slug] ?? 'light';
   style="--p:1"
   aria-labelledby={titleId}
 >
-  {decor === 'coffee-branches' ? <CoffeeBranches /> : null}
-  {decor === 'cloud-banks' ? <CloudBanks /> : null}
-  {decor === 'forked-road' ? <ForkedRoad /> : null}
-
-  <div class="scene__inner u-container">
-    {
-      /*
-        The fog composition lets the words condense first: the chapter's cita
-        opens the section, full width and alone, before the header. It is the
-        same gesture as the hero. In every other layout the cita stays with the
-        narration, inside the body.
-      */
-      layout === 'mist' && statement ? (
-        <figure class="scene__statement">
-          <blockquote class="scene__statement-quote">
-            <FormingText
-              as="p"
-              class="scene__statement-text"
-              text={statement.text}
-              start={0.06}
-              spread={0.68}
-              dur={0.28}
-            />
-          </blockquote>
-          {statement.attribution || statement.placeholder ? (
-            <figcaption class="scene__statement-caption">
-              {statement.attribution ? <span>{statement.attribution}</span> : null}
-              {statement.placeholder ? <span>voz preliminar</span> : null}
-            </figcaption>
-          ) : null}
-        </figure>
-      ) : null
-    }
-
-    <header class="scene__header" data-reveal-group>
-      <h2 class="scene__title" id={titleId} data-reveal>{title}</h2>
-      {kicker ? <p class="scene__subtitle" data-reveal>{kicker}</p> : null}
-      {lede ? <p class="scene__lede" data-reveal>{lede}</p> : null}
-    </header>
-
-    {
-      stagePhoto && stageImage ? (
-        <figure class="scene__stage" data-stage>
-          <div class="scene__stage-frame">
-            <Image
-              class="scene__stage-image"
-              src={stagePhoto.src}
-              alt={stageImage.alt}
-              widths={[640, 960, 1400]}
-              sizes="(min-width: 64rem) 44vw, 100vw"
-              format="webp"
-              quality={74}
-              loading="lazy"
-              decoding="async"
-            />
-            <div class="u-scrim u-scrim--deep" aria-hidden="true" />
-            <canvas
-              class="scene__fog"
-              data-fog={fog}
-              data-fog-tone={tone === 'bruma' ? 'cold' : 'neutral'}
-              aria-hidden="true"
-            />
-            <figcaption class="scene__stage-caption">
-              <span class="scene__stage-text">{stageImage.caption}</span>
-              <PhotoCreditLine credit={stagePhoto.credit} />
-            </figcaption>
+  {
+    stagePhoto && stageImage ? (
+      <>
+        <figure class="scene__cover" data-cover data-stage>
+          <div class="scene__cover-media" data-cover-media>
+            <FullBleedImage src={stagePhoto.src} alt={stageImage.alt} sizes="100vw" />
           </div>
+          <div class="u-scrim u-scrim--deep" aria-hidden="true" />
+          <canvas
+            class="scene__fog"
+            data-fog={fog}
+            data-fog-tone={tone === 'bruma' ? 'cold' : 'neutral'}
+            aria-hidden="true"
+          />
+          <div class="scene__veil" data-cover-veil aria-hidden="true" />
+
+          <header class="scene__header scene__header--cover" data-cover-title>
+            <p class="scene__number" aria-hidden="true">{chapter.number}</p>
+            <h2 class="scene__title" id={titleId}>{title}</h2>
+            {kicker ? <p class="scene__subtitle">{kicker}</p> : null}
+            {lede ? <p class="scene__lede">{lede}</p> : null}
+          </header>
+
+          <figcaption class="scene__cover-caption">
+            <span class="scene__cover-text">{stageImage.caption}</span>
+            <PhotoCreditLine credit={stagePhoto.credit} />
+          </figcaption>
         </figure>
+        <div class="scene__hold" data-cover-hold aria-hidden="true" />
+      </>
+    ) : null
+  }
+
+  <div class="scene__content" data-content>
+    {decor === 'coffee-branches' ? <CoffeeBranches /> : null}
+    {decor === 'cloud-banks' ? <CloudBanks /> : null}
+    {decor === 'forked-road' ? <ForkedRoad /> : null}
+
+    {
+      !hasCover ? (
+        <header class="scene__header scene__header--opener u-container" data-reveal-group>
+          <p class="scene__number" aria-hidden="true">{chapter.number}</p>
+          <h2 class="scene__title" id={titleId} data-reveal>{title}</h2>
+          {kicker ? <p class="scene__subtitle" data-reveal>{kicker}</p> : null}
+          {lede ? <p class="scene__lede" data-reveal>{lede}</p> : null}
+        </header>
       ) : null
     }
 
-    <div class="scene__body" data-reveal-group>
+    <div class="scene__inner u-container">
       {
-        layout !== 'mist' && statement ? (
+        statement ? (
           <figure class="scene__statement">
             <blockquote class="scene__statement-quote">
               <FormingText
@@ -208,139 +193,234 @@ const fog = FOG[slug] ?? 'light';
         ) : null
       }
 
-      {hasPlates ? <EvidencePlates plates={plates!} /> : null}
+      <div class="scene__body" data-reveal-group>
+        {hasPlates ? <EvidencePlates plates={plates!} /> : null}
+
+        {
+          pending ? (
+            <div class="scene__pending" data-reveal>
+              <p class="scene__pending-note">{pendingNote}</p>
+            </div>
+          ) : null
+        }
+
+        {
+          hasBeats ? (
+            <div class="scene__narration">
+              {beats.map((beat) => (
+                <Beat beat={beat} />
+              ))}
+            </div>
+          ) : null
+        }
+
+        {
+          lexicon ? (
+            <aside class="scene__evidence" aria-label="Evidencia del capítulo">
+              <LexiconPlate entry={lexicon} />
+            </aside>
+          ) : null
+        }
+
+        {hasTimeline ? <ChapterTimeline milestones={timeline!} /> : null}
+
+        {photo ? <PhotoSlot slot={photo} /> : null}
+
+        <SourceNote sources={sources} note={site.sourceFootnote} />
+      </div>
 
       {
-        pending ? (
-          <div class="scene__pending" data-reveal>
-            <p class="scene__pending-note">{pendingNote}</p>
-          </div>
-        ) : null
-      }
-
-      {
-        hasBeats ? (
-          <div class="scene__narration">
-            {beats.map((beat) => (
-              <Beat beat={beat} />
+        asideFigures.length > 0 ? (
+          <div class="scene__aside" data-reveal-group>
+            {asideFigures.map(({ image, photo: asidePhoto }) => (
+              <figure class="scene__aside-figure">
+                <Image
+                  class="scene__aside-image"
+                  src={asidePhoto.src}
+                  alt={image.alt}
+                  widths={[360, 540, 720]}
+                  sizes="(min-width: 64rem) 14rem, 100vw"
+                  format="webp"
+                  quality={74}
+                  loading="lazy"
+                  decoding="async"
+                  data-reveal
+                />
+                <figcaption class="scene__aside-caption">
+                  <span>{image.caption}</span>
+                  <PhotoCreditLine credit={asidePhoto.credit} />
+                </figcaption>
+              </figure>
             ))}
           </div>
         ) : null
       }
-
-      {
-        lexicon ? (
-          <aside class="scene__evidence" aria-label="Evidencia del capítulo">
-            <LexiconPlate entry={lexicon} />
-          </aside>
-        ) : null
-      }
-
-      {
-        hasGallery ? (
-          <ChapterGallery gallery={{ label: gallery!.label, images: restImages }} />
-        ) : null
-      }
-
-      {isStage && hasTimeline ? <ChapterTimeline milestones={timeline!} /> : null}
-
-      {photo ? <PhotoSlot slot={photo} /> : null}
-
-      <SourceNote sources={sources} note={site.sourceFootnote} />
     </div>
-
-    {
-      asideFigures.length > 0 ? (
-        <div class="scene__aside" data-reveal-group>
-          {asideFigures.map(({ image, photo: asidePhoto }) => (
-            <figure class="scene__aside-figure">
-              <Image
-                class="scene__aside-image"
-                src={asidePhoto.src}
-                alt={image.alt}
-                widths={[360, 540, 720]}
-                sizes="(min-width: 64rem) 14rem, 100vw"
-                format="webp"
-                quality={74}
-                loading="lazy"
-                decoding="async"
-                data-reveal
-              />
-              <figcaption class="scene__aside-caption">
-                <span>{image.caption}</span>
-                <PhotoCreditLine credit={asidePhoto.credit} />
-              </figcaption>
-            </figure>
-          ))}
-        </div>
-      ) : null
-    }
-
-    {/* In the composed layouts the chronology is not one more block inside the
-        body: it is a seam that crosses the section on its own. `band` places it
-        above the narration, `fork` between the two halves; see the CSS. */}
-    {
-      !isStage && hasTimeline ? (
-        <div class="scene__seam">
-          <ChapterTimeline milestones={timeline!} />
-        </div>
-      ) : null
-    }
   </div>
+
+  {hasGallery ? <ChapterGallery gallery={{ label: gallery!.label, images: restImages }} /> : null}
 </section>
 
 <style>
   .scene {
     position: relative;
+    scroll-margin-top: 0;
+  }
+
+  /* -- The cover: a photograph that holds the whole screen ------------------ */
+
+  .scene__cover {
+    position: sticky;
+    top: 0;
+    z-index: 0;
+    margin: 0;
+    height: 100svh;
+    overflow: hidden;
+    background-color: var(--cu-monte-900);
+  }
+
+  .scene__cover-media {
+    position: absolute;
+    inset: 0;
+    will-change: transform;
+  }
+
+  .scene__cover :global(.u-scrim) {
+    z-index: 1;
+  }
+
+  /* The fog canvas paints over the photograph and under the words. */
+  .scene__fog {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  /* Darkens the held cover as the text rises over it. Scrubbed by motion.ts;
+     transparent at rest, so nothing is hidden without script. */
+  .scene__veil {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    background-color: var(--cu-monte-950);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .scene__header--cover {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: clamp(5rem, 14vh, 8rem) var(--cu-gutter) clamp(6rem, 16vh, 9rem);
+  }
+
+  .scene__cover-caption {
+    position: absolute;
+    inset: auto 0 0 0;
+    z-index: 3;
+    display: grid;
+    gap: var(--cu-space-3xs);
+    padding: var(--cu-space-md) var(--cu-gutter) 4.75rem;
+    color: var(--cu-hueso);
+  }
+
+  .scene__cover-text {
+    max-width: var(--cu-measure);
+    font-size: var(--cu-step--1);
+    line-height: 1.5;
+    text-wrap: pretty;
+  }
+
+  .scene__cover-caption :global(.credit),
+  .scene__cover-caption :global(.credit__author),
+  .scene__cover-caption :global(.credit__license),
+  .scene__cover-caption :global(.credit__link) {
+    color: var(--cu-bruma-200);
+  }
+
+  /* Scroll distance during which the cover is held and nothing else shows. */
+  .scene__hold {
+    height: 70svh;
+    pointer-events: none;
+  }
+
+  /* -- The content: a solid field that rises over the held cover ------------ */
+
+  .scene__content {
+    position: relative;
+    z-index: 1;
     padding-block: var(--cu-chapter-gap);
-    scroll-margin-top: 2rem;
-    /* A flat tone field, one step from the page: no screen of the page is
-       ever bare ground. */
+    /* A flat tone field, one step from the page. */
     background-color: var(--cu-scene-monte);
   }
 
-  /* A chapter can sit at a different temperature from the mountain. The field
-     changes as a flat colour; nothing fades into anything. */
-  .scene--cafe {
+  .scene--cafe .scene__content {
     background-color: var(--cu-scene-cafe);
   }
 
-  .scene--bruma {
+  .scene--bruma .scene__content {
     background-color: var(--cu-scene-bruma);
+  }
+
+  /* The edge that rises over the photograph gets a soft shadow so it reads as
+     a sheet passing over the image, not a seam. */
+  .scene--cover .scene__content {
+    box-shadow: 0 -3rem 5rem -1.5rem rgba(6, 13, 8, 0.6);
   }
 
   .scene__inner {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    gap: var(--cu-space-lg);
+    gap: var(--cu-space-xl);
     /* Above the chapter's drawn layer. The plate grows behind the words and
        never crosses the measure. */
     position: relative;
     z-index: 1;
   }
 
-  .scene__header,
-  .scene__body {
-    min-width: 0;
-  }
-
   .scene__body {
     display: grid;
     gap: var(--cu-space-xl);
+    min-width: 0;
+    width: 100%;
+    max-width: 56rem;
+    margin-inline: auto;
   }
 
-  /* -- Header ------------------------------------------------------------- */
+  .scene__statement {
+    width: 100%;
+    max-width: 56rem;
+    margin-inline: auto;
+  }
+
+  /* -- Header --------------------------------------------------------------- */
+
+  .scene__number {
+    margin-bottom: var(--cu-space-2xs);
+    font-family: var(--cu-font-display);
+    font-size: var(--cu-step-1);
+    font-style: italic;
+    color: var(--cu-accent-soft);
+  }
 
   .scene__title {
-    font-size: var(--cu-step-5);
-    line-height: 0.96;
+    max-width: 16ch;
+    font-size: clamp(3rem, 11vw, 9rem);
+    line-height: 0.92;
     letter-spacing: var(--cu-tracking-display);
     color: var(--cu-hueso);
+    text-wrap: balance;
   }
 
   .scene__subtitle {
-    margin-top: var(--cu-space-2xs);
-    font-size: var(--cu-step--1);
+    margin-top: var(--cu-space-xs);
+    font-size: var(--cu-step-0);
     font-style: italic;
     color: var(--cu-accent-soft);
   }
@@ -353,16 +433,24 @@ const fog = FOG[slug] ?? 'light';
     color: var(--cu-hueso-soft);
   }
 
+  /* No photograph yet: a typographic full screen holds the same rhythm. */
+  .scene__header--opener {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 88svh;
+    margin-top: calc(var(--cu-chapter-gap) * -0.4);
+    padding-bottom: var(--cu-space-xl);
+  }
+
   /* -- The chapter's cita --------------------------------------------------
      One quotation, on its own, at the largest size that is still a sentence
-     and not a headline: 36px on a desktop, 24px on a phone. Nothing overlaps
-     it, and it carries no gradient and no lift. The size and the measure do
-     the work. */
+     and not a headline: 36px on a desktop, 24px on a phone. */
 
   .scene__statement {
     display: grid;
     gap: var(--cu-space-xs);
-    margin: 0;
+    margin-block: 0;
   }
 
   .scene__statement-quote {
@@ -387,8 +475,6 @@ const fog = FOG[slug] ?? 'light';
     }
   }
 
-  /* The one line that says who is speaking, and whether it is yet a record.
-     Sentence case: this is a credit, not a label. */
   .scene__statement-caption {
     display: flex;
     flex-wrap: wrap;
@@ -398,71 +484,7 @@ const fog = FOG[slug] ?? 'light';
     color: var(--cu-bruma-300);
   }
 
-  /* -- Stage: the photograph that holds the screen ------------------------ */
-
-  .scene__stage {
-    margin: 0;
-    /* Full-bleed on a phone: the photograph runs to both edges. */
-    margin-inline: calc(var(--cu-gutter) * -1);
-  }
-
-  .scene__stage-frame {
-    position: relative;
-    overflow: clip;
-    height: 72svh;
-    background-color: var(--cu-monte-900);
-  }
-
-  .scene__stage-image {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  /* The fog canvas paints over the photograph and under the caption. */
-  .scene__fog {
-    position: absolute;
-    inset: 0;
-    z-index: 2;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-  }
-
-  .scene__stage-frame :global(.u-scrim) {
-    z-index: 1;
-  }
-
-  .scene__stage-caption {
-    position: absolute;
-    inset: auto 0 0 0;
-    z-index: 3;
-    display: grid;
-    gap: var(--cu-space-3xs);
-    padding: var(--cu-space-md) var(--cu-gutter) var(--cu-space-sm);
-    color: var(--cu-hueso);
-  }
-
-  .scene__stage-text {
-    max-width: var(--cu-measure);
-    font-size: var(--cu-step--1);
-    line-height: 1.5;
-    text-wrap: pretty;
-  }
-
-  /* The credit sits over a photograph; lift it off the faint ink used on the
-     page ground. */
-  .scene__stage-caption :global(.credit),
-  .scene__stage-caption :global(.credit__author),
-  .scene__stage-caption :global(.credit__license),
-  .scene__stage-caption :global(.credit__link) {
-    color: var(--cu-bruma-200);
-  }
-
-  /* -- Narration and evidence --------------------------------------------- */
+  /* -- Narration and evidence ---------------------------------------------- */
 
   .scene__narration {
     display: grid;
@@ -474,13 +496,16 @@ const fog = FOG[slug] ?? 'light';
     min-width: 0;
   }
 
-  /* -- Aside: one tall photograph beside the narration -------------------- */
+  /* -- Aside: tall photographs beside the narration ------------------------- */
 
   .scene__aside {
     display: grid;
     gap: var(--cu-space-md);
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
     align-items: start;
+    width: 100%;
+    max-width: 56rem;
+    margin-inline: auto;
   }
 
   .scene__aside-figure {
@@ -505,7 +530,7 @@ const fog = FOG[slug] ?? 'light';
     color: var(--cu-text-muted);
   }
 
-  /* -- Pending stub ------------------------------------------------------- */
+  /* -- Pending stub --------------------------------------------------------- */
 
   .scene__pending {
     max-width: var(--cu-measure);
@@ -520,231 +545,25 @@ const fog = FOG[slug] ?? 'light';
     color: var(--cu-text-muted);
   }
 
-  /* -- Wide layout: stage left, held; flow right, scrolling --------------- */
-
-  @media (min-width: 64rem) {
-    .scene__inner {
-      grid-template-columns: minmax(0, 0.94fr) minmax(0, 1.06fr);
-      column-gap: var(--cu-space-xl);
-      align-items: start;
-    }
-
-    .scene__header {
-      grid-column: 2;
-      grid-row: 1;
-    }
-
-    .scene__body {
-      grid-column: 2;
-      grid-row: 2;
-    }
-
-    /* The signature move: the photograph is pinned in place while the text
-       column scrolls past it. Pure CSS, no script required to hold it. */
-    .scene__stage {
-      grid-column: 1;
-      grid-row: 1 / span 2;
-      position: sticky;
-      top: var(--cu-stage-top);
-      align-self: start;
-      height: 100svh;
-      margin-inline: 0;
-    }
-
-    .scene__stage-frame {
-      height: 100%;
+  @media (max-width: 47.99rem) {
+    .scene__hold {
+      height: 45svh;
     }
   }
 
-  /* Reduced motion: no held frame, no scripted beats. Everything is a plain,
-     complete document. */
+  /* Reduced motion: no held frame, no curtain. A full-screen photograph, then
+     the text, then the next photograph: complete, plain, still. */
   @media (prefers-reduced-motion: reduce) {
-    .scene__stage {
+    .scene__cover {
       position: relative;
-      top: auto;
-      height: auto;
     }
 
-    .scene__stage-frame {
-      height: 72svh;
-    }
-  }
-
-  /* =======================================================================
-     Composed layouts.
-     `stage` (above) is the original geometry and the default. Each of the
-     three below is a different geometry - a different grid, a different place
-     for the photograph, a different block leading the section - not a
-     reordering of the same blocks.
-     ===================================================================== */
-
-  /* -- The seam: a chronology that crosses the section on its own ---------- */
-
-  .scene__seam {
-    min-width: 0;
-  }
-
-  /* -- band: the photograph runs as a wide horizontal strip; the chronology
-        crosses the section; the narration sits in a narrow measure below it.
-        The idea: the coffee is a calendar, a line in time. ----------------- */
-
-  .scene--layout-band .scene__stage {
-    position: relative;
-    height: clamp(15rem, 40svh, 23rem);
-  }
-
-  .scene--layout-band .scene__stage-frame {
-    height: 100%;
-  }
-
-  /* The narration drops to a narrow column, so the eye reads the wide band
-     above it and the line across as one horizontal gesture. */
-  .scene--layout-band .scene__narration,
-  .scene--layout-band .scene__pending {
-    max-width: var(--cu-measure-narrow);
-  }
-
-  /* The chronology crosses the whole section, edges to edge. */
-  .scene--layout-band .scene__seam {
-    margin-inline: calc(var(--cu-gutter) * -1);
-  }
-
-  /* -- mist: the statement opens the section over the fog, before the
-        heading, and the photographs enter afterwards in a strip. The words
-        condense out of the weather, the same gesture the hero uses. ------- */
-
-  .scene--layout-mist .scene__stage {
-    position: relative;
-    height: clamp(17rem, 48svh, 26rem);
-  }
-
-  .scene--layout-mist .scene__stage-frame {
-    height: 100%;
-  }
-
-  /* -- fork: two halves that face each other, with the chronology as the
-        seam between them. Staying or leaving has two sides. ---------------- */
-
-  .scene--layout-fork .scene__stage {
-    position: relative;
-    /* Each half reads as a panel, so the photograph is held inside the
-       measure instead of running to both edges. */
-    margin-inline: 0;
-    height: clamp(20rem, 56svh, 32rem);
-  }
-
-  .scene--layout-fork .scene__stage-frame {
-    height: 100%;
-  }
-
-  /* -- Wide: the composed grids ------------------------------------------- */
-
-  @media (min-width: 64rem) {
-    /* band: one full-width run; the band, the chronology seam, then the
-       narration in a narrow measure below it. */
-    .scene--layout-band .scene__inner {
-      grid-template-columns: minmax(0, 1fr);
-      row-gap: var(--cu-space-lg);
+    .scene__hold {
+      display: none;
     }
 
-    .scene--layout-band .scene__header {
-      grid-column: 1;
-      grid-row: 1;
-    }
-
-    .scene--layout-band .scene__stage {
-      grid-column: 1;
-      grid-row: 2;
-      position: relative;
-      height: clamp(20rem, 52svh, 38rem);
-      margin-inline: calc(var(--cu-gutter) * -1);
-    }
-
-    .scene--layout-band .scene__seam {
-      grid-column: 1;
-      grid-row: 3;
-    }
-
-    .scene--layout-band .scene__body {
-      grid-column: 1;
-      grid-row: 4;
-    }
-
-    /* The narration holds a narrow measure on the left; the photograph takes
-       the empty right of the same row, level with the opening of the body. */
-    .scene--layout-band .scene__aside {
-      grid-column: 1;
-      grid-row: 4;
-      justify-self: end;
-      align-self: start;
-      /* One column of tall frames down the empty right; the narration keeps
-         its own narrow measure on the left. */
-      width: min(calc(100% - var(--cu-measure-narrow) - var(--cu-space-lg)), 18rem);
-      grid-template-columns: minmax(0, 1fr);
-    }
-
-    /* mist: content hangs off-centre in the wide column; the right column is
-       a deliberate void where the fog sits. The statement spans the lot. */
-    .scene--layout-mist .scene__inner {
-      grid-template-columns: minmax(0, 1fr) minmax(0, 0.28fr);
-      column-gap: var(--cu-space-2xl);
-      align-items: start;
-    }
-
-    /* The block below returns the section to one stack, so the base rows
-       (`stage` pins itself across rows 1-2) must not leak in: every child
-       takes its own row in DOM order — statement, title, strip, narration —
-       and nothing is laid over anything. */
-    .scene--layout-mist .scene__statement,
-    .scene--layout-mist .scene__stage,
-    .scene--layout-mist .scene__seam {
-      grid-column: 1 / -1;
-      grid-row: auto;
-    }
-
-    .scene--layout-mist .scene__header,
-    .scene--layout-mist .scene__body {
-      grid-column: 1;
-      grid-row: auto;
-    }
-
-    .scene--layout-mist .scene__stage {
-      position: static;
-      grid-row: auto;
-      height: clamp(18rem, 46svh, 32rem);
-      margin-inline: calc(var(--cu-gutter) * -1);
-    }
-
-    /* fork: two equal halves that face each other, the seam crossing below
-       them, the rest of the chapter running full width underneath. */
-    .scene--layout-fork .scene__inner {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      column-gap: var(--cu-space-2xl);
-      row-gap: var(--cu-space-xl);
-      align-items: center;
-    }
-
-    .scene--layout-fork .scene__header {
-      grid-column: 1;
-      grid-row: 1;
-    }
-
-    .scene--layout-fork .scene__stage {
-      grid-column: 2;
-      grid-row: 1;
-      position: relative;
-      margin-inline: 0;
-      height: clamp(24rem, 62svh, 44rem);
-    }
-
-    .scene--layout-fork .scene__seam {
-      grid-column: 1 / -1;
-      grid-row: 2;
-    }
-
-    .scene--layout-fork .scene__body {
-      grid-column: 1 / -1;
-      grid-row: 3;
+    .scene--cover .scene__content {
+      box-shadow: none;
     }
   }
 </style>

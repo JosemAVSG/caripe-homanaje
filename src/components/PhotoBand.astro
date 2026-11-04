@@ -18,6 +18,7 @@ const photo = getPhoto(bandPhoto.photo);
   <figure class="band__figure" data-band>
     <Image
       class="band__image"
+      data-band-img
       src={photo.src}
       alt={bandPhoto.alt}
       widths={[960, 1440, 1920]}
@@ -27,7 +28,7 @@ const photo = getPhoto(bandPhoto.photo);
       loading="lazy"
       decoding="async"
     />
-    <div class="u-scrim" aria-hidden="true"></div>
+    <div class="u-scrim u-scrim--deep" aria-hidden="true"></div>
     <figcaption class="band__caption">
       <span class="band__text">{bandPhoto.caption}</span>
       <PhotoCreditLine credit={photo.credit} />
@@ -43,7 +44,7 @@ const photo = getPhoto(bandPhoto.photo);
   .band__figure {
     position: relative;
     margin: 0;
-    min-height: clamp(24rem, 72svh, 46rem);
+    height: 100svh;
     overflow: clip;
     background-color: var(--cu-monte-900);
   }
@@ -54,6 +55,7 @@ const photo = getPhoto(bandPhoto.photo);
     width: 100%;
     height: 100%;
     object-fit: cover;
+    will-change: transform;
     filter: saturate(0.84) contrast(1.04) brightness(0.96);
   }
 
@@ -63,13 +65,14 @@ const photo = getPhoto(bandPhoto.photo);
     z-index: 2;
     display: grid;
     gap: var(--cu-space-3xs);
-    padding: var(--cu-space-md) var(--cu-gutter) var(--cu-space-sm);
+    padding: var(--cu-space-md) var(--cu-gutter) 4.75rem;
     color: var(--cu-hueso);
   }
 
   .band__text {
-    max-width: var(--cu-measure);
-    font-size: var(--cu-step--1);
+    max-width: 42rem;
+    font-family: var(--cu-font-display);
+    font-size: var(--cu-step-1);
     line-height: 1.5;
     text-wrap: pretty;
   }
