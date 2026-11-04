@@ -5,14 +5,16 @@ import FullBleedImage from './FullBleedImage.astro';
 import PhotoCreditLine from './PhotoCreditLine.astro';
 
 /**
- * A chapter's photographic documentation, as a stack of full-screen panels.
+ * A chapter's photographic documentation, as one pinned full-screen scene.
  *
- * Every photograph holds the whole screen. The panels are `position: sticky`
- * siblings, so each one stays put while the next scrolls up over it like a
- * curtain: the transition is the scroll itself, with no script needed to hold
- * it. `motion.ts` only adds depth on top (the covered photo sinks and dims, the
- * arriving one opens from a window); with motion off the panels are a plain
- * run of full-screen photographs.
+ * With motion on, the reel is a tall section holding a single sticky stage; the
+ * photographs are stacked inside it and `motion.ts` plays them as a slow,
+ * scroll-scrubbed sequence: each one dissolves into view, holds still while its
+ * caption fades in and is read, the caption leaves, and only then does the next
+ * photograph begin to dissolve. Nothing cuts and nothing flashes.
+ *
+ * With reduced motion, or without script, the panels are simply a run of
+ * full-screen photographs, one after another.
  *
  * Caption and attribution stay inside the `<figcaption>`, as the licences
  * require. Each panel is a real `<figure>` with the honest alt text.
@@ -26,7 +28,8 @@ const panels = gallery.images.map((image) => ({ image, photo: getPhoto(image.pho
 const total = panels.length;
 ---
 
-<section class="reel" aria-label={gallery.label ?? 'Fotografías del capítulo'} data-reel>
+<section class="reel" style={`--n:${total}`} aria-label={gallery.label ?? 'Fotografías del capítulo'} data-reel>
+  <div class="reel__stage" data-reel-stage>
   {
     panels.map(({ image, photo }, index) => (
       <figure class="reel__panel" data-reel-panel>
@@ -44,6 +47,7 @@ const total = panels.length;
       </figure>
     ))
   }
+  </div>
 </section>
 
 <style>
@@ -54,17 +58,30 @@ const total = panels.length;
   }
 
   .reel__panel {
-    position: sticky;
-    top: 0;
+    position: relative;
     margin: 0;
     height: 100svh;
     overflow: hidden;
     background-color: var(--cu-monte-900);
   }
 
-  /* The arriving panel casts a soft edge on the one it covers. */
-  .reel__panel + .reel__panel {
-    box-shadow: 0 -2.5rem 4rem -1rem rgba(6, 13, 8, 0.55);
+  /* Pinned mode, switched on by motion.ts: one sticky screen, N slots of
+     scroll, every photograph stacked in it. */
+  .reel:global(.is-pinned) {
+    height: calc(var(--n) * var(--cu-reel-slot, 240svh));
+  }
+
+  .reel:global(.is-pinned) .reel__stage {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    overflow: hidden;
+  }
+
+  .reel:global(.is-pinned) .reel__panel {
+    position: absolute;
+    inset: 0;
+    height: 100%;
   }
 
   .reel__caption {
@@ -100,10 +117,9 @@ const total = panels.length;
     color: var(--cu-bruma-200);
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .reel__panel {
-      position: relative;
-      box-shadow: none;
+  @media (max-width: 47.99rem) {
+    .reel {
+      --cu-reel-slot: 200svh;
     }
   }
 </style>

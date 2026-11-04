@@ -197,8 +197,8 @@ function trackPlates(): void {
  *
  *   · a chapter's cover settles from a slow zoom while it is held, then drifts
  *     up and darkens as the text rises over it; its title lifts away;
- *   · a reel photograph sinks and dims while the next one covers it, and
- *     arrives already opening from a slight zoom;
+ *   · a gallery is one pinned screen: each photograph dissolves into the next
+ *     while its caption fades in and out, with time to read between them;
  *   · the full-bleed band does the same.
  *
  * Nothing is hidden by CSS: each tween starts from the resting state's
@@ -252,63 +252,65 @@ function trackCinema(): void {
     }
 
     // -- Photograph reels -----------------------------------------------------
+    // One pinned screen per chapter gallery, played as a slow sequence. Slot i
+    // spans one unit of timeline time:
+    //   i .. i+0.35      the photograph dissolves in over the previous one,
+    //                    which stays fully opaque beneath it (no dark dip);
+    //   i+0.35 .. i+0.55 its caption fades in;
+    //   i+0.55 .. i+0.85 held still, slowly drifting, while it is read;
+    //   i+0.85 .. i+1    its caption fades out, before the next dissolve begins.
+    // The last photograph keeps its caption to the end.
     for (const reel of gsap.utils.toArray<HTMLElement>('[data-reel]')) {
       const panels = gsap.utils.toArray<HTMLElement>('[data-reel-panel]', reel);
+      if (panels.length < 2) continue;
 
-      panels.forEach((panel, index) => {
-        const img = panel.querySelector<HTMLElement>('[data-fb]');
-        if (!img) return;
+      reel.classList.add('is-pinned');
 
-        // Arriving: opens from a window and a zoom as it covers the previous.
-        gsap.fromTo(
-          panel,
-          { clipPath: 'inset(14% 6% 0% 6%)' },
-          {
-            clipPath: 'inset(0% 0% 0% 0%)',
-            ease: 'none',
-            scrollTrigger: {
-              trigger: panel,
-              start: 'top bottom',
-              end: 'top top',
-              scrub: 0.4,
-              invalidateOnRefresh: true,
-            },
-          },
-        );
-        gsap.fromTo(
-          img,
-          { scale: 1.22 },
-          {
-            scale: 1.04,
-            ease: 'none',
-            scrollTrigger: {
-              trigger: panel,
-              start: 'top bottom',
-              end: 'top top',
-              scrub: 0.4,
-              invalidateOnRefresh: true,
-            },
-          },
-        );
+      const images = panels.map((panel) => panel.querySelector<HTMLElement>('[data-fb]'));
+      const captions = panels.map((panel) => panel.querySelector<HTMLElement>('figcaption'));
 
-        // Being covered by the next one: sinks and dims.
-        const next = panels[index + 1];
-        if (next) {
-          gsap.to(img, {
-            scale: 0.94,
-            filter: 'brightness(0.45)',
-            ease: 'none',
-            immediateRender: false,
-            scrollTrigger: {
-              trigger: next,
-              start: 'top bottom',
-              end: 'top top',
-              scrub: 0.4,
-              invalidateOnRefresh: true,
-            },
-          });
+      gsap.set(panels.slice(1), { autoAlpha: 0 });
+      gsap.set(captions, { autoAlpha: 0, y: 18 });
+
+      const tl = gsap.timeline({
+        defaults: { ease: 'none' },
+        scrollTrigger: {
+          trigger: reel,
+          start: 'top top',
+          end: 'bottom bottom',
+          scrub: 1.1,
+          invalidateOnRefresh: true,
+        },
+      });
+
+      panels.forEach((panel, i) => {
+        const last = i === panels.length - 1;
+
+        if (i > 0) {
+          tl.to(panel, { autoAlpha: 1, ease: 'power1.inOut', duration: 0.35 }, i);
+          // Once the new photograph fully covers it, the old one can go.
+          tl.set(panels[i - 1], { autoAlpha: 0 }, i + 0.35);
+        }
+
+        const img = images[i];
+        if (img) {
+          tl.fromTo(
+            img,
+            { scale: 1.12 },
+            { scale: 1.0, duration: last ? 1 : 1.35 },
+            i,
+          );
+        }
+
+        const cap = captions[i];
+        if (cap) {
+          tl.to(cap, { autoAlpha: 1, y: 0, ease: 'power1.out', duration: 0.2 }, i + (i === 0 ? 0.05 : 0.35));
+          if (!last) tl.to(cap, { autoAlpha: 0, y: -12, ease: 'power1.in', duration: 0.15 }, i + 0.85);
         }
       });
+
+      // Pad the end so the last photograph rests on screen before it leaves.
+      tl.to({}, { duration: 0.35 }, panels.length);
     }
 
     // -- The full-bleed band --------------------------------------------------
@@ -564,6 +566,13 @@ function revealAll(): void {
     }
     for (const instance of document.querySelectorAll<HTMLElement>('[data-forming]')) {
       if (instance.dataset.forming !== 'done') instance.dataset.forming = 'idle';
+    }
+    // A pinned reel must fall back to its plain run of full-screen photographs.
+    for (const reel of document.querySelectorAll<HTMLElement>('[data-reel]')) {
+      reel.classList.remove('is-pinned');
+      gsap.set(reel.querySelectorAll('[data-reel-panel], [data-reel-panel] figcaption, [data-fb]'), {
+        clearProps: 'all',
+      });
     }
     ScrollTrigger.refresh();
   } catch {
