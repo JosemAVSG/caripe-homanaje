@@ -215,7 +215,7 @@ function trackCinema(): void {
       const title = scene.querySelector<HTMLElement>('[data-cover-title]');
       const veil = scene.querySelector<HTMLElement>('[data-cover-veil]');
       const hold = scene.querySelector<HTMLElement>('[data-cover-hold]');
-      const content = scene.querySelector<HTMLElement>('[data-content]');
+      const content = scene.querySelector<HTMLElement>('[data-story], [data-content]');
       if (!cover || !photo || !hold || !content) continue;
 
       // Arrives from below and is held: the photograph settles from a zoom.
@@ -311,6 +311,73 @@ function trackCinema(): void {
 
       // Pad the end so the last photograph rests on screen before it leaves.
       tl.to({}, { duration: 0.35 }, panels.length);
+    }
+
+    // -- The story: the chapter's words, told over its photographs -----------
+    // One pinned screen. Photographs are grouped; each group holds the beats
+    // told over it, one per unit of timeline time, in turn:
+    //   photograph dissolves in over the previous one (0.35, none for the first)
+    //   beat i:  fades up (0.2) at +0.35, is read, fades out (0.15) at +0.9
+    //   caption: fades in with the group's first beat, out at the group's end.
+    // The previous photograph stays opaque beneath the arriving one, so the
+    // dissolve never dips dark. The last beat keeps its place to the end.
+    for (const story of gsap.utils.toArray<HTMLElement>('[data-story]')) {
+      const panels = gsap.utils.toArray<HTMLElement>('[data-story-panel]', story);
+      if (!panels.length) continue;
+
+      story.classList.add('is-pinned');
+      gsap.set(panels.slice(1), { autoAlpha: 0 });
+      gsap.set(story.querySelectorAll('[data-story-beat], [data-story-caption]'), {
+        autoAlpha: 0,
+        y: 22,
+      });
+
+      const tl = gsap.timeline({
+        defaults: { ease: 'none' },
+        scrollTrigger: {
+          trigger: story,
+          start: 'top top',
+          end: 'bottom bottom',
+          scrub: 1.1,
+          invalidateOnRefresh: true,
+        },
+      });
+
+      let t = 0;
+      panels.forEach((panel, gi) => {
+        const beats = gsap.utils.toArray<HTMLElement>('[data-story-beat]', panel);
+        const caption = panel.querySelector<HTMLElement>('[data-story-caption]');
+        const img = panel.querySelector<HTMLElement>('[data-fb]');
+        const dur = Math.max(1, beats.length);
+        const lastGroup = gi === panels.length - 1;
+
+        if (gi > 0) {
+          tl.to(panel, { autoAlpha: 1, ease: 'power1.inOut', duration: 0.35 }, t);
+          tl.set(panels[gi - 1], { autoAlpha: 0 }, t + 0.35);
+        }
+        if (img) tl.fromTo(img, { scale: 1.1 }, { scale: 1.0, duration: dur + (lastGroup ? 0.35 : 0) }, t);
+
+        const first = t + (gi === 0 ? 0.05 : 0.35);
+        if (caption) {
+          tl.to(caption, { autoAlpha: 1, y: 0, ease: 'power1.out', duration: 0.2 }, first);
+          if (!lastGroup) tl.to(caption, { autoAlpha: 0, y: -10, ease: 'power1.in', duration: 0.15 }, t + dur - 0.15);
+        }
+
+        beats.forEach((beat, bi) => {
+          const at = t + bi + (gi === 0 && bi === 0 ? 0.05 : 0.35);
+          const lastBeat = lastGroup && bi === beats.length - 1;
+          tl.to(beat, { autoAlpha: 1, y: 0, ease: 'power1.out', duration: 0.2 }, at);
+          if (!lastBeat) {
+            // Leaves just before the next beat (or the next photograph) arrives.
+            tl.to(beat, { autoAlpha: 0, y: -14, ease: 'power1.in', duration: 0.15 }, t + bi + 0.85);
+          }
+        });
+
+        t += dur;
+      });
+
+      // Rest on the last beat before the stage lets go.
+      tl.to({}, { duration: 0.35 }, t);
     }
 
     // -- The full-bleed band --------------------------------------------------
@@ -571,6 +638,12 @@ function revealAll(): void {
     for (const reel of document.querySelectorAll<HTMLElement>('[data-reel]')) {
       reel.classList.remove('is-pinned');
       gsap.set(reel.querySelectorAll('[data-reel-panel], [data-reel-panel] figcaption, [data-fb]'), {
+        clearProps: 'all',
+      });
+    }
+    for (const story of document.querySelectorAll<HTMLElement>('[data-story]')) {
+      story.classList.remove('is-pinned');
+      gsap.set(story.querySelectorAll('[data-story-panel], [data-story-beat], [data-story-caption], [data-fb]'), {
         clearProps: 'all',
       });
     }

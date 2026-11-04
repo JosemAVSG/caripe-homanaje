@@ -186,6 +186,14 @@ as a stack of full-screen panels that each cover the one before
 are held whole over a blurred copy of themselves (`FullBleedImage.astro`). A
 chapter with no photograph yet opens on a full-height typographic panel.
 
+**The story over the photographs.** A chapter with a cover, narration and
+photographs tells its beats ON the photographs (`ChapterStory.astro`): one
+pinned screen, beats dealt out to photographs in order, each one fading up over
+the held image, read, and leaving before the next arrives; a new photograph
+dissolves in only once the previous beat is gone. Chapters with no photographs
+yet (04, 05) keep the plain text composition. Without script or with reduced
+motion each photograph is a full-screen panel with its beats in the flow.
+
 Generic hooks you can reuse from markup: `data-pin` +
 `data-pin-distance` (viewport-height multiplier), `data-reveal`, `data-timeline`,
 `data-depth` (fog parallax weight).

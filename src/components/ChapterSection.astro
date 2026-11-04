@@ -3,6 +3,7 @@ import { Image } from 'astro:assets';
 import type { Chapter, ChapterLayout } from '../content/types';
 import Beat from './Beat.astro';
 import ChapterGallery from './ChapterGallery.astro';
+import ChapterStory from './ChapterStory.astro';
 import ChapterTimeline from './ChapterTimeline.astro';
 import CloudBanks from './CloudBanks.astro';
 import CoffeeBranches from './CoffeeBranches.astro';
@@ -94,6 +95,11 @@ const restImages = stageImage ? allImages.filter((image) => image !== stageImage
 const hasGallery = restImages.length > 0;
 const stagePhoto = stageImage ? getPhoto(stageImage.photo) : null;
 const hasCover = Boolean(stagePhoto && stageImage);
+
+// With a cover, beats and photographs to spare, the narration is told ON the
+// photographs (`ChapterStory`) instead of in a column on a solid field. A
+// chapter without photographs, or without beats, keeps the plain composition.
+const isStory = hasCover && hasBeats && hasGallery;
 const asideFigures = (aside ?? []).map((image) => ({ image, photo: getPhoto(image.photo) }));
 
 // Fog density is a design decision about this chapter's weather, not a claim
@@ -111,7 +117,7 @@ const fog = FOG[slug] ?? 'light';
 ---
 
 <section
-  class:list={['scene', `scene--${tone}`, hasCover ? 'scene--cover' : 'scene--opener', pending && 'scene--pending', !isStage && `scene--layout-${layout}`]}
+  class:list={['scene', `scene--${tone}`, hasCover ? 'scene--cover' : 'scene--opener', isStory && 'scene--story', pending && 'scene--pending', !isStage && `scene--layout-${layout}`]}
   {...(!isStage ? { 'data-layout': layout } : {})}
   id={slug}
   data-scene
@@ -152,6 +158,8 @@ const fog = FOG[slug] ?? 'light';
       </>
     ) : null
   }
+
+  {isStory ? <ChapterStory beats={beats} images={restImages} label={gallery?.label} /> : null}
 
   <div class="scene__content" data-content>
     {decor === 'coffee-branches' ? <CoffeeBranches /> : null}
@@ -205,7 +213,7 @@ const fog = FOG[slug] ?? 'light';
         }
 
         {
-          hasBeats ? (
+          hasBeats && !isStory ? (
             <div class="scene__narration">
               {beats.map((beat) => (
                 <Beat beat={beat} />
@@ -258,7 +266,7 @@ const fog = FOG[slug] ?? 'light';
     </div>
   </div>
 
-  {hasGallery ? <ChapterGallery gallery={{ label: gallery!.label, images: restImages }} /> : null}
+  {hasGallery && !isStory ? <ChapterGallery gallery={{ label: gallery!.label, images: restImages }} /> : null}
 </section>
 
 <style>
@@ -372,6 +380,12 @@ const fog = FOG[slug] ?? 'light';
      a sheet passing over the image, not a seam. */
   .scene--cover .scene__content {
     box-shadow: 0 -3rem 5rem -1.5rem rgba(6, 13, 8, 0.6);
+  }
+
+  /* After the story the field follows a photograph, so it needs no curtain
+     shadow of its own. */
+  .scene--story .scene__content {
+    box-shadow: none;
   }
 
   .scene__inner {
