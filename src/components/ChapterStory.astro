@@ -1,0 +1,298 @@
+---
+import type { Beat, ChapterImage } from '../content/types';
+import { getPhoto } from '../content/photos';
+import FullBleedImage from './FullBleedImage.astro';
+import PhotoCreditLine from './PhotoCreditLine.astro';
+
+/**
+ * The chapter's narration, told over its photographs.
+ *
+ * Each photograph holds the whole screen and the story's words appear ON it,
+ * one at a time, as the reader scrolls. This is the chapter's main reading
+ * experience: the text is not a column beside the picture, it is a caption the
+ * picture speaks.
+ *
+ * Beats are dealt out to photographs in order. When there are more beats than
+ * photographs a photograph carries several beats in turn; when there are more
+ * photographs than beats, some photographs simply rest with their own caption.
+ * Either way the story reads in its original order and nothing is dropped.
+ *
+ * With motion on, `motion.ts` pins one stage and plays the whole sequence as a
+ * slow scrub: a beat fades up over the held photograph, is read, and leaves
+ * before the next arrives; a new photograph only begins to dissolve in once
+ * the previous beat is gone. With reduced motion, or without script, each
+ * photograph is a plain full-screen panel with its beats in the page flow.
+ *
+ * The two voices stay unmistakable over the image: the documentary voice is
+ * sober serif in the full ink with a source line; the testimony is italic
+ * display serif with a warm rule and its attribution below.
+ */
+interface Props {
+  beats: Beat[];
+  images: ChapterImage[];
+  label?: string;
+}
+
+const { beats, images, label } = Astro.props;
+
+/** One group per photograph, each holding the beats told over it. */
+const groups = images.map((image) => ({
+  image,
+  photo: getPhoto(image.photo),
+  beats: [] as Beat[],
+}));
+
+// Spread the beats evenly across the photographs, in order. With more beats
+// than photographs a photograph tells several; with fewer, some just rest.
+beats.forEach((beat, index) => {
+  groups[Math.floor((index * groups.length) / beats.length)].beats.push(beat);
+});
+
+/** A photograph with no beats still holds the screen for one unit. */
+const units = groups.reduce((sum, group) => sum + Math.max(1, group.beats.length), 0);
+const total = groups.length;
+---
+
+<section
+  class="story"
+  style={`--units:${units}`}
+  aria-label={label ?? 'El relato del capítulo'}
+  data-story
+>
+  <div class="story__stage" data-story-stage>
+    {
+      groups.map(({ image, photo, beats: told }, index) => (
+        <figure class="story__panel" data-story-panel>
+          <FullBleedImage src={photo.src} alt={image.alt} />
+          <div class="story__shade" aria-hidden="true"></div>
+
+          {told.length > 0 ? (
+            <div class="story__beats">
+              {told.map((beat) =>
+                beat.voice === 'testimonio' ? (
+                  <figure class="story__beat story__beat--testimonio" data-story-beat>
+                    <blockquote class="story__quote">
+                      <p>{beat.text}</p>
+                    </blockquote>
+                    <figcaption class="story__voice">
+                      <span>Testimonio</span>
+                      {beat.placeholder ? <span class="story__note">voz preliminar</span> : null}
+                      {beat.attribution ? <span class="story__note">{beat.attribution}</span> : null}
+                    </figcaption>
+                  </figure>
+                ) : (
+                  <div class="story__beat story__beat--documental" data-story-beat>
+                    <p class="story__text">{beat.text}</p>
+                    {beat.source ? (
+                      <p class="story__source">
+                        <span>Fuente</span> <cite>{beat.source.label}</cite>
+                      </p>
+                    ) : null}
+                  </div>
+                ),
+              )}
+            </div>
+          ) : null}
+
+          <figcaption class="story__caption" data-story-caption>
+            {label ? (
+              <span class="story__count">
+                {label} · {String(index + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
+              </span>
+            ) : null}
+            <span class="story__caption-text">{image.caption}</span>
+            <PhotoCreditLine credit={photo.credit} />
+          </figcaption>
+        </figure>
+      ))
+    }
+  </div>
+</section>
+
+<style>
+  .story {
+    position: relative;
+    z-index: 1;
+    background-color: var(--cu-monte-950);
+    /* The sheet that rises over the held cover. */
+    box-shadow: 0 -3rem 5rem -1.5rem rgba(6, 13, 8, 0.6);
+  }
+
+  /* -- At rest (no script / reduced motion): plain full-screen panels ------- */
+
+  .story__panel {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: var(--cu-space-lg);
+    min-height: 100svh;
+    margin: 0;
+    padding: clamp(5rem, 12vh, 7rem) var(--cu-gutter) 8rem;
+    overflow: hidden;
+    background-color: var(--cu-monte-900);
+  }
+
+  /* A flat tone over the photograph: keeps words legible, no gradient. */
+  .story__shade {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background-color: rgba(6, 13, 8, 0.57);
+    pointer-events: none;
+  }
+
+  .story__beats {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    gap: var(--cu-space-lg);
+    max-width: 44rem;
+  }
+
+  .story__beat {
+    margin: 0;
+    grid-area: auto;
+  }
+
+  /* Pinned mode, switched on by motion.ts: one sticky screen, the whole
+     sequence as scroll. */
+  .story:global(.is-pinned) {
+    height: calc((var(--units) + 0.35) * var(--cu-story-slot, 250svh));
+  }
+
+  .story:global(.is-pinned) .story__stage {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    overflow: hidden;
+  }
+
+  .story:global(.is-pinned) .story__panel {
+    position: absolute;
+    inset: 0;
+    display: block;
+    min-height: 0;
+    padding: 0;
+  }
+
+  .story:global(.is-pinned) .story__beats {
+    position: absolute;
+    inset: 0;
+    /* Every beat of a photograph shares one cell: they take turns. */
+    grid-template: 1fr / 1fr;
+    align-content: center;
+    align-items: center;
+    max-width: none;
+    padding: clamp(5rem, 12vh, 7rem) var(--cu-gutter) 9rem;
+    gap: 0;
+  }
+
+  .story:global(.is-pinned) .story__beat {
+    grid-area: 1 / 1;
+    max-width: 44rem;
+  }
+
+  /* -- Voice: documental ---------------------------------------------------- */
+
+  .story__text {
+    font-family: var(--cu-font-text);
+    font-size: clamp(1.25rem, 1.05rem + 1vw, 1.95rem);
+    font-weight: 400;
+    line-height: 1.45;
+    text-wrap: pretty;
+    color: var(--cu-hueso);
+  }
+
+  .story__source {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5em;
+    margin-top: var(--cu-space-xs);
+    font-size: var(--cu-step--2);
+    color: var(--cu-hueso-soft);
+  }
+
+  .story__source cite {
+    font-style: normal;
+  }
+
+  /* -- Voice: testimonio ---------------------------------------------------- */
+
+  .story__beat--testimonio {
+    padding-left: clamp(1.1rem, 3vw, 2rem);
+    border-left: 3px solid var(--cu-testimony-rule);
+  }
+
+  .story__quote {
+    margin: 0;
+  }
+
+  .story__quote p {
+    font-family: var(--cu-font-display);
+    font-size: clamp(1.4rem, 1.1rem + 1.5vw, 2.4rem);
+    font-style: italic;
+    font-variation-settings: 'opsz' 40, 'SOFT' 70, 'WONK' 1, 'wght' 400;
+    line-height: 1.32;
+    text-wrap: pretty;
+    color: var(--cu-hueso);
+  }
+
+  .story__voice {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4em 0.9em;
+    margin-top: var(--cu-space-sm);
+    font-size: var(--cu-step--2);
+    color: var(--cu-accent-soft);
+  }
+
+  .story__note {
+    font-style: italic;
+    color: var(--cu-bruma-200);
+  }
+
+  /* -- Caption of the photograph --------------------------------------------- */
+
+  .story__caption {
+    position: absolute;
+    inset: auto 0 0 0;
+    z-index: 3;
+    display: grid;
+    gap: var(--cu-space-3xs);
+    padding: var(--cu-space-md) var(--cu-gutter) 4.75rem;
+    color: var(--cu-hueso);
+  }
+
+  .story__count {
+    font-size: var(--cu-step--2);
+    letter-spacing: 0.04em;
+    color: var(--cu-accent-soft);
+  }
+
+  .story__caption-text {
+    max-width: 42rem;
+    font-size: var(--cu-step--1);
+    line-height: 1.5;
+    color: var(--cu-hueso-soft);
+    text-wrap: pretty;
+  }
+
+  .story__caption :global(.credit),
+  .story__caption :global(.credit__author),
+  .story__caption :global(.credit__license),
+  .story__caption :global(.credit__link) {
+    color: var(--cu-bruma-200);
+  }
+
+  @media (max-width: 47.99rem) {
+    .story {
+      --cu-story-slot: 230svh;
+    }
+
+    .story:global(.is-pinned) .story__beats {
+      align-content: start;
+      padding-top: clamp(5.5rem, 14vh, 7rem);
+    }
+  }
+</style>
