@@ -1,0 +1,109 @@
+---
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+/**
+ * A photograph that fills its parent edge to edge.
+ *
+ * Landscape images simply cover the frame. A portrait, a square or a vector
+ * (the municipal map) cannot cover a landscape screen without losing most of
+ * what it shows, so those are held whole (`contain`) over a blurred, darkened
+ * copy of themselves: the screen is still full, and nothing is cropped away.
+ */
+interface Props {
+  src: ImageMetadata;
+  alt: string;
+  eager?: boolean;
+  sizes?: string;
+  class?: string;
+}
+
+const { src, alt, eager = false, sizes = '100vw', class: className } = Astro.props;
+
+const isVector = src.format === 'svg';
+const ratio = src.width / src.height;
+const contained = isVector || ratio < 1.15;
+---
+
+<div class:list={['fb', contained && 'fb--contain', className]} data-fb>
+  {
+    contained && !isVector ? (
+      <Image
+        class="fb__backdrop"
+        src={src}
+        alt=""
+        aria-hidden="true"
+        widths={[240, 480]}
+        sizes="100vw"
+        format="webp"
+        quality={40}
+        loading="lazy"
+        decoding="async"
+      />
+    ) : null
+  }
+  {
+    isVector ? (
+      <img
+        class="fb__img"
+        data-fb-img
+        src={src.src}
+        width={src.width}
+        height={src.height}
+        alt={alt}
+        loading="lazy"
+        decoding="async"
+      />
+    ) : (
+      <Image
+        class="fb__img"
+        data-fb-img
+        src={src}
+        alt={alt}
+        widths={[960, 1400, 1920]}
+        sizes={sizes}
+        format="webp"
+        quality={76}
+        loading={eager ? 'eager' : 'lazy'}
+        decoding="async"
+      />
+    )
+  }
+</div>
+
+<style>
+  .fb {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    background-color: var(--cu-monte-900);
+  }
+
+  .fb__img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* The one tonal treatment that unifies an archive shot on many cameras. */
+    filter: saturate(0.88) contrast(1.04) brightness(0.92);
+    transform-origin: 50% 50%;
+    will-change: transform;
+  }
+
+  .fb--contain .fb__img {
+    object-fit: contain;
+    /* Leave room for the caption and the page's own margins. */
+    padding: clamp(1rem, 5vh, 4rem) clamp(0.5rem, 4vw, 4rem) clamp(8rem, 18vh, 11rem);
+  }
+
+  .fb__backdrop {
+    position: absolute;
+    inset: -6%;
+    width: 112%;
+    height: 112%;
+    max-width: none;
+    object-fit: cover;
+    filter: blur(28px) saturate(0.7) brightness(0.55);
+  }
+</style>

@@ -188,6 +188,147 @@ function trackPlates(): void {
   }
 }
 
+/**
+ * The full-screen scenes.
+ *
+ * Holding the photographs and covering one with the next is pure CSS
+ * (`position: sticky`, see `ChapterSection.astro` and `ChapterGallery.astro`).
+ * This only adds depth on top, by scrubbing three things:
+ *
+ *   · a chapter's cover settles from a slow zoom while it is held, then drifts
+ *     up and darkens as the text rises over it; its title lifts away;
+ *   · a reel photograph sinks and dims while the next one covers it, and
+ *     arrives already opening from a slight zoom;
+ *   · the full-bleed band does the same.
+ *
+ * Nothing is hidden by CSS: each tween starts from the resting state's
+ * neighbour and ends at rest, so with no script the screens are complete.
+ */
+function trackCinema(): void {
+  const media = gsap.matchMedia();
+
+  media.add('(min-width: 1px)', () => {
+    // -- Chapter covers -----------------------------------------------------
+    for (const scene of gsap.utils.toArray<HTMLElement>('.scene--cover')) {
+      const cover = scene.querySelector<HTMLElement>('[data-cover]');
+      const photo = scene.querySelector<HTMLElement>('[data-cover-media]');
+      const title = scene.querySelector<HTMLElement>('[data-cover-title]');
+      const veil = scene.querySelector<HTMLElement>('[data-cover-veil]');
+      const hold = scene.querySelector<HTMLElement>('[data-cover-hold]');
+      const content = scene.querySelector<HTMLElement>('[data-content]');
+      if (!cover || !photo || !hold || !content) continue;
+
+      // Arrives from below and is held: the photograph settles from a zoom.
+      gsap.fromTo(
+        photo,
+        { scale: 1.3 },
+        {
+          scale: 1.02,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: scene,
+            start: 'top bottom',
+            end: () => `top+=${hold.offsetHeight} top`,
+            scrub: 0.5,
+            invalidateOnRefresh: true,
+          },
+        },
+      );
+
+      // The text rises over it: the photograph goes under, dark and slightly up.
+      const cover2 = gsap.timeline({
+        defaults: { ease: 'none' },
+        scrollTrigger: {
+          trigger: content,
+          start: 'top bottom',
+          end: 'top top',
+          scrub: 0.5,
+          invalidateOnRefresh: true,
+        },
+      });
+      cover2.to(photo, { yPercent: -7 }, 0);
+      if (veil) cover2.to(veil, { opacity: 0.7 }, 0);
+      if (title) cover2.to(title, { yPercent: -14, opacity: 0.1 }, 0);
+    }
+
+    // -- Photograph reels -----------------------------------------------------
+    for (const reel of gsap.utils.toArray<HTMLElement>('[data-reel]')) {
+      const panels = gsap.utils.toArray<HTMLElement>('[data-reel-panel]', reel);
+
+      panels.forEach((panel, index) => {
+        const img = panel.querySelector<HTMLElement>('[data-fb]');
+        if (!img) return;
+
+        // Arriving: opens from a window and a zoom as it covers the previous.
+        gsap.fromTo(
+          panel,
+          { clipPath: 'inset(14% 6% 0% 6%)' },
+          {
+            clipPath: 'inset(0% 0% 0% 0%)',
+            ease: 'none',
+            scrollTrigger: {
+              trigger: panel,
+              start: 'top bottom',
+              end: 'top top',
+              scrub: 0.4,
+              invalidateOnRefresh: true,
+            },
+          },
+        );
+        gsap.fromTo(
+          img,
+          { scale: 1.22 },
+          {
+            scale: 1.04,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: panel,
+              start: 'top bottom',
+              end: 'top top',
+              scrub: 0.4,
+              invalidateOnRefresh: true,
+            },
+          },
+        );
+
+        // Being covered by the next one: sinks and dims.
+        const next = panels[index + 1];
+        if (next) {
+          gsap.to(img, {
+            scale: 0.94,
+            filter: 'brightness(0.45)',
+            ease: 'none',
+            immediateRender: false,
+            scrollTrigger: {
+              trigger: next,
+              start: 'top bottom',
+              end: 'top top',
+              scrub: 0.4,
+              invalidateOnRefresh: true,
+            },
+          });
+        }
+      });
+    }
+
+    // -- The full-bleed band --------------------------------------------------
+    for (const band of gsap.utils.toArray<HTMLElement>('[data-band]')) {
+      const img = band.querySelector<HTMLElement>('[data-band-img]');
+      if (!img) continue;
+      gsap.fromTo(
+        img,
+        { scale: 1.25, yPercent: -5 },
+        {
+          scale: 1.04,
+          yPercent: 5,
+          ease: 'none',
+          scrollTrigger: { trigger: band, start: 'top bottom', end: 'bottom top', scrub: 0.5 },
+        },
+      );
+    }
+  });
+}
+
 /** Headers and blocks rise in once, together, a beat apart. */
 function revealGroups(): void {
   for (const group of gsap.utils.toArray<HTMLElement>(GROUP_SELECTOR)) {
@@ -497,6 +638,7 @@ export function initMotion(): void {
     trackBeats();
     trackPlates();
     revealGroups();
+    trackCinema();
     driftHero();
     drawTimelines();
     trackProgress();

@@ -1,74 +1,109 @@
 ---
 import type { ChapterGallery } from '../content/types';
-import PhotoFigure from './PhotoFigure.astro';
+import { getPhoto } from '../content/photos';
+import FullBleedImage from './FullBleedImage.astro';
+import PhotoCreditLine from './PhotoCreditLine.astro';
 
 /**
- * A chapter's photographic documentation.
+ * A chapter's photographic documentation, as a stack of full-screen panels.
  *
- * Images keep their natural aspect ratio: nothing is cropped, so the caption
- * and the alternative text always describe exactly what is on screen. Only the
- * first `feature` image is given a srcset; the grid gets one optimised file per
- * photograph, which keeps the page light.
+ * Every photograph holds the whole screen. The panels are `position: sticky`
+ * siblings, so each one stays put while the next scrolls up over it like a
+ * curtain: the transition is the scroll itself, with no script needed to hold
+ * it. `motion.ts` only adds depth on top (the covered photo sinks and dims, the
+ * arriving one opens from a window); with motion off the panels are a plain
+ * run of full-screen photographs.
+ *
+ * Caption and attribution stay inside the `<figcaption>`, as the licences
+ * require. Each panel is a real `<figure>` with the honest alt text.
  */
 interface Props {
   gallery: ChapterGallery;
 }
 
 const { gallery } = Astro.props;
-
-const gridSizes = '(min-width: 78rem) 21rem, (min-width: 48rem) 40vw, 88vw';
-const featureSizes = '(min-width: 62rem) 52rem, 92vw';
+const panels = gallery.images.map((image) => ({ image, photo: getPhoto(image.photo) }));
+const total = panels.length;
 ---
 
-<section
-  class="gallery"
-  aria-label={gallery.label ?? 'Fotografías del capítulo'}
-  data-reveal
->
-  {gallery.label ? <p class="gallery__label u-label">{gallery.label}</p> : null}
-
-  <div class="gallery__grid">
-    {
-      gallery.images.map((image) => (
-        <PhotoFigure
-          image={image}
-          sizes={image.layout === 'feature' ? featureSizes : gridSizes}
-          widths={image.layout === 'feature' ? [600, 1000, 1400] : undefined}
-        />
-      ))
-    }
-  </div>
+<section class="reel" aria-label={gallery.label ?? 'Fotografías del capítulo'} data-reel>
+  {
+    panels.map(({ image, photo }, index) => (
+      <figure class="reel__panel" data-reel-panel>
+        <FullBleedImage src={photo.src} alt={image.alt} />
+        <div class="u-scrim u-scrim--deep" aria-hidden="true" />
+        <figcaption class="reel__caption">
+          {gallery.label ? (
+            <span class="reel__count">
+              {gallery.label} · {String(index + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
+            </span>
+          ) : null}
+          <span class="reel__text">{image.caption}</span>
+          <PhotoCreditLine credit={photo.credit} />
+        </figcaption>
+      </figure>
+    ))
+  }
 </section>
 
 <style>
-  .gallery {
-    margin-top: var(--cu-space-xl);
+  .reel {
+    position: relative;
+    z-index: 1;
+    background-color: var(--cu-monte-950);
   }
 
-  .gallery__label {
-    margin-bottom: var(--cu-space-md);
+  .reel__panel {
+    position: sticky;
+    top: 0;
+    margin: 0;
+    height: 100svh;
+    overflow: hidden;
+    background-color: var(--cu-monte-900);
   }
 
-  .gallery__grid {
+  /* The arriving panel casts a soft edge on the one it covers. */
+  .reel__panel + .reel__panel {
+    box-shadow: 0 -2.5rem 4rem -1rem rgba(6, 13, 8, 0.55);
+  }
+
+  .reel__caption {
+    position: absolute;
+    inset: auto 0 0 0;
+    z-index: 3;
     display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    align-items: start;
-    gap: var(--cu-space-lg) var(--cu-space-md);
+    gap: var(--cu-space-3xs);
+    padding: var(--cu-space-md) var(--cu-gutter) 4.75rem;
+    color: var(--cu-hueso);
   }
 
-  .gallery__grid :global(.photo--feature) {
-    grid-column: 1 / -1;
+  .reel__count {
+    font-size: var(--cu-step--2);
+    letter-spacing: 0.04em;
+    color: var(--cu-accent-soft);
   }
 
-  @media (min-width: 48rem) {
-    .gallery__grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
+  .reel__text {
+    max-width: 42rem;
+    font-family: var(--cu-font-display);
+    font-size: var(--cu-step-1);
+    font-weight: 350;
+    line-height: 1.35;
+    text-wrap: pretty;
+    color: var(--cu-hueso);
   }
 
-  @media (min-width: 78rem) {
-    .gallery__grid {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+  .reel__caption :global(.credit),
+  .reel__caption :global(.credit__author),
+  .reel__caption :global(.credit__license),
+  .reel__caption :global(.credit__link) {
+    color: var(--cu-bruma-200);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reel__panel {
+      position: relative;
+      box-shadow: none;
     }
   }
 </style>
